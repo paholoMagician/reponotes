@@ -1,0 +1,80 @@
+<div class="spinner-overlay" *ngIf="_show_spinner">
+    <div class="spinner-container">
+        <span class="loader"></span>
+    </div>
+</div>
+
+<div class="backdroop">
+<div class="login" >
+
+    <div>
+        <!-- LOGOTIPO -->
+    </div>
+    <div>
+        <!-- <div class="d-flex w-100 justify-content-end">
+            <span class="fs-5">
+                Registrate fácilemente.
+            </span>
+        </div> -->
+        <form [formGroup]="registerForm" class="mb-2" (ngSubmit)="onSubmit()">
+            <div class="mb-3" *ngIf="showSignIn" >
+                <label for="nombre" class="form-label text-secondary d-flex align-items-center">
+                    <mat-icon>person</mat-icon>Como te llamamos:
+                </label>
+                <input class="form-control form-control-sm"
+                       nombre="nombre"
+                       type="text"
+                       #nombre
+                       id="nombre">
+            </div>
+            <div class="mb-3" >
+                <label for="nombre" class="form-label text-secondary d-flex align-items-center">
+                    <mat-icon>mail</mat-icon>Email:
+                </label>
+                <input class="form-control form-control-sm"
+                       nombre="email"
+                       #email
+                       type="email"
+                       id="email">
+            </div>
+            <div class="mb-3" >
+                <label for="contrasenia" class="form-label text-secondary d-flex align-items-center">
+                    <mat-icon>lock</mat-icon>Contraseña:
+                </label>
+                <div class="d-flex">
+                    <input class="form-control form-control-sm" 
+                           nombre="contrasenia"
+                           #contrasenia
+                           type="password"
+                           id="contrasenia">
+                           &nbsp;
+                           <button type="button" class="btn d-flex align-items-center justify-content-center btn-outline-light p-0" (click)="togglePasswordVisibility()">
+                            <mat-icon style="font-size: 10pt;">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                           </button>
+                    </div>
+                </div>
+                <button class="btn btn-outline-warning btn-sm w-100" type="submit" >
+                    {{ text_action_button }}
+                </button>
+        </form>
+
+
+    </div>
+    <div class="text-light d-flex flex-column">
+        <span class="mb-2 d-flex justify-content-between align-items-center"> 
+            <small> Si ya tienes cuenta </small>
+            <button class="btn btn-sm btn-outline-info" (click)="ingresarLog('log')" >
+                Ingresa aquí
+            </button>
+        </span>
+        <span class="d-flex justify-content-between align-items-center">  
+            <small>Si no tienes cuenta </small>  
+            <button class="btn btn-sm btn-outline-info" (click)="ingresarLog('sign')" >
+                Registrate aquí
+            </button>
+        </span>
+    </div>
+</div>
+
+</div>
+
