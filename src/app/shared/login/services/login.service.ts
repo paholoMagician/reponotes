@@ -6,14 +6,14 @@ import { Injectable } from '@angular/core';
 })
 export class LoginService {
 
-  constructor( private http: HttpClient, ) { }
+  constructor(private http: HttpClient,) { }
 
-  registroUsuario( model:any ) {
-    return this.http.post( 'https://rpsoftdev.store:444/api/login/guardarUsuario', model );
+  registroUsuario(model: any) {
+    return this.http.post('https://rpsoftdev.store:444/api/login/guardarUsuario', model);
   }
 
-  login( model:any ) {
-    return this.http.post( 'https://rpsoftdev.store:444/api/login/guardarUsuario', model );
+  login(model: any) {
+    return this.http.post('https://rpsoftdev.store:444/api/login/loginUser', model);
   }
 
 }
