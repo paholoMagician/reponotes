@@ -54,13 +54,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { provideHttpClient, withFetch } from "@angular/common/http";
 import { CommonModule } from "@angular/common";
+import { InputPromptComponent } from "../input-prompt/input-prompt.component";
 
 
 @NgModule ({
     declarations: [
       LoginComponent,
       DashboardComponent,
-      NavsideComponent
+      NavsideComponent,
+      InputPromptComponent
     ], imports: [
       DragDropModule,
       // #angularMaterial

@@ -7,11 +7,12 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { componentModule } from './components/module-compnent/component.module';
 import { CommonModule } from '@angular/common';
-
+import { DashComponent } from './components/dashboard/dash/dash.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    DashComponent
   ],
   imports: [
     componentModule,

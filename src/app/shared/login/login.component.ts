@@ -23,6 +23,7 @@ const Toast = Swal.mixin({
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
+  actionForm: string = 'sign';
   _show_spinner: boolean = false;
   show_log: boolean = true;
   showPassword: boolean = false;
@@ -33,10 +34,12 @@ export class LoginComponent implements OnInit {
     password: new FormControl(''),
   })
 
+  title_head: string = 'Registro';
+  pass_type: string = 'password';
   constructor(private router: Router, private logUser: LoginService) { }
 
   ngOnInit(): void {
-    // this.validate();    
+    this.logUser.validacion();
   }
 
   // validate() {
@@ -44,14 +47,13 @@ export class LoginComponent implements OnInit {
   //   if( x != null || x != undefined || x != '' ) {
   //     this.show_log = true;
   //     this.router.navigate(['/home']);
-  //   }
-  //   else {
+  //   } else {
   //     this.show_log = false;
   //     this.router.navigate(['/login']);
   //   }
   // }
 
-  actionForm: string = 'sign';
+
   validateActionForm(action: string) {
     this.actionForm = action;
   }
@@ -60,10 +62,9 @@ export class LoginComponent implements OnInit {
   showLogin: boolean = false;
   onSubmit() {
 
-
     switch (this.actionForm) {
       case 'sign':
-        // this.signIn();
+        this.signIn();
         break
       case 'log':
         this.logIn();
@@ -74,8 +75,8 @@ export class LoginComponent implements OnInit {
 
   ingresarLog(type: any) {
     this.actionForm = type;
-    if (this.actionForm == 'sign') { this.showSignIn = true; this.text_action_button = 'Registrarse'; }
-    else { this.showSignIn = false; this.text_action_button = 'Ingresar'; }
+    if (this.actionForm == 'sign') { this.showSignIn = true; this.text_action_button = 'Registrarse'; this.title_head = 'Registro'; }
+    else { this.showSignIn = false; this.text_action_button = 'Ingresar'; this.title_head = 'Ingreso a la app'; }
     return this.actionForm;
   }
 
@@ -205,9 +206,10 @@ export class LoginComponent implements OnInit {
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
-    const passwordInput = document.getElementById('contrasenia') as HTMLInputElement;
-    if (passwordInput) {
-      passwordInput.type = this.showPassword ? 'text' : 'password';
+    if ( this.showPassword ) {
+      this.pass_type = 'text';
+    } else {
+      this.pass_type = 'password';
     }
   }
 

@@ -1,0 +1,14 @@
+
+<div class="prompt-area rounded-3 p-2 w-100 ">
+    
+    <form [formGroup]="promptForm"
+          class=" w-100 d-flex align-items-center"
+          (ngSubmit)="onSubmit()">
+          <input type="text"
+                 class="form-control form-control-sm w-100"
+                 formControlName="prompt"
+                 #prompt
+                 id="prompt">
+    </form>
+
+</div>

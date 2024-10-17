@@ -11,11 +11,12 @@
             <!-- LOGOTIPO -->
         </div>
         <div>
-            <!-- <div class="d-flex w-100 justify-content-end">
-            <span class="fs-5">
-                Registrate fácilemente.
-            </span>
-        </div> -->
+            <div class="d-flex w-100 justify-content-end">
+                <span class="fs-5 text-light">
+                    {{ title_head }}
+                </span>
+            </div>
+            <hr style="border: groove 1px whitesmoke;">
             <form [formGroup]="registerForm" class="mb-2" (ngSubmit)="onSubmit()">
                 <div class="mb-3" *ngIf="showSignIn">
                     <label for="nombre" class="form-label text-secondary d-flex align-items-center">
@@ -37,13 +38,12 @@
                     </label>
                     <div class="d-flex">
                         <input class="form-control form-control-sm" formControlName="password" nombre="password"
-                            #password type="password" id="password">
+                            #password [type]="pass_type" id="password">
                         &nbsp;
                         <button type="button"
                             class="btn d-flex align-items-center justify-content-center btn-outline-light p-0"
                             (click)="togglePasswordVisibility()">
-                            <mat-icon style="font-size: 10pt;">{{ showPassword ? 'visibility_off' : 'visibility'
-                                }}</mat-icon>
+                            <mat-icon style="font-size: 10pt;">{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                         </button>
                     </div>
                 </div>
