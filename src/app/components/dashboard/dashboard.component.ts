@@ -9,6 +9,8 @@ import { LoginService } from '../../shared/login/services/login.service';
 })
 export class DashboardComponent implements OnInit {
 
+  showFolders: boolean = true;
+  showNotes:   boolean = true;
   copy_codec: string = '';
   constructor(private router: Router, private log: LoginService) { }
 
@@ -18,16 +20,37 @@ export class DashboardComponent implements OnInit {
 
   folderList: any = null;
   obtenerFoldersList(event: any) {
-    this.folderList = event;
+    if( event ) this.folderList = event, this.showFolders = true, this.showNotes = false;
+    console.table(this.folderList);
+  }
+
+  notesListInFolder: any = null;
+  obtenerNotesList( event: any ) {
+    if( event ) this.notesListInFolder = event, this.showFolders = false, this.showNotes = true;
+    console.table(this.notesListInFolder);
   }
 
   copyToClipboard(codec: string) {
-    navigator.clipboard.writeText(codec).then(() => {
+    if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(codec).then(() => {
+        this.copy_codec = codec;
+        // alert('Código copiado al portapapeles: ' + codec);
+      }).catch(err => {
+        console.error('Error al copiar el código:', err);
+      });
+    } else {
+      console.warn('La API de portapapeles no está disponible en este navegador.');
       this.copy_codec = codec;
-    }).catch(err => {
-      console.error('Error al copiar el código:', err);
-    });
+      // Método alternativo de copia (menos confiable)
+      this.fallbackCopyTextToClipboard(codec);
+    }
   }
+  
+  // Método alternativo en caso de que la API de portapapeles no esté disponible
+  fallbackCopyTextToClipboard(text: string) {
+    const textArea = document.createElement('textarea');
+    textArea.value
+  }  
 
 
 
