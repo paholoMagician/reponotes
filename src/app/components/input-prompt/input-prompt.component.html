@@ -1,14 +1,9 @@
-
 <div class="prompt-area rounded-3 p-2 w-100 ">
-    
-    <form [formGroup]="promptForm"
-          class=" w-100 d-flex align-items-center"
-          (ngSubmit)="onSubmit()">
-          <input type="text"
-                 class="form-control form-control-sm w-100"
-                 formControlName="prompt"
-                 #prompt
-                 id="prompt">
+    <form [formGroup]="promptForm" class=" w-100 d-flex align-items-center" (ngSubmit)="onSubmit()">
+        <input type="text" class="form-control form-control-sm w-100" formControlName="prompt" #prompt id="prompt">
     </form>
-
+</div>
+<div class="msj-prompt p-2 rounded-3 mt-1" [style]="'border: groove 2px ' + colorprompt + ';' ">
+    <small class="animate__animated animate__bounce" *ngIf="_show_msjprompt" [style]="'color: ' + colorprompt + ';'"> {{
+        msjprompt }} </small>
 </div>
