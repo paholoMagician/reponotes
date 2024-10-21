@@ -4,8 +4,10 @@
 
 <div class="container-fluid p-2">
     <div class="d-flex">
-        <div class="dashboard w-100">
-
+        <div class="navside w-25">
+            <app-navside [dataShowPrompt]="promptData" class="w-100"></app-navside>
+        </div>
+        <div class="dashboard w-75">
             <div class="m-1 p-2" *ngIf="_show_help">
                 <div class="title_head text-light d-flex flex-column fs-6">
                     <span> REPONOTES > Ayuda inicial </span>
@@ -87,7 +89,6 @@
                     </ol>
                 </span>
             </div>
-
             <div *ngIf=" showFolders">
                 <div *ngFor="let folders of folderList" class="m-1 text-light w-100 rounded-3 box-folders">
                     <div class="d-flex justify-content-between align-items-center">
@@ -137,8 +138,10 @@
         </div>
     </div>
     <div class="prompt-call" *ngIf="showPromptCall">
-        <app-input-prompt (listasFolderEmit)="obtenerFoldersList($event)" (notesInFolderEmit)="obtenerNotesList($event)"
-            (helpListEmit)="gettoggleHelp($event)">
+        <app-input-prompt (listasFolderEmit)="obtenerFoldersList($event)"
+                          (notesInFolderEmit)="obtenerNotesList($event)"
+                          (helpListEmit)="gettoggleHelp($event)"
+                          (promptEmit)="obtenerPrompt($event)" >
         </app-input-prompt>
     </div>
 </div>

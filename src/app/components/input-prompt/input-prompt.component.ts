@@ -13,6 +13,7 @@ export class InputPromptComponent implements OnInit {
 
   _show_spinner: boolean = false;
 
+  @Output() promptEmit: EventEmitter<any> = new EventEmitter<any>();
   @Output() listasFolderEmit: EventEmitter<any> = new EventEmitter<any>();
   @Output() notesInFolderEmit: EventEmitter<any> = new EventEmitter<any>();
   @Output() helpListEmit: EventEmitter<any> = new EventEmitter<any>();
@@ -78,6 +79,7 @@ export class InputPromptComponent implements OnInit {
   executeCommand() {
     let xcommand: any = this.promptForm.controls['prompt'].value.trim();
     // console.warn(xcommand)
+    this.promptEmit.emit(xcommand);
     if (xcommand.startsWith(this.listCommand.command)) {
       this.createFolder(xcommand);
       this.helpListEmit.emit(false);
@@ -111,6 +113,7 @@ export class InputPromptComponent implements OnInit {
             this.displayMessage('No se encontró la nota con el código proporcionado.', 'orangered');
           }
         }
+
       }
       this.helpListEmit.emit(false);
     }
@@ -152,6 +155,7 @@ export class InputPromptComponent implements OnInit {
     } else {
       this.handleUnknownCommand();
     }
+
   }
 
   deleteNote(xcommand: string) {

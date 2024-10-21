@@ -74,6 +74,12 @@ export class DashboardComponent implements OnInit {
     this._show_help = event;
   }
 
+  promptData: any = '<RPN command history>';
+  obtenerPrompt(event:any) {
+    this.promptData = event;
+    console.warn( 'dashbaord: ' + this.promptData)
+  }
+
   notesListInFolder: any = null;
   obtenerNotesList(event: any) {
     if (event) this.notesListInFolder = event, this.showFolders = false, this.showNotes = true;

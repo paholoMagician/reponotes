@@ -1,1 +1,6 @@
-<p>navside works!</p>
+<div class="w-100" style="height: 95vh; overflow-y:auto ;" >
+    <div class="list-histry-prompts" style="color: yellowgreen !important; " *ngFor="let prompts of listHistoryPrompts">
+        <div> {{ prompts }} </div>
+        <div> <mat-icon>copy</mat-icon> </div>
+    </div>
+</div>

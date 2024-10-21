@@ -1,0 +1,6 @@
+textarea {
+    flex: 1;
+    resize: none; /* Opcional: para deshabilitar el redimensionado */
+    height: 100%; /* Asegurarse de que ocupe el 100% del ancho */
+    box-sizing: border-box; /* Para incluir el padding y border en la altura total */
+}
