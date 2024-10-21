@@ -4,17 +4,23 @@
     </div>
 </div>
 
+
+
 <div class="backdroop">
     <div class="login">
-
         <div>
             <!-- LOGOTIPO -->
         </div>
         <div>
             <div class="d-flex w-100 justify-content-end">
-                <span class="fs-5 text-light">
-                    {{ title_head }}
+                <span class="fs-5" style="color: yellowgreen;">
+                    {{ title_head }} / <small> V.1.0.1 </small>
                 </span>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-outline-danger btn-sm w-100" (click)="signInWithGoogle()">
+                    <mat-icon>google</mat-icon> Iniciar sesión con Google
+                </button>
             </div>
             <hr style="border: groove 1px whitesmoke;">
             <form [formGroup]="registerForm" class="mb-2" (ngSubmit)="onSubmit()">
@@ -52,22 +58,20 @@
                     {{ text_action_button }}
                 </button>
             </form>
-
-
         </div>
         <div class="text-light d-flex flex-column">
-            <span class="mb-2 d-flex justify-content-between align-items-center">
+            <div class="mb-2 d-flex justify-content-between align-items-center boxop">
                 <small> Si ya tienes cuenta </small>
                 <button class="btn btn-sm btn-outline-info" (click)="ingresarLog('log')">
                     Ingresa aquí
                 </button>
-            </span>
-            <span class="d-flex justify-content-between align-items-center">
+            </div>
+            <div class="d-flex justify-content-between align-items-center boxop">
                 <small>Si no tienes cuenta </small>
                 <button class="btn btn-sm btn-outline-info" (click)="ingresarLog('sign')">
                     Registrate aquí
                 </button>
-            </span>
+            </div>
         </div>
     </div>
 

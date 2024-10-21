@@ -85,9 +85,42 @@ body {
   }
 }
 
+/* Animación para mostrar el div (de opacidad 0 a 1) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Animación para ocultar el div (de opacidad 1 a 0) */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+/* Clase que aplica la animación de entrada */
+.fade-in {
+  animation: fadeIn 0.5s forwards;
+}
+
+/* Clase que aplica la animación de salida */
+.fade-out {
+  animation: fadeOut 0.5s forwards;
+}
+
 
 /* Cambiar el fondo y el borde del input */
-input {
+input,
+textarea {
   background-color: #101820b7 !important;
   border: 1px solid #333;
   /* Cambia el color del borde como prefieras */

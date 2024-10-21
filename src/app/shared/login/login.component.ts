@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { SocialAuthService, GoogleLoginProvider } from '@abacritt/angularx-social-login';
+
+
 import Swal from 'sweetalert2'
 import { LoginService } from './services/login.service';
 const Toast = Swal.mixin({
@@ -22,7 +25,9 @@ const Toast = Swal.mixin({
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
+
 export class LoginComponent implements OnInit {
+
   actionForm: string = 'sign';
   _show_spinner: boolean = false;
   show_log: boolean = true;
@@ -36,23 +41,17 @@ export class LoginComponent implements OnInit {
 
   title_head: string = 'Registro';
   pass_type: string = 'password';
-  constructor(private router: Router, private logUser: LoginService) { }
+  constructor(private router: Router, private logUser: LoginService, private authService: SocialAuthService) { }
 
   ngOnInit(): void {
     this.logUser.validacion();
+    this.authService.authState.subscribe((user) => {
+      if (user) {
+        console.log('Usuario ha iniciado sesión:', user);
+        // Maneja el éxito del inicio de sesión, quizás redirigir a otra página
+      }
+    });
   }
-
-  // validate() {
-  //   let x: any = sessionStorage.getItem('usuario')
-  //   if( x != null || x != undefined || x != '' ) {
-  //     this.show_log = true;
-  //     this.router.navigate(['/home']);
-  //   } else {
-  //     this.show_log = false;
-  //     this.router.navigate(['/login']);
-  //   }
-  // }
-
 
   validateActionForm(action: string) {
     this.actionForm = action;
@@ -73,9 +72,14 @@ export class LoginComponent implements OnInit {
 
   }
 
+  signInWithGoogle(): void {
+    this.authService.signIn(GoogleLoginProvider.PROVIDER_ID);
+  }
+
   ingresarLog(type: any) {
     this.actionForm = type;
     if (this.actionForm == 'sign') { this.showSignIn = true; this.text_action_button = 'Registrarse'; this.title_head = 'Registro'; }
+    else if (this.actionForm == 'offline') { this.showSignIn = true; this.text_action_button = 'Registrarse offline'; this.title_head = 'Registro OffLine'; }
     else { this.showSignIn = false; this.text_action_button = 'Ingresar'; this.title_head = 'Ingreso a la app'; }
     return this.actionForm;
   }
@@ -105,6 +109,8 @@ export class LoginComponent implements OnInit {
 
     } else {
 
+      this._show_spinner = true;
+
       this.modelUserGuardar = {
         email: this.registerForm.controls['email'].value,
         password: this.registerForm.controls['password'].value
@@ -127,7 +133,9 @@ export class LoginComponent implements OnInit {
             icon: "error",
             title: "Algo ha pasado en el servidor"
           });
+          this._show_spinner = false;
         }, complete: () => {
+          this._show_spinner = true;
           this.router.navigate(['home']);
           this.limpiar();
         }
@@ -137,7 +145,7 @@ export class LoginComponent implements OnInit {
 
   modelUserGuardar: any = [];
   signIn() {
-    alert('Guardando')
+    // alert('Guardando')
     if (this.registerForm.controls['nombre'].value == null ||
       this.registerForm.controls['nombre'].value == undefined ||
       this.registerForm.controls['nombre'].value == '') {
@@ -171,10 +179,13 @@ export class LoginComponent implements OnInit {
       sessionStorage.setItem('email', xemail);
       let xpass: any = this.registerForm.controls['password'].value;
 
+      this._show_spinner = true;
+
+
       this.modelUserGuardar = {
         nombre: xuser,
         email: xemail,
-        xpass: xpass
+        password: xpass
       }
 
       this.logUser.registroUsuario(this.modelUserGuardar).subscribe({
@@ -184,12 +195,14 @@ export class LoginComponent implements OnInit {
             title: "Registrado con éxito"
           });
         }, error: (e) => {
+          this._show_spinner = false;
           Toast.fire({
             icon: "error",
             title: "Algo ha pasado con el servidor!"
           });
           console.error(e);
         }, complete: () => {
+          this._show_spinner = false;
           this.limpiar();
         }
       })
@@ -206,7 +219,7 @@ export class LoginComponent implements OnInit {
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
-    if ( this.showPassword ) {
+    if (this.showPassword) {
       this.pass_type = 'text';
     } else {
       this.pass_type = 'password';

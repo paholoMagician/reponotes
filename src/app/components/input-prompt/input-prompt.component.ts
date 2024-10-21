@@ -2,6 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FolderLists } from '../dashboard/sources/tipolistas';
 import { Lista } from '../dashboard/sources/listas';
+import { LoginService } from '../../shared/login/services/login.service';
 
 @Component({
   selector: 'app-input-prompt',
@@ -9,17 +10,23 @@ import { Lista } from '../dashboard/sources/listas';
   styleUrls: ['./input-prompt.component.scss']
 })
 export class InputPromptComponent implements OnInit {
+
+  _show_spinner: boolean = false;
+
   @Output() listasFolderEmit: EventEmitter<any> = new EventEmitter<any>();
   @Output() notesInFolderEmit: EventEmitter<any> = new EventEmitter<any>();
+  @Output() helpListEmit: EventEmitter<any> = new EventEmitter<any>();
   _show_msjprompt: boolean = false;
+
 
   listCommand: any = {
     command: 'rpn c f n=',
     description: 'Crea una nueva carpeta en el almacenamiento local'
   };
 
+
   noteCommand: any = {
-    command: 'rpn c l f=',
+    command: 'rpn c nt f=',
     description: 'Crea una nueva nota en la carpeta especificada'
   };
 
@@ -47,7 +54,7 @@ export class InputPromptComponent implements OnInit {
   msjprompt: string = '>';
   colorprompt: string = '#1f2534dc';
 
-  constructor() {
+  constructor(private log: LoginService) {
     this.folderService = new FolderLists();
     this.noteService = new Lista();
   }
@@ -58,14 +65,22 @@ export class InputPromptComponent implements OnInit {
     }
   }
 
+  updateNoteCommand: any = {
+    command: 'rpn update nt= n=',
+    description: 'Actualizar el nombre de una nota especificada'
+  };
+
   onSubmit() {
     this.executeCommand();
   }
 
+  toggleHelpShow: boolean = true;
   executeCommand() {
     let xcommand: any = this.promptForm.controls['prompt'].value.trim();
+    // console.warn(xcommand)
     if (xcommand.startsWith(this.listCommand.command)) {
       this.createFolder(xcommand);
+      this.helpListEmit.emit(false);
     } else if (xcommand.startsWith('rpn update f=')) {
       const match = /rpn update f=([^ ]+) n=([^']+)/.exec(xcommand);
       if (match) {
@@ -78,16 +93,80 @@ export class InputPromptComponent implements OnInit {
       } else {
         this.displayMessage('Comando inválido. Use: rpn update f=<codigo> n=<nuevo nombre>', 'orangered');
       }
-    } else if (xcommand.startsWith('rpn read f -g')) {
+      this.helpListEmit.emit(false);
+    }
+    else if (xcommand.startsWith('rpn update nt=')) {
+      // // console.warn('reconocio')
+      let notePart = xcommand.match(/nt=([^ ]+)/);
+      // // console.warn(notePart)
+      let newNamePart = xcommand.match(/n=(.+)/); // Cambiado (.*) a (.+) para que coincida con el resto del comando
+      if (notePart && newNamePart) {
+        let noteCode = notePart[1].trim();
+        let newName = newNamePart[1].trim().replace(/\s+/g, '_');
+        if (noteCode && newName) {
+          let updated = this.noteService.updateNoteName(noteCode, newName);
+          if (updated) {
+            this.displayMessage('Nota actualizada correctamente.', 'yellowgreen');
+          } else {
+            this.displayMessage('No se encontró la nota con el código proporcionado.', 'orangered');
+          }
+        }
+      }
+      this.helpListEmit.emit(false);
+    }
+    else if (xcommand.startsWith('rpn del nt=')) {
+      this.deleteNote(xcommand);
+      this.helpListEmit.emit(false);
+    }
+    else if (xcommand.startsWith('rpn help')) {
+      if (this.toggleHelpShow) {
+        this.toggleHelpShow = false;
+        this.helpListEmit.emit(this.toggleHelpShow);
+      } else {
+        this.toggleHelpShow = true;
+        this.helpListEmit.emit(this.toggleHelpShow);
+      }
+      this.limpiarPrompt();
+    }
+    else if (xcommand.startsWith('rpn read f -g')) {
       this.listFolders();
+      this.helpListEmit.emit(false);
+    }
+    else if (xcommand.startsWith('rpn close session')) {
+      this._show_spinner = true;
+      setTimeout(() => {
+        this.log.closeSession();
+        this._show_spinner = false;
+      }, 1000);
+      this.helpListEmit.emit(false);
     } else if (xcommand.startsWith(this.readNotesCommand.command)) {
       this.readNotesFromFolder(xcommand);
-    } else if (xcommand.startsWith(this.noteCommand.command)) {
+      this.helpListEmit.emit(false);
+    }
+    else if (xcommand.startsWith(this.noteCommand.command)) {
       this.createNoteInFolder(xcommand);
+      this.helpListEmit.emit(false);
     } else if (xcommand.startsWith(this.deleteFolderCommand.command)) {
-      this.deleteFolder(xcommand);  // Llamamos al método para eliminar un folder
+      this.deleteFolder(xcommand);
+      this.helpListEmit.emit(false);
     } else {
       this.handleUnknownCommand();
+    }
+  }
+
+  deleteNote(xcommand: string) {
+    let notePart = xcommand.match(/nt=([^ ]+)/);
+    if (notePart) {
+      let noteCode = notePart[1].trim();
+      if (noteCode) {
+        let deleted = this.noteService.deleteNoteByCode(noteCode);
+        if (deleted) {
+          this.limpiarPrompt();
+          this.displayMessage('Nota eliminada correctamente.', 'yellowgreen');
+        } else {
+          this.displayMessage('No se encontró la nota con el código proporcionado.', 'orangered');
+        }
+      }
     }
   }
 
@@ -95,7 +174,7 @@ export class InputPromptComponent implements OnInit {
     const folderPart = xcommand.match(/f=([^ ]+)/);
     if (folderPart) {
       const folderCode = folderPart[1].trim();
-      const deleted = this.folderService.deleteFolderByCodec(folderCode); // Llamamos al método deleteFolderByCodec
+      const deleted = this.folderService.deleteFolderByCodec(folderCode);
       if (deleted) {
         this.displayMessage('Carpeta eliminada correctamente.', 'yellowgreen');
       } else {
@@ -109,34 +188,38 @@ export class InputPromptComponent implements OnInit {
 
 
   createFolder(xcommand: string) {
-    
+
     let folderName = xcommand.slice(this.listCommand.command.length).trim();
     if (folderName) {
       folderName = folderName.replace(/\s+/g, '_');
       const now = new Date();
-      const codec = `${folderName}_${now.getHours()}${now.getMinutes()}${now.getSeconds()}${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}`;
+      const codec = `${folderName.slice(0, 10)}_${now.getHours()}${now.getMinutes()}${now.getSeconds()}${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}`;
       this.folderService.createFolderTypeNotesStorage(folderName, codec, 1, 1, this.xidUser);
       this.folderService.guardarDataFolderStorage();
       this.displayMessage('Carpeta creada y guardada en el almacenamiento local', 'yellowgreen');
     } else {
       this.displayMessage('No se proporcionó un nombre para la carpeta.', 'orangered');
     }
-    
+
     this.limpiarPrompt();
 
   }
 
   createNoteInFolder(xcommand: string) {
     let folderPart = xcommand.match(/f=([^ ]+)/);
-    let notePart = xcommand.match(/n=(.*)/);
+    let notePart = xcommand.match(/n=(.*)/s); // Añadido "s" para que coincida con todas las líneas
+
     if (folderPart && notePart) {
       let folderCode = folderPart[1].trim();
-      let noteName = notePart[1].trim().replace(/\s+/g, '_');
+      let noteName = notePart[1].trim().replace(/\n/g, '<br>').replace(/\s+/g, '_'); // Reemplazar saltos de línea con <br>
+
       if (noteName && folderCode) {
         const now = new Date();
-        const uniquecode = `${now.getHours()}_${now.getMinutes()}_${now.getSeconds()}_${now.getDate()}_${now.getMonth() + 1}_${now.getFullYear()}`;
-        this.noteService.createNotesStorage(noteName, uniquecode, folderCode, 1, 1, this.xidUser);
+        const uniquecode = `${noteName.slice(0, 10)}_${now.getHours()}${now.getMinutes()}${now.getSeconds()}${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}`;
+
+        this.noteService.createNotesStorage(notePart[1].trim().replace(/\n/g, '<br>'), uniquecode, folderCode, 1, 1, this.xidUser); // Almacenar los <br>
         this.noteService.guardarDataNotesStorage(this.folderService);
+
         this.displayMessage('Nota creada y guardada en la carpeta local', 'yellowgreen');
       } else {
         this.displayMessage('No se proporcionó un nombre para la nota o el código de la carpeta.', 'orangered');
@@ -144,14 +227,17 @@ export class InputPromptComponent implements OnInit {
     } else {
       this.displayMessage('Formato de comando incorrecto. Debe ser "rpn c l f=codigo_carpeta n=nombre_nota"', 'orangered');
     }
+
     this.limpiarPrompt();
   }
 
+  cantNotesInFolder: number = 0;
   readNotesFromFolder(xcommand: string) {
     let folderPart = xcommand.match(/f=([^ ]+)/);
     if (folderPart) {
       let folderCode = folderPart[1].trim();
       this.notesInFolderList = this.noteService.getNotesFromFolder(folderCode);
+      this.cantNotesInFolder = this.notesInFolderList.length;
       this.notesInFolderEmit.emit(this.notesInFolderList);
       this.displayMessage('Notas cargadas desde la carpeta.', 'yellowgreen');
     } else {
@@ -160,12 +246,16 @@ export class InputPromptComponent implements OnInit {
     this.limpiarPrompt();
   }
 
+  cantidadCarpetas: number = 0;
   listFolders() {
-    let x: any = localStorage.getItem('data_tipo_lista');
-    this.listaLocalFolders = x ? JSON.parse(x) : [];
-    this.displayMessage('Lista de carpetas cargada.', 'yellowgreen');
-    this.listasFolderEmit.emit(this.listaLocalFolders);
-    this.limpiarPrompt();
+    if (typeof localStorage !== 'undefined') {
+      let x: any = localStorage.getItem('data_tipo_lista');
+      this.listaLocalFolders = x ? JSON.parse(x) : [];
+      this.displayMessage('Lista de carpetas cargada.', 'yellowgreen');
+      this.cantidadCarpetas = this.listaLocalFolders.length;
+      this.listasFolderEmit.emit(this.listaLocalFolders);
+      this.limpiarPrompt();
+    }
   }
 
   handleUnknownCommand() {

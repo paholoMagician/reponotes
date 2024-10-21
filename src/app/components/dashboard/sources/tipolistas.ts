@@ -1,7 +1,7 @@
 export class FolderLists {
 
   // Esta es la lista principal de carpetas
-  private folders: any[] = [];
+  folders: any[] = [];
 
   constructor() {
     // Cargar carpetas desde localStorage cuando se inicializa la clase
@@ -38,7 +38,7 @@ export class FolderLists {
       return true; // Retorna true si la eliminación fue exitosa
     }
     return false; // Retorna false si no se encontró el folder
-  }  
+  }
 
   // Método para guardar la lista actualizada en el almacenamiento local
   private saveFolders() {
@@ -99,9 +99,9 @@ export class FolderLists {
       // Actualizar el nombre
       folder.nombretipo = newName;
       // Guardar el cambio en localStorage 
-      localStorage.setItem('data_tipo_lista', JSON.stringify(data)); 
+      localStorage.setItem('data_tipo_lista', JSON.stringify(data));
     } else {
-      console.log('Carpeta no encontrada.');
+      // console.log('Carpeta no encontrada.');
     }
   }
 

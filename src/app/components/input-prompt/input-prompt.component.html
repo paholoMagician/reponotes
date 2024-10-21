@@ -1,11 +1,30 @@
+<div class="spinner-overlay" *ngIf="_show_spinner">
+    <div class="spinner-container">
+        <span class="loader"></span>
+    </div>
+</div>
+
 <div class="prompt-area rounded-3 p-2 w-100 ">
     <form [formGroup]="promptForm" class=" w-100 d-flex align-items-center" (ngSubmit)="onSubmit()">
-        <input type="text" class="form-control form-control-sm w-100" formControlName="prompt" #prompt id="prompt">
+        <textarea class="form-control form-control-sm w-100" formControlName="prompt" #prompt id="prompt"> </textarea>
+        <button class="btn btn-outline-warning d-flex align-items-end">
+            <mat-icon>send</mat-icon>
+        </button>
     </form>
 </div>
-<div class="msj-prompt p-2 rounded-3 mt-1" [style]="'border: groove 2px ' + colorprompt + ';' ">
-    <small *ngIf="_show_msjprompt" 
-           [style]="'color: ' + colorprompt + ';'"> 
-           {{ msjprompt }}
+
+<div class="msj-prompt p-2 rounded-3 mt-1 d-flex justify-content-between"
+    [style]="'border: groove 2px ' + colorprompt + '; background-color: rgba(17, 22, 39, 0.815);' ">
+    <small *ngIf="_show_msjprompt" [style]="'color: ' + colorprompt + ';'">
+        {{ msjprompt }}
     </small>
+    <div class="d-flex">
+        <span style="color: yellowgreen;" class="d-flex align-items-center">
+            <mat-icon>folder</mat-icon> &nbsp; <span> {{cantidadCarpetas}} </span>
+        </span>
+        &nbsp;
+        <span style="color: yellowgreen;" class="d-flex align-items-center">
+            <mat-icon>description</mat-icon> &nbsp; <span> {{cantNotesInFolder}} </span>
+        </span>
+    </div>
 </div>

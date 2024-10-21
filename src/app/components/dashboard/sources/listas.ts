@@ -2,6 +2,7 @@ import { FolderLists } from "./tipolistas";
 
 export class Lista {
   modelNotes: any[] = [];
+  notesStorage: any[] = [];
 
   // Crear y almacenar una nueva nota
   createNotesStorage(name: string, uniquecode: string, idtipolista: any, estado: number, permisos: any, iduser: number) {
@@ -16,9 +17,47 @@ export class Lista {
       fecrea: new Date(),
       permiso: permisos,
       uniquecode: uniquecode,
-      icon: 'docs'
+      icon: 'description'
     };
     this.modelNotes.unshift(arr);
+  }
+
+  // Actualizar el nombre de una nota específica
+  updateNoteName(noteCode: string, newName: string) {
+    let x: any = localStorage.getItem('data_tipo_lista');
+    let data: any[] = x ? JSON.parse(x) : [];
+    let updated = false;
+
+    data.forEach(folder => {
+      let note = folder.notas.find((n: any) => n.uniquecode === noteCode);
+      if (note) {
+        note.nombreproducto = newName;
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      localStorage.setItem('data_tipo_lista', JSON.stringify(data));
+    }
+    return updated;
+  }
+
+  // Método en el servicio de notas para eliminar la nota por su código único
+  deleteNoteByCode(noteCode: string) {
+    let x: any = localStorage.getItem('data_tipo_lista');
+    let data: any[] = x ? JSON.parse(x) : [];
+    let updated = false;
+    data.forEach(folder => {
+      let noteIndex = folder.notas.findIndex((n: any) => n.uniquecode === noteCode);
+      if (noteIndex !== -1) {
+        folder.notas.splice(noteIndex, 1);
+        updated = true;
+      }
+    });
+    if (updated) {
+      localStorage.setItem('data_tipo_lista', JSON.stringify(data));
+    }
+    return updated;
   }
 
   // Guardar datos de notas en el almacenamiento local
@@ -44,5 +83,6 @@ export class Lista {
     let folder = data.find(item => item.uniquecode === folderCode);
     return folder ? folder.notas : [];
   }
+
 
 }
