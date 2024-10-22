@@ -8,23 +8,24 @@ import { isPlatformBrowser } from '@angular/common';
 })
 export class LoginService {
 
+  private urlApi: string = 'https://rpsoftdev.store:444/api/';
   constructor(private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) private platformId: Object) { }
 
   validacion() {
-    // Verificar si estamos en un entorno de navegador antes de usar sessionStorage
+  
     if (isPlatformBrowser(this.platformId)) {
+  
       let x: any = sessionStorage.getItem('id');
       let j: any = sessionStorage.getItem('email');
       let h: any = sessionStorage.getItem('usuario');
 
-      if (!x || !j || !h) {
-        this.router.navigate(['login']);
-      } else {
-        this.router.navigate(['home']);
-      }
+      if (!x || !j || !h) this.router.navigate(['login']); 
+      else this.router.navigate(['home']);
+
     } else {
       console.error('sessionStorage is not available in this environment (probably server-side rendering).');
     }
+  
   }
 
   closeSession() {
@@ -34,13 +35,16 @@ export class LoginService {
     this.router.navigate(['login']);
   }
 
-
   registroUsuario(model: any) {
-    return this.http.post('https://rpsoftdev.store:444/api/login/guardarUsuario', model);
+    return this.http.post( this.urlApi + 'login/guardarUsuario', model);
   }
 
   login(model: any) {
-    return this.http.post('https://rpsoftdev.store:444/api/login/loginUser', model);
+    return this.http.post( this.urlApi + 'login/loginUser', model);
+  }
+
+  logingoogle( email:string ) {
+    return this.http.get( this.urlApi + 'Usuario/obtenerUsuarioEmail/' + email );
   }
 
 }

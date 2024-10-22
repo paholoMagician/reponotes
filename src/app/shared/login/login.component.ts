@@ -28,12 +28,16 @@ const Toast = Swal.mixin({
 })
 
 export class LoginComponent implements OnInit {
-  isConnected: boolean = true;
-  actionForm: string = 'sign';
-  _show_spinner: boolean = false;
-  show_log: boolean = true;
-  showPassword: boolean = false;
+  title_head:         string = 'Registro';
+  pass_type:          string = 'password';
+  isConnected:        boolean = true;
+  actionForm:         string = 'sign';
+  _show_spinner:      boolean = false;
+  show_log:           boolean = true;
+  showPassword:       boolean = false;
   text_action_button: string = 'Registrarse';
+  showSignIn: boolean = true;
+  showLogin: boolean = false;
 
   registerFormOffLine = new FormGroup({
     emailx: new FormControl('')
@@ -45,8 +49,6 @@ export class LoginComponent implements OnInit {
     password: new FormControl(''),
   })
 
-  title_head: string = 'Registro';
-  pass_type: string = 'password';
   constructor(private router: Router, private logUser: LoginService, private authService: SocialAuthService, private networkService: NetworkService) { }
 
   ngOnInit(): void {
@@ -54,24 +56,38 @@ export class LoginComponent implements OnInit {
     this.networkService.getOnlineStatus().subscribe((status: boolean) => {
       this.isConnected = status;
       console.log('Conectado a Internet:', status);
-    });
-    this.authGoogleClient()
+      if ( this.isConnected ) this.authGoogleClient();
+    });    
   }
 
   authGoogleClient() {
     this.authService.authState.subscribe((user) => {
       if (user) {
-        console.log('Usuario ha iniciado sesión:', user);
+        // console.log('Usuario ha iniciado sesión:', user);
         // Maneja el éxito del inicio de sesión, quizás redirigir a otra página
-        sessionStorage.setItem('email', user.email);
-        sessionStorage.setItem('id', user.id);
-        sessionStorage.setItem('usuario', user.name);
-        sessionStorage.setItem('usuarioImg', user.photoUrl);
-        Toast.fire({
-          icon: "success",
-          title: "Haz ingresado correctamente."
-        });
-        this.router.navigate(['home']);
+        this._show_spinner = true;
+        this.logUser.logingoogle( user.email ).subscribe( {
+          next: (x:any) => {
+            sessionStorage.setItem('id', x.id);
+            sessionStorage.setItem('usuario', x.nombre);
+            sessionStorage.setItem('email', user.email);
+            sessionStorage.setItem('usuarioImg', user.photoUrl);
+            Toast.fire({
+              icon: "success",
+              title: "Haz ingresado correctamente."
+            });
+          }, error: (e) => {
+            this._show_spinner = false;
+            console.error(e);
+            Toast.fire({
+              icon: "error",
+              title: "Algo ha pasado en nuestro servidor."
+            });
+          }, complete: () => {
+            this._show_spinner = false;
+            this.router.navigate(['home']);
+          }
+        })
       }
     });
   }
@@ -125,8 +141,6 @@ export class LoginComponent implements OnInit {
     this.actionForm = action;
   }
 
-  showSignIn: boolean = true;
-  showLogin: boolean = false;
   onSubmit() {
 
     switch (this.actionForm) {

@@ -10,14 +10,14 @@ import { NetworkService } from '../../shared/network/network-service.service';
 })
 export class DashboardComponent implements OnInit {
 
-
-
   isConnected: boolean = true;
   showFolders: boolean = true;
   showNotes: boolean = true;
-  showPromptCall: boolean = false; // Para controlar la visibilidad del prompt-call
+  showPromptCall: boolean = false;
   copy_codec: string = '';
   _show_help: boolean = true;
+  folderList: any = null;
+  promptData: any = '<RPN command history>';
 
   constructor(private router: Router, private log: LoginService, private networkService: NetworkService) { }
 
@@ -67,17 +67,16 @@ export class DashboardComponent implements OnInit {
   }
 
 
-  folderList: any = null;
   obtenerFoldersList(event: any) {
     if (event) this.folderList = event, this.showFolders = true, this.showNotes = false;
     //console.table(this.folderList);
   }
 
   gettoggleHelp(event: any) {
+    // console.warn('dashboard: ' + event)
     this._show_help = event;
   }
 
-  promptData: any = '<RPN command history>';
   obtenerPrompt(event: any) {
     this.promptData = event;
     //console.warn('dashbaord: ' + this.promptData)

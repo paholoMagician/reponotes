@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { FolderLists } from '../dashboard/sources/tipolistas';
 import { Lista } from '../dashboard/sources/listas';
 import { LoginService } from '../../shared/login/services/login.service';
+import { DashboardService } from '../dashboard/services/dashboard.service';
 
 @Component({
   selector: 'app-input-prompt',
@@ -32,7 +33,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes) {
       if (this.getPrompt) {
-        this.promptForm.controls['prompt'].setValue(this.getPrompt);
+        this.promptForm.controls['prompt'].setValue( this.getPrompt + this.promptForm.controls['prompt'].value );
       }
     }
   }
@@ -80,7 +81,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   msjprompt: string = '>';
   colorprompt: string = '#1f2534dc';
 
-  constructor(private log: LoginService) {
+  constructor(private log: LoginService, private notesServices: DashboardService) {
     this.folderService = new FolderLists();
     this.noteService = new Lista();
   }
@@ -134,6 +135,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   }
 
   toggleHelpShow: boolean = true;
+  modelPushFolders: any = [];
   executeCommand() {
     let xcommand: any = this.promptForm.controls['prompt'].value.trim();
     // //console.warn(xcommand)
@@ -178,6 +180,42 @@ export class InputPromptComponent implements OnInit, OnChanges {
     else if (xcommand.startsWith('rpn del nt=')) {
       this.deleteNote(xcommand);
       this.helpListEmit.emit(false);
+    }
+    else if (xcommand.startsWith('rpn push server f -c')) {
+      this._show_spinner = true;
+      let x: any = localStorage.getItem('data_tipo_lista');
+      let xuser: any = sessionStorage.getItem('id');
+      this.listaLocalFolders = x ? JSON.parse(x) : [];
+      // console.table(this.listaLocalFolders);
+      this.listaLocalFolders.filter( (m:any) => {
+        let arr: any = {
+          nombretipo: m.nombretipo,
+          iduser: xuser,
+          estado: 100,
+          permiso: 1,
+          presupuesto: 0
+        }
+        this.modelPushFolders.push(arr);
+      })
+
+      console.table(this.modelPushFolders);
+      this.modelPushFolders.filter((f:any) => {
+        console.log(f);
+        this.notesServices.guardarTipoLista( f ).subscribe({
+          next: (x) => {
+            console.warn(x);
+          }, error: (e) => {
+            console.error(e);
+            this._show_spinner = false;
+            this.displayMessage('Hay repositorios existenetes en nuestros servidores.', 'orange');
+          }, complete: () => {
+            this._show_spinner = false;
+            this.displayMessage('Carpetas han sido guardadas en la nube.', 'yellowgreen');
+            this.limpiarPrompt();
+          }
+        })
+      })
+    
     }
     else if (xcommand.startsWith('rpn help')) {
       if (this.toggleHelpShow) {
@@ -332,7 +370,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
     setTimeout(() => {
       this._show_msjprompt = false;
       this.colorprompt = '#1f2534dc';
-    }, 2000);
+    }, 3000);
   }
 
   limpiarPrompt() {
