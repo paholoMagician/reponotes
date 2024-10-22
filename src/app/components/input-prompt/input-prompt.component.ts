@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FolderLists } from '../dashboard/sources/tipolistas';
 import { Lista } from '../dashboard/sources/listas';
@@ -9,16 +9,37 @@ import { LoginService } from '../../shared/login/services/login.service';
   templateUrl: './input-prompt.component.html',
   styleUrls: ['./input-prompt.component.scss']
 })
-export class InputPromptComponent implements OnInit {
-
+export class InputPromptComponent implements OnInit, OnChanges {
+  @ViewChild('prompt') promptInput!: ElementRef
   _show_spinner: boolean = false;
+
+  @Input() getPrompt: any;
+  @Input() getCopyCodec: any;
 
   @Output() promptEmit: EventEmitter<any> = new EventEmitter<any>();
   @Output() listasFolderEmit: EventEmitter<any> = new EventEmitter<any>();
   @Output() notesInFolderEmit: EventEmitter<any> = new EventEmitter<any>();
   @Output() helpListEmit: EventEmitter<any> = new EventEmitter<any>();
+
+
+
   _show_msjprompt: boolean = false;
 
+  ngAfterViewInit() {
+    this.setFocus();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes) {
+      if (this.getPrompt) {
+        this.promptForm.controls['prompt'].setValue(this.getPrompt);
+      }
+    }
+  }
+
+  setFocus() {
+    this.promptInput.nativeElement.focus();
+  }
 
   listCommand: any = {
     command: 'rpn c f n=',
@@ -46,6 +67,10 @@ export class InputPromptComponent implements OnInit {
     prompt: new FormControl()
   });
 
+  promptFormRange = new FormGroup({
+    promptHeight: new FormControl(2)
+  });
+
   folderService: FolderLists;
   noteService: Lista;
   listaLocalFolders: any[] = [];
@@ -64,12 +89,45 @@ export class InputPromptComponent implements OnInit {
     if (typeof sessionStorage !== 'undefined') {
       this.xidUser = sessionStorage.getItem('id');
     }
+
+    let y: any = localStorage.getItem('valueHeightPrompt');
+    this.promptFormRange.controls['promptHeight'].setValue(Number(y));
+
   }
 
   updateNoteCommand: any = {
     command: 'rpn update nt= n=',
     description: 'Actualizar el nombre de una nota especificada'
   };
+
+  dataPersist() {
+    let x: any = this.promptFormRange.controls['promptHeight'].value;
+    localStorage.setItem('valueHeightPrompt', x.toString());
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === 'ArrowRight') {
+      this.incrementHeight();
+    }
+    if (event.ctrlKey && event.key === 'ArrowLeft') {
+      this.decrementHeight();
+    }
+  }
+
+  incrementHeight() {
+    let currentValue: any = this.promptFormRange.controls['promptHeight'].value;
+    if (currentValue < 41) {
+      this.promptFormRange.controls['promptHeight'].setValue(currentValue + 1);
+    }
+  }
+
+  decrementHeight() {
+    let currentValue: any = this.promptFormRange.controls['promptHeight'].value;
+    if (currentValue > 2) {
+      this.promptFormRange.controls['promptHeight'].setValue(currentValue - 1);
+    }
+  }
 
   onSubmit() {
     this.executeCommand();
@@ -78,7 +136,7 @@ export class InputPromptComponent implements OnInit {
   toggleHelpShow: boolean = true;
   executeCommand() {
     let xcommand: any = this.promptForm.controls['prompt'].value.trim();
-    // console.warn(xcommand)
+    // //console.warn(xcommand)
     this.promptEmit.emit(xcommand);
     if (xcommand.startsWith(this.listCommand.command)) {
       this.createFolder(xcommand);
@@ -98,9 +156,9 @@ export class InputPromptComponent implements OnInit {
       this.helpListEmit.emit(false);
     }
     else if (xcommand.startsWith('rpn update nt=')) {
-      // // console.warn('reconocio')
+      // // //console.warn('reconocio')
       let notePart = xcommand.match(/nt=([^ ]+)/);
-      // // console.warn(notePart)
+      // // //console.warn(notePart)
       let newNamePart = xcommand.match(/n=(.+)/); // Cambiado (.*) a (.+) para que coincida con el resto del comando
       if (notePart && newNamePart) {
         let noteCode = notePart[1].trim();
@@ -192,13 +250,13 @@ export class InputPromptComponent implements OnInit {
 
 
   createFolder(xcommand: string) {
-
+    let xemail: any = sessionStorage.getItem('email');
     let folderName = xcommand.slice(this.listCommand.command.length).trim();
     if (folderName) {
       folderName = folderName.replace(/\s+/g, '_');
       const now = new Date();
       const codec = `${folderName.slice(0, 10)}_${now.getHours()}${now.getMinutes()}${now.getSeconds()}${now.getDate()}${now.getMonth() + 1}${now.getFullYear()}`;
-      this.folderService.createFolderTypeNotesStorage(folderName, codec, 1, 1, this.xidUser);
+      this.folderService.createFolderTypeNotesStorage(folderName, xemail, codec, 1, 1, this.xidUser);
       this.folderService.guardarDataFolderStorage();
       this.displayMessage('Carpeta creada y guardada en el almacenamiento local', 'yellowgreen');
     } else {

@@ -1,6 +1,15 @@
-<div class="w-100" style="height: 95vh; overflow-y:auto ;" >
-    <div class="list-histry-prompts" style="color: yellowgreen !important; " *ngFor="let prompts of listHistoryPrompts">
-        <div> {{ prompts }} </div>
-        <div> <mat-icon>copy</mat-icon> </div>
-    </div>
+<div class="w-100" style="height: 95vh; overflow-y:auto ;">
+    <ol style="color: lightcyan;">
+        <li *ngFor="let prompts of listHistoryPrompts">
+
+            <div class="list-histry-prompts d-flex rounded-2 p-1 mb-1 d-flex justify-content-between"
+                style="border: groove 2px #1f2534dc; color: yellowgreen !important; "
+                (click)="emitDataHistoryPrompt(prompts)">
+                <div style="text-align: justify;"> {{ prompts }} </div>
+                <div *ngIf="prompts != '<RPN command history>'" style="cursor: pointer;">
+                    <mat-icon>content_copy</mat-icon>
+                </div>
+            </div>
+        </li>
+    </ol>
 </div>

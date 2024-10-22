@@ -1,11 +1,16 @@
-<div *ngIf="!isConnected" class="alert alert-danger">
-    No estás conectado a Internet.
+<div *ngIf="!isConnected" class="alert alert-warning d-flex align-content-center">
+    <mat-icon>wifi_off </mat-icon>
+    &nbsp;
+    <span>
+        No estás conectado a Internet.
+    </span>
 </div>
 
-<div class="container-fluid p-2">
+<div class=" container-fluid p-2">
     <div class="d-flex">
         <div class="navside w-25">
-            <app-navside [dataShowPrompt]="promptData" class="w-100"></app-navside>
+            <app-navside [dataShowPrompt]="promptData" (dataHistoryToPromptRPN)="obtenerPromptCopy($event)"
+                class="w-100"></app-navside>
         </div>
         <div class="dashboard w-75">
             <div class="m-1 p-2" *ngIf="_show_help">
@@ -14,7 +19,6 @@
                     <small style="color: rgba(240, 248, 255, 0.74); font-size: 9pt;">
                         Estos son nuestros comandos actualmente, puedes empezar a mostrar el PROMPT con el shorcut
                         CTRL + i .
-                        <!-- <span style="color: yellowgreen;"> ( v 1.0.1 Beta ) </span>: -->
                     </small>
                 </div>
                 <span>
@@ -121,27 +125,28 @@
                             <!-- Usar innerHTML -->
                         </div>
                         &nbsp;
-                        <div class="codec-folder d-flex align-items-center " style="width: 25%;">
-                            <span>{{ notes.uniquecode }}</span>
-                            <button type="button" (click)="copyToClipboard(notes.uniquecode)"
-                                class="btnico d-flex align-items-center justify-content-center">
-                                <mat-icon
-                                    style="font-size: 12pt; color: yellowgreen !important; ">content_copy</mat-icon>
-                            </button>
+                        <div>
+                            <div class="codec-folder d-flex align-items-center " style="width: 25%;">
+                                <span>{{ notes.uniquecode }}</span>
+                                <button type="button" (click)="copyToClipboard(notes.uniquecode)"
+                                    class="btnico d-flex align-items-center justify-content-center">
+                                    <mat-icon
+                                        style="font-size: 12pt; color: yellowgreen !important; ">content_copy</mat-icon>
+                                </button>
+                            </div>
+                            <div>
+                                {{notes.fecrea | date: 'short' }}
+                            </div>
                         </div>
                     </div>
                 </div>
-
-
-
             </div>
         </div>
     </div>
     <div class="prompt-call" *ngIf="showPromptCall">
-        <app-input-prompt (listasFolderEmit)="obtenerFoldersList($event)"
-                          (notesInFolderEmit)="obtenerNotesList($event)"
-                          (helpListEmit)="gettoggleHelp($event)"
-                          (promptEmit)="obtenerPrompt($event)" >
+        <app-input-prompt (listasFolderEmit)="obtenerFoldersList($event)" (notesInFolderEmit)="obtenerNotesList($event)"
+            (helpListEmit)="gettoggleHelp($event)" (promptEmit)="obtenerPrompt($event)" [getPrompt]="histCopyPrompt"
+            [getCopyCodec]="copy_codec">
         </app-input-prompt>
     </div>
 </div>

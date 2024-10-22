@@ -14,12 +14,13 @@ export class FolderLists {
   modelFolderNotes: any[] = [];
 
   // Crear y almacenar un nuevo tipo de carpeta
-  createFolderTypeNotesStorage(name: string, uniquecode: string, estado: number, permisos: any, iduser: number) {
+  createFolderTypeNotesStorage(name: string, email: string, uniquecode: string, estado: number, permisos: any, iduser: number) {
     let arr: any = {
       nombretipo: name,
       iduser: iduser,
       estado: estado,
       permisos: permisos,
+      email: email,
       presupuesto: 0,
       fecrea: new Date(),
       uniquecode: uniquecode,

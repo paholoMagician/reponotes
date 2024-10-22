@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { DashboardService } from '../../components/dashboard/services/dashboard.service';
 import { FormControl, FormGroup } from '@angular/forms';
 
@@ -8,10 +8,10 @@ import { FormControl, FormGroup } from '@angular/forms';
   styleUrl: './navside.component.scss'
 })
 export class NavsideComponent implements OnInit, OnChanges {
-  
+
   @Input() dataShowPrompt: any = '';
   modelTipoLista: any = [];
-
+  @Output() dataHistoryToPromptRPN: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(private dash: DashboardService) { }
 
@@ -21,20 +21,24 @@ export class NavsideComponent implements OnInit, OnChanges {
 
   listHistoryPrompts: any = []
   ngOnChanges(changes: SimpleChanges): void {
-      if(changes) {
-        this.listHistoryPrompts.push(this.dataShowPrompt)
-      }
+    if (changes) {
+      //console.warn('@Input(): ' + this.dataShowPrompt)
+      this.listHistoryPrompts.unshift(this.dataShowPrompt);
+    }
   }
 
-  onSubmit() {}
+  onSubmit() { }
 
-
+  emitDataHistoryPrompt(data: any) {
+    //console.warn(data)
+    this.dataHistoryToPromptRPN.emit(data)
+  }
 
   // guardarTipoLista() {
 
   //   this.dash.guardarTipoLista(this.modelTipoLista).subscribe({
   //     next: (x) => {
-        
+
   //     }
   //   })
 

@@ -7,6 +7,7 @@ import { SocialAuthService, GoogleLoginProvider } from '@abacritt/angularx-socia
 
 import Swal from 'sweetalert2'
 import { LoginService } from './services/login.service';
+import { NetworkService } from '../network/network-service.service';
 const Toast = Swal.mixin({
   toast: true,
   position: 'top-end',
@@ -27,12 +28,17 @@ const Toast = Swal.mixin({
 })
 
 export class LoginComponent implements OnInit {
-
+  isConnected: boolean = true;
   actionForm: string = 'sign';
   _show_spinner: boolean = false;
   show_log: boolean = true;
   showPassword: boolean = false;
   text_action_button: string = 'Registrarse';
+
+  registerFormOffLine = new FormGroup({
+    emailx: new FormControl('')
+  })
+
   registerForm = new FormGroup({
     nombre: new FormControl(''),
     email: new FormControl(''),
@@ -41,16 +47,78 @@ export class LoginComponent implements OnInit {
 
   title_head: string = 'Registro';
   pass_type: string = 'password';
-  constructor(private router: Router, private logUser: LoginService, private authService: SocialAuthService) { }
+  constructor(private router: Router, private logUser: LoginService, private authService: SocialAuthService, private networkService: NetworkService) { }
 
   ngOnInit(): void {
     this.logUser.validacion();
+    this.networkService.getOnlineStatus().subscribe((status: boolean) => {
+      this.isConnected = status;
+      console.log('Conectado a Internet:', status);
+    });
+    this.authGoogleClient()
+  }
+
+  authGoogleClient() {
     this.authService.authState.subscribe((user) => {
       if (user) {
         console.log('Usuario ha iniciado sesión:', user);
         // Maneja el éxito del inicio de sesión, quizás redirigir a otra página
+        sessionStorage.setItem('email', user.email);
+        sessionStorage.setItem('id', user.id);
+        sessionStorage.setItem('usuario', user.name);
+        sessionStorage.setItem('usuarioImg', user.photoUrl);
+        Toast.fire({
+          icon: "success",
+          title: "Haz ingresado correctamente."
+        });
+        this.router.navigate(['home']);
       }
     });
+  }
+
+  onSubmitOffline() {
+    if (this.registerFormOffLine.controls['emailx'].value == undefined || this.registerFormOffLine.controls['emailx'].value == null) {
+      Toast.fire({
+        icon: "warning",
+        title: "Debes escribir un email, para poder validarlo!"
+      });
+    } else {
+      let xdata: any = localStorage.getItem('data_tipo_lista');
+      let email: any = this.registerFormOffLine.controls['emailx'].value;
+      if (xdata != undefined || xdata != null) {
+        let data: any = xdata ? JSON.parse(xdata) : [];
+
+        if (data[0].email == email) {
+          sessionStorage.setItem('email', email);
+          sessionStorage.setItem('id', data[0].iduser);
+          sessionStorage.setItem('usuario', email.toString().slice(0, 6));
+          Toast.fire({
+            icon: "success",
+            title: "Ya tienes datos asociados a este correo.\n Ingreso correcto."
+          });
+          this.router.navigate(['home']);
+        }
+        else {
+          sessionStorage.setItem('email', email);
+          sessionStorage.setItem('usuario', email.toString().slice(0, 6));
+          sessionStorage.setItem('id', (0).toString());
+          Toast.fire({
+            icon: "success",
+            title: "Haz ingresado en modo offline."
+          });
+          this.router.navigate(['home']);
+        }
+      } else {
+        sessionStorage.setItem('email', email);
+        sessionStorage.setItem('id', (0).toString());
+        sessionStorage.setItem('usuario', email.toString().slice(0, 6));
+        Toast.fire({
+          icon: "success",
+          title: "Haz ingresado en modo offline."
+        });
+        this.router.navigate(['home']);
+      }
+    }
   }
 
   validateActionForm(action: string) {
