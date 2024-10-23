@@ -22,7 +22,11 @@ export class InputPromptComponent implements OnInit, OnChanges {
   @Output() notesInFolderEmit: EventEmitter<any> = new EventEmitter<any>();
   @Output() helpListEmit: EventEmitter<any> = new EventEmitter<any>();
 
-
+  localStorageWorking: boolean = true;
+  toggleHelpShow: boolean = true;
+  data_type_working: string = 'Working local storage';
+  icon_type_working: string = 'memory';
+  modelPushFolders: any = [];
 
   _show_msjprompt: boolean = false;
 
@@ -33,7 +37,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes) {
       if (this.getPrompt) {
-        this.promptForm.controls['prompt'].setValue( this.getPrompt + this.promptForm.controls['prompt'].value );
+        this.promptForm.controls['prompt'].setValue(this.getPrompt + this.promptForm.controls['prompt'].value);
       }
     }
   }
@@ -118,7 +122,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
 
   incrementHeight() {
     let currentValue: any = this.promptFormRange.controls['promptHeight'].value;
-    if (currentValue < 41) {
+    if (currentValue < 36) {
       this.promptFormRange.controls['promptHeight'].setValue(currentValue + 1);
     }
   }
@@ -134,124 +138,136 @@ export class InputPromptComponent implements OnInit, OnChanges {
     this.executeCommand();
   }
 
-  toggleHelpShow: boolean = true;
-  modelPushFolders: any = [];
   executeCommand() {
     let xcommand: any = this.promptForm.controls['prompt'].value.trim();
-    // //console.warn(xcommand)
     this.promptEmit.emit(xcommand);
-    if (xcommand.startsWith(this.listCommand.command)) {
-      this.createFolder(xcommand);
-      this.helpListEmit.emit(false);
-    } else if (xcommand.startsWith('rpn update f=')) {
-      const match = /rpn update f=([^ ]+) n=([^']+)/.exec(xcommand);
-      if (match) {
-        const uniqueCode = match[1]; // Código único de la carpeta
-        const newName = match[2]; // Nuevo nombre
-        // Llamar a la función para actualizar el nombre de la carpeta
-        this.folderService.updateFolderName(uniqueCode, newName);
-        // Emitir evento o mostrar mensaje de éxito si es necesario
-        this.displayMessage(`Nombre de carpeta con código ${uniqueCode} actualizado a ${newName}`, 'yellowgreen');
-      } else {
-        this.displayMessage('Comando inválido. Use: rpn update f=<codigo> n=<nuevo nombre>', 'orangered');
-      }
-      this.helpListEmit.emit(false);
-    }
-    else if (xcommand.startsWith('rpn update nt=')) {
-      // // //console.warn('reconocio')
-      let notePart = xcommand.match(/nt=([^ ]+)/);
-      // // //console.warn(notePart)
-      let newNamePart = xcommand.match(/n=(.+)/); // Cambiado (.*) a (.+) para que coincida con el resto del comando
-      if (notePart && newNamePart) {
-        let noteCode = notePart[1].trim();
-        let newName = newNamePart[1].trim().replace(/\s+/g, '_');
-        if (noteCode && newName) {
-          let updated = this.noteService.updateNoteName(noteCode, newName);
-          if (updated) {
-            this.displayMessage('Nota actualizada correctamente.', 'yellowgreen');
-          } else {
-            this.displayMessage('No se encontró la nota con el código proporcionado.', 'orangered');
-          }
-        }
-
-      }
-      this.helpListEmit.emit(false);
-    }
-    else if (xcommand.startsWith('rpn del nt=')) {
-      this.deleteNote(xcommand);
-      this.helpListEmit.emit(false);
-    }
-    else if (xcommand.startsWith('rpn push server f -c')) {
-      this._show_spinner = true;
-      let x: any = localStorage.getItem('data_tipo_lista');
-      let xuser: any = sessionStorage.getItem('id');
-      this.listaLocalFolders = x ? JSON.parse(x) : [];
-      // console.table(this.listaLocalFolders);
-      this.listaLocalFolders.filter( (m:any) => {
-        let arr: any = {
-          nombretipo: m.nombretipo,
-          iduser: xuser,
-          estado: 100,
-          permiso: 1,
-          presupuesto: 0
-        }
-        this.modelPushFolders.push(arr);
-      })
-
-      console.table(this.modelPushFolders);
-      this.modelPushFolders.filter((f:any) => {
-        console.log(f);
-        this.notesServices.guardarTipoLista( f ).subscribe({
-          next: (x) => {
-            console.warn(x);
-          }, error: (e) => {
-            console.error(e);
-            this._show_spinner = false;
-            this.displayMessage('Hay repositorios existenetes en nuestros servidores.', 'orange');
-          }, complete: () => {
-            this._show_spinner = false;
-            this.displayMessage('Carpetas han sido guardadas en la nube.', 'yellowgreen');
-            this.limpiarPrompt();
-          }
-        })
-      })
-    
-    }
-    else if (xcommand.startsWith('rpn help')) {
-      if (this.toggleHelpShow) {
-        this.toggleHelpShow = false;
-        this.helpListEmit.emit(this.toggleHelpShow);
-      } else {
-        this.toggleHelpShow = true;
-        this.helpListEmit.emit(this.toggleHelpShow);
-      }
+    if (xcommand.startsWith('rpn local on')) {
+      this.data_type_working = 'Working local storage';
+      this.icon_type_working = 'memory';
+      this.localStorageWorking = true;
       this.limpiarPrompt();
     }
-    else if (xcommand.startsWith('rpn read f -g')) {
-      this.listFolders();
-      this.helpListEmit.emit(false);
-    }
-    else if (xcommand.startsWith('rpn close session')) {
-      this._show_spinner = true;
-      setTimeout(() => {
-        this.log.closeSession();
-        this._show_spinner = false;
-      }, 1000);
-      this.helpListEmit.emit(false);
-    } else if (xcommand.startsWith(this.readNotesCommand.command)) {
-      this.readNotesFromFolder(xcommand);
-      this.helpListEmit.emit(false);
-    }
-    else if (xcommand.startsWith(this.noteCommand.command)) {
-      this.createNoteInFolder(xcommand);
-      this.helpListEmit.emit(false);
-    } else if (xcommand.startsWith(this.deleteFolderCommand.command)) {
-      this.deleteFolder(xcommand);
-      this.helpListEmit.emit(false);
-    } else {
-      this.handleUnknownCommand();
+    else if (xcommand.startsWith('rpn local off')) {
+      this.data_type_working = 'Working online data server';
+      this.icon_type_working = 'cloud_done';
+      this.localStorageWorking = false;
+      this.limpiarPrompt();
     }
 
+    if (this.localStorageWorking) {
+
+      if (xcommand.startsWith(this.listCommand.command)) {
+        this.createFolder(xcommand);
+        this.helpListEmit.emit(false);
+      } else if (xcommand.startsWith('rpn update f=')) {
+        const match = /rpn update f=([^ ]+) n=([^']+)/.exec(xcommand);
+        if (match) {
+          const uniqueCode = match[1]; // Código único de la carpeta
+          const newName = match[2]; // Nuevo nombre
+          // Llamar a la función para actualizar el nombre de la carpeta
+          this.folderService.updateFolderName(uniqueCode, newName);
+          // Emitir evento o mostrar mensaje de éxito si es necesario
+          this.displayMessage(`Nombre de carpeta con código ${uniqueCode} actualizado a ${newName}`, 'yellowgreen');
+        } else {
+          this.displayMessage('Comando inválido. Use: rpn update f=<codigo> n=<nuevo nombre>', 'orangered');
+        }
+        this.helpListEmit.emit(false);
+      }
+      else if (xcommand.startsWith('rpn update nt=')) {
+        let notePart = xcommand.match(/nt=([^ ]+)/);
+        let newNamePart = xcommand.match(/n=(.+)/); // Cambiado (.*) a (.+) para que coincida con el resto del comando
+        if (notePart && newNamePart) {
+          let noteCode = notePart[1].trim();
+          let newName = newNamePart[1].trim().replace(/\s+/g, '_');
+          if (noteCode && newName) {
+            let updated = this.noteService.updateNoteName(noteCode, newName);
+            if (updated) {
+              this.displayMessage('Nota actualizada correctamente.', 'yellowgreen');
+            } else {
+              this.displayMessage('No se encontró la nota con el código proporcionado.', 'orangered');
+            }
+          }
+        }
+        this.helpListEmit.emit(false);
+      }
+      else if (xcommand.startsWith('rpn del nt=')) {
+        this.deleteNote(xcommand);
+        this.helpListEmit.emit(false);
+      }
+      else if (xcommand.startsWith('rpn push server f -c')) {
+        this.guardarFolder();
+      }
+      else if (xcommand.startsWith('rpn help')) {
+        if (this.toggleHelpShow) {
+          this.toggleHelpShow = false;
+          this.helpListEmit.emit(this.toggleHelpShow);
+        } else {
+          this.toggleHelpShow = true;
+          this.helpListEmit.emit(this.toggleHelpShow);
+        }
+        this.limpiarPrompt();
+      }
+      else if (xcommand.startsWith('rpn read f -g')) {
+        this.listFolders();
+        this.helpListEmit.emit(false);
+      }
+      else if (xcommand.startsWith('rpn close session')) {
+        this._show_spinner = true;
+        setTimeout(() => {
+          this.log.closeSession();
+          this._show_spinner = false;
+        }, 1000);
+        this.helpListEmit.emit(false);
+      } else if (xcommand.startsWith(this.readNotesCommand.command)) {
+        this.readNotesFromFolder(xcommand);
+        this.helpListEmit.emit(false);
+      }
+      else if (xcommand.startsWith(this.noteCommand.command)) {
+        this.createNoteInFolder(xcommand);
+        this.helpListEmit.emit(false);
+      } else if (xcommand.startsWith(this.deleteFolderCommand.command)) {
+        this.deleteFolder(xcommand);
+        this.helpListEmit.emit(false);
+      } else {
+        if (xcommand.startsWith('rpn local on')) return;
+        if (xcommand.startsWith('rpn local off')) return;
+        this.handleUnknownCommand();
+      }
+    }
+  }
+
+  guardarFolder() {
+    this._show_spinner = true;
+    let x: any = localStorage.getItem('data_tipo_lista');
+    let xuser: any = sessionStorage.getItem('id');
+    this.listaLocalFolders = x ? JSON.parse(x) : [];
+    this.listaLocalFolders.filter((m: any) => {
+      let arr: any = {
+        nombretipo: m.nombretipo,
+        iduser: xuser,
+        estado: 100,
+        permiso: 1,
+        presupuesto: 0
+      }
+      this.modelPushFolders.push(arr);
+    })
+
+    this.modelPushFolders.filter((f: any) => {
+      console.log(f);
+      this.notesServices.guardarTipoLista(f).subscribe({
+        next: (x) => {
+          console.warn(x);
+        }, error: (e) => {
+          console.error(e);
+          this._show_spinner = false;
+          this.displayMessage('Hay repositorios existenetes en nuestros servidores.', 'orange');
+        }, complete: () => {
+          this._show_spinner = false;
+          this.displayMessage('Carpetas han sido guardadas en la nube.', 'yellowgreen');
+          this.limpiarPrompt();
+        }
+      })
+    })
   }
 
   deleteNote(xcommand: string) {
