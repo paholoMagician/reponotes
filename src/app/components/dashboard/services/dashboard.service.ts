@@ -25,4 +25,12 @@ export class DashboardService {
     return this.http.get( this.urlApi+ 'tipoLista/EliminarTipoLista/' + id );
   }
 
+  guardarLista( model: any [] ) {
+    return this.http.post( this.urlApi+ 'Lista/guardarLista', model );
+  }
+
+  obtenerListas( idTipoLista: number ) {
+    return this.http.get( this.urlApi+ 'Lista/ObtenerLista/' + idTipoLista );
+  }
+
 }

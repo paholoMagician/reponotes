@@ -5,8 +5,21 @@
         No estás conectado a Internet.
     </span>
 </div>
-
-<div class=" container-fluid p-2">
+<div class=" container-fluid p-2 d-flex" *ngIf="_show_app_online">
+    <div class="containerFolderDocs" *ngFor="let carpetas of listaCarpetas">
+        <div class="folder d-flex justify-content-center align-items-center">
+        </div>
+        <div class="documentos">
+            <div class="linea"></div>
+            <div class="linea"></div>
+            <div class="linea"></div>
+        </div>
+        <div  class="inputFolder bg-secondary p-2 rounded-pill shadow-sm text-light" style="width: 150px; font-size: 9pt;">
+            <input  [value]="carpetas.nombretipo" style="width: 100% !important; background-color: transparent !important; border: none !important;" >
+        </div>
+    </div>
+</div>
+<div class=" container-fluid p-2" *ngIf="_show_app_local" >
     <div class="d-flex">
         <div class="navside w-25">
             <app-navside [dataShowPrompt]="promptData" (dataHistoryToPromptRPN)="obtenerPromptCopy($event)"
@@ -160,7 +173,7 @@
     <div class="prompt-call" *ngIf="showPromptCall">
         <app-input-prompt (listasFolderEmit)="obtenerFoldersList($event)" (notesInFolderEmit)="obtenerNotesList($event)"
             (helpListEmit)="gettoggleHelp($event)" (promptEmit)="obtenerPrompt($event)" [getPrompt]="histCopyPrompt"
-            [getCopyCodec]="copy_codec">
+            [getCopyCodec]="copy_codec" (emitShowApp)="obteneremitShowApp($event)">
         </app-input-prompt>
     </div>
 </div>

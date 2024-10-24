@@ -145,3 +145,65 @@ input:focus {
   box-shadow: none;
   /* Quita el brillo del focus */
 }
+
+.folder {
+  width: 55px;
+  height: 38px;
+  background-color: #FFD700;
+  border-radius: 3px 3px 0 0;
+  position: relative;
+  margin: 50px;
+  transition: ease all 0.5s;
+  z-index: 2;
+  box-shadow: 3px 3px 5px rgba($color: #000000, $alpha: 0.5);
+}
+.folder::before {
+  content: '';
+  position: absolute;
+  top: -6px;  /* Ajustado proporcionalmente */
+  left: 5px;   /* Ajustado proporcionalmente */
+  width: 15px;
+  height: 7.5px;
+  background-color: #FFD700;
+  border-radius: 3px 3px 0 0;
+  transition: ease all 0.5s;
+  z-index: 2;
+}
+
+.documentos {
+  width: 45px;
+  height: 50px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  position: absolute;
+  margin: 50px;
+  top: -10px;
+  left: 10px;
+  transition: ease all 0.5s;
+  z-index: 1;
+  box-shadow: 3px 3px 5px rgba($color: #000000, $alpha: 0.5);
+}
+
+.linea {
+  width: 80%;
+  height: 5px;
+  background-color: #ddd;
+  margin: 5px auto;
+  border-radius: 3px;
+  transition: ease all 0.5s;
+  z-index: 1;
+}
+
+.folder:hover {
+  cursor: pointer;
+  transform: scale(0.9, 0.9);
+}
+.folder:hover ~ .documentos {
+  transform: scale(0.9, 0.9);
+}
+
+.inputFolder {
+position: relative;
+top: -30px;
+}

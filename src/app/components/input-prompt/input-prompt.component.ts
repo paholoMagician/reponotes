@@ -4,6 +4,7 @@ import { FolderLists } from '../dashboard/sources/tipolistas';
 import { Lista } from '../dashboard/sources/listas';
 import { LoginService } from '../../shared/login/services/login.service';
 import { DashboardService } from '../dashboard/services/dashboard.service';
+import { catchError, finalize, firstValueFrom, from, mergeMap, of, tap } from 'rxjs';
 
 @Component({
   selector: 'app-input-prompt',
@@ -18,6 +19,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   @Input() getCopyCodec: any;
 
   @Output() promptEmit: EventEmitter<any> = new EventEmitter<any>();
+  @Output() emitShowApp: EventEmitter<any> = new EventEmitter<any>();
   @Output() listasFolderEmit: EventEmitter<any> = new EventEmitter<any>();
   @Output() notesInFolderEmit: EventEmitter<any> = new EventEmitter<any>();
   @Output() helpListEmit: EventEmitter<any> = new EventEmitter<any>();
@@ -145,12 +147,14 @@ export class InputPromptComponent implements OnInit, OnChanges {
       this.data_type_working = 'Working local storage';
       this.icon_type_working = 'memory';
       this.localStorageWorking = true;
+      this.emitShowApp.emit(this.localStorageWorking);
       this.limpiarPrompt();
     }
     else if (xcommand.startsWith('rpn local off')) {
       this.data_type_working = 'Working online data server';
       this.icon_type_working = 'cloud_done';
       this.localStorageWorking = false;
+      this.emitShowApp.emit(this.localStorageWorking);
       this.limpiarPrompt();
     }
 
@@ -236,6 +240,8 @@ export class InputPromptComponent implements OnInit, OnChanges {
     }
   }
 
+  modelPushNotes: any = [];
+  modelServerSetFolder: any = [];
   guardarFolder() {
     this._show_spinner = true;
     let x: any = localStorage.getItem('data_tipo_lista');
@@ -249,14 +255,32 @@ export class InputPromptComponent implements OnInit, OnChanges {
         permiso: 1,
         presupuesto: 0
       }
+
       this.modelPushFolders.push(arr);
+      m.notas.filter( (n:any) => {
+        let arrNotes: any = {
+          cantidad: 0,
+          nombreproducto: n.nombreproducto,
+          valor: 0,
+          fecrea: new Date(),
+          iduser: xuser,
+          // idlistatipo: '',
+          estado: 100,
+          urlimagen: m.nombretipo,
+          permiso: 1,           
+        }
+
+        this.modelPushNotes.push(arrNotes);
+
+      })
+      
     })
 
     this.modelPushFolders.filter((f: any) => {
-      console.log(f);
       this.notesServices.guardarTipoLista(f).subscribe({
         next: (x) => {
           console.warn(x);
+          this.modelServerSetFolder.push(x);
         }, error: (e) => {
           console.error(e);
           this._show_spinner = false;
@@ -268,7 +292,115 @@ export class InputPromptComponent implements OnInit, OnChanges {
         }
       })
     })
+
+    this.modelServerSetFolder.filter( (mp:any) => {
+      this.modelPushNotes.filter( (np:any) => {
+        if ( mp.nombretipo == np.urlimagen ) {
+          np.idlistatipo = mp.id
+        }
+      })
+    })
+
+    this.modelPushNotes.filter( (n:any) => {
+      this.notesServices.guardarLista( n ).subscribe({
+        next: (x) => {
+          console.warn('Nota guardada: ' + n)
+        }, error: (e) => {
+          console.error(e);
+        }, complete: () => {
+
+        }
+      })
+    })
+
   }
+
+  // guardarFolder() {
+  //   this._show_spinner = true;
+  //   const x: any = localStorage.getItem('data_tipo_lista');
+  //   const xuser: any = sessionStorage.getItem('id');
+  //   this.listaLocalFolders = x ? JSON.parse(x) : [];
+  
+  //   // Preparar los datos para carpetas y notas
+  //   this.listaLocalFolders.forEach((m: any) => {
+  //     const folder = {
+  //       nombretipo: m.nombretipo,
+  //       iduser: xuser,
+  //       estado: 100,
+  //       permiso: 1,
+  //       presupuesto: 0
+  //     };
+  //     this.modelPushFolders.push(folder);
+  
+  //     m.notas.forEach((n: any) => {
+  //       const note = {
+  //         cantidad: 0,
+  //         nombreproducto: n.nombreproducto,
+  //         valor: 0,
+  //         fecrea: new Date(),
+  //         iduser: xuser,
+  //         estado: 100,
+  //         urlimagen: m.nombretipo,
+  //         permiso: 1
+  //       };
+  //       this.modelPushNotes.push(note);
+  //     });
+  //   });
+  
+  //   // Guardar las carpetas y luego asociar las notas con sus ids
+  //   from(this.modelPushFolders).pipe(
+  //     mergeMap(folder => 
+  //       this.notesServices.guardarTipoLista(folder).pipe(
+  //         tap((response) => {
+  //           console.warn('Carpeta guardada:', response);
+  //           this.modelServerSetFolder.push(response);
+  //         }),
+  //         catchError(error => {
+  //           console.error(error);
+  //           this.displayMessage('Hay repositorios existentes en nuestros servidores.', 'orange');
+  //           return of(null);  // Retorna un valor nulo para no detener el flujo
+  //         })
+  //       )
+  //     ),
+  //     finalize(() => {
+  //       this._show_spinner = false;
+  //       this.displayMessage('Carpetas han sido guardadas en la nube.', 'yellowgreen');
+  
+  //       // Asociar ids de las carpetas guardadas con las notas
+  //       this.modelServerSetFolder.forEach((mp: any) => {
+  //         this.modelPushNotes.forEach((np: any) => {
+  //           if (mp.nombretipo === np.urlimagen) {
+  //             np.idlistatipo = mp.id;
+  //           }
+  //         });
+  //       });
+  
+  //       // Guardar las notas en base a la carpeta asociada
+  //       this.guardarNotas();
+  //     })
+  //   ).subscribe();
+  // }
+  
+  // guardarNotas() {
+  //   from(this.modelPushNotes).pipe(
+  //     mergeMap((note:any) =>
+  //       this.notesServices.guardarLista(note).pipe(
+  //         tap(() => {
+  //           console.warn('Nota guardada:', note);
+  //         }),
+  //         catchError(error => {
+  //           console.error('Error al guardar nota:', error);
+  //           return of(null);  // Manejo de errores y continuar con el siguiente
+  //         })
+  //       )
+  //     )
+  //   ).subscribe({
+  //     complete: () => {
+  //       console.log('Todas las notas se han guardado.');
+  //       this.limpiarPrompt();
+  //     }
+  //   });
+  // }
 
   deleteNote(xcommand: string) {
     let notePart = xcommand.match(/nt=([^ ]+)/);

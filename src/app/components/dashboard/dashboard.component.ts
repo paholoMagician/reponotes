@@ -2,6 +2,7 @@ import { Component, HostListener, Input, input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginService } from '../../shared/login/services/login.service';
 import { NetworkService } from '../../shared/network/network-service.service';
+import { DashboardService } from './services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,6 +11,8 @@ import { NetworkService } from '../../shared/network/network-service.service';
 })
 export class DashboardComponent implements OnInit {
 
+  _show_app_local: boolean = false;
+  _show_app_online: boolean = true;
   isConnected: boolean = true;
   showFolders: boolean = true;
   showNotes: boolean = true;
@@ -19,16 +22,18 @@ export class DashboardComponent implements OnInit {
   folderList: any = null;
   promptData: any = '<RPN command history>';
 
-  constructor(private router: Router, private log: LoginService, private networkService: NetworkService) { }
-
+  constructor(private router: Router, private log: LoginService, private networkService: NetworkService, private dash: DashboardService) { }
+  idUser: any;
   ngOnInit(): void {
     this.log.validacion();
     this.networkService.getOnlineStatus().subscribe((status: boolean) => {
       this.isConnected = status;
+      this.idUser = sessionStorage.getItem('id')
       console.log('Conectado a Internet:', status);
     });
     // Detectar la combinación Ctrl + I
     document.addEventListener('keydown', this.handleKeydown.bind(this));
+    this.obtenerCarpetas();
   }
 
   ngOnDestroy(): void {
@@ -43,6 +48,34 @@ export class DashboardComponent implements OnInit {
       this.togglePromptCall(); // Alternar la visibilidad del div
     }
   }
+
+  listaCarpetas: any = [];
+  obtenerCarpetas() {
+    this.dash.obtenerTipoLista(this.idUser).subscribe({
+      next: (x) => {
+        this.listaCarpetas = x;
+        console.table(this.listaCarpetas);
+      }, error: (e) => {
+        console.error(e);
+      }, complete: () => {
+
+      }
+    })
+  }  
+
+  listaNotas: any = [];
+  obtenerLista( idTipoLista: number ) {
+    this.dash.obtenerListas( idTipoLista ).subscribe({
+      next: (x) => {
+        this.listaNotas = x;
+        console.warn(this.listaNotas);
+      }, error: (e) => {
+        console.error(e);
+      }, complete: () => {
+
+      } 
+    })
+  } 
 
   togglePromptCall() {
     const promptCallElement = document.querySelector('.prompt-call');
@@ -86,6 +119,11 @@ export class DashboardComponent implements OnInit {
   obtenerPromptCopy(event: any) {
     //console.warn('Dashboard :' + event);
     this.histCopyPrompt = event;
+  }
+
+
+  obteneremitShowApp(event:any) {
+    this._show_app_local = event; 
   }
 
   notesListInFolder: any = null;
