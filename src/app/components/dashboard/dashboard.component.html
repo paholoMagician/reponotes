@@ -17,7 +17,7 @@
         <div class="folder d-flex justify-content-center align-items-center">
             {{ carpeta.notas.length }}
         </div>
-        <div class="documentos">
+        <div class="documentos" *ngIf="carpeta.notas.length > 0">
             <div class="linea" *ngFor="let nota of carpeta.notas">
                 <!-- {{ nota.nombreproducto }} -->
             </div>
