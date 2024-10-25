@@ -10,27 +10,31 @@ export class DashboardService {
   constructor(private http: HttpClient) { }
 
   obtenerTipoLista(id: number) {
-    return this.http.get( this.urlApi+ 'tipoLista/ObtenerTipoLista/' + id );
+    return this.http.get(this.urlApi + 'tipoLista/ObtenerTipoLista/' + id);
+  }
+
+  obtenerFolders(id: number) {
+    return this.http.get(this.urlApi + 'tipoLista/ObtenerFolderDocs/' + id);
   }
 
   guardarTipoLista(model: any) {
-    return this.http.post( this.urlApi+ 'tipoLista/guardarTipoLista', model );
+    return this.http.post(this.urlApi + 'tipoLista/guardarTipoLista', model);
   }
 
   actualizarTipoLista(model: any, id: number) {
-    return this.http.put( this.urlApi+ 'tipoLista/ActualizarTipoLista' + id, model );
+    return this.http.put(this.urlApi + 'tipoLista/ActualizarTipoLista' + id, model);
   }
 
   eliminarTipoLista(id: number) {
-    return this.http.get( this.urlApi+ 'tipoLista/EliminarTipoLista/' + id );
+    return this.http.get(this.urlApi + 'tipoLista/EliminarTipoLista/' + id);
   }
 
-  guardarLista( model: any [] ) {
-    return this.http.post( this.urlApi+ 'Lista/guardarLista', model );
+  guardarLista(model: any[]) {
+    return this.http.post(this.urlApi + 'Lista/guardarLista', model);
   }
 
-  obtenerListas( idTipoLista: number ) {
-    return this.http.get( this.urlApi+ 'Lista/ObtenerLista/' + idTipoLista );
+  obtenerListas(idTipoLista: number) {
+    return this.http.get(this.urlApi + 'Lista/ObtenerLista/' + idTipoLista);
   }
 
 }

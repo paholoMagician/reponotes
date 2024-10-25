@@ -1,3 +1,9 @@
+<div class="spinner-overlay" *ngIf="_show_spinner">
+    <div class="spinner-container">
+        <span class="loader"></span>
+    </div>
+</div>
+
 <div *ngIf="!isConnected" class="alert alert-warning d-flex align-content-center">
     <mat-icon>wifi_off </mat-icon>
     &nbsp;
@@ -5,21 +11,26 @@
         No estás conectado a Internet.
     </span>
 </div>
-<div class=" container-fluid p-2 d-flex" *ngIf="_show_app_online">
-    <div class="containerFolderDocs" *ngFor="let carpetas of listaCarpetas">
+
+<div class="container-fluid p-2 d-flex" *ngIf="_show_app_online">
+    <div class="containerFolderDocs" *ngFor="let carpeta of folderWithNotes">
         <div class="folder d-flex justify-content-center align-items-center">
+            {{ carpeta.notas.length }}
         </div>
         <div class="documentos">
-            <div class="linea"></div>
-            <div class="linea"></div>
-            <div class="linea"></div>
+            <div class="linea" *ngFor="let nota of carpeta.notas">
+                <!-- {{ nota.nombreproducto }} -->
+            </div>
         </div>
-        <div  class="inputFolder bg-secondary p-2 rounded-pill shadow-sm text-light" style="width: 150px; font-size: 9pt;">
-            <input  [value]="carpetas.nombretipo" style="width: 100% !important; background-color: transparent !important; border: none !important;" >
+        <div class="inputFolder bg-secondary p-2 rounded-pill shadow-sm text-light"
+            style="width: 150px; font-size: 9pt;">
+            <input [value]="carpeta.nombretipo"
+                style="width: 100% !important; background-color: transparent !important; border: none !important;">
         </div>
     </div>
 </div>
-<div class=" container-fluid p-2" *ngIf="_show_app_local" >
+
+<div class=" container-fluid p-2" *ngIf="_show_app_local">
     <div class="d-flex">
         <div class="navside w-25">
             <app-navside [dataShowPrompt]="promptData" (dataHistoryToPromptRPN)="obtenerPromptCopy($event)"

@@ -10,7 +10,7 @@ import { DashboardService } from './services/dashboard.service';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-
+  _show_spinner: boolean = false;
   _show_app_local: boolean = false;
   _show_app_online: boolean = true;
   isConnected: boolean = true;
@@ -50,32 +50,43 @@ export class DashboardComponent implements OnInit {
   }
 
   listaCarpetas: any = [];
+  listaNotas: any = [];
+  folderWithNotes: any = [];
+
   obtenerCarpetas() {
+    this._show_spinner = true;
     this.dash.obtenerTipoLista(this.idUser).subscribe({
       next: (x) => {
         this.listaCarpetas = x;
         console.table(this.listaCarpetas);
-      }, error: (e) => {
+      },
+      error: (e) => {
         console.error(e);
-      }, complete: () => {
-
+        this._show_spinner = false;
+      },
+      complete: () => {
+        this.unirCarpetasNotas();
+        this._show_spinner = false;
       }
-    })
-  }  
+    });
+  }
 
-  listaNotas: any = [];
-  obtenerLista( idTipoLista: number ) {
-    this.dash.obtenerListas( idTipoLista ).subscribe({
-      next: (x) => {
-        this.listaNotas = x;
-        console.warn(this.listaNotas);
-      }, error: (e) => {
-        console.error(e);
-      }, complete: () => {
+  obtenerLista(idTipoLista: number) {
+    return this.dash.obtenerListas(idTipoLista).toPromise();
+  }
 
-      } 
-    })
-  } 
+  async unirCarpetasNotas() {
+    for (let carpeta of this.listaCarpetas) {
+      try {
+        const notas = await this.obtenerLista(carpeta.id);
+        carpeta.notas = notas;
+      } catch (error) {
+        console.error(`Error obteniendo notas para la carpeta ${carpeta.id}:`, error);
+      }
+    }
+    this.folderWithNotes = this.listaCarpetas;
+    console.warn(this.folderWithNotes);
+  }
 
   togglePromptCall() {
     const promptCallElement = document.querySelector('.prompt-call');
@@ -122,8 +133,8 @@ export class DashboardComponent implements OnInit {
   }
 
 
-  obteneremitShowApp(event:any) {
-    this._show_app_local = event; 
+  obteneremitShowApp(event: any) {
+    this._show_app_local = event;
   }
 
   notesListInFolder: any = null;

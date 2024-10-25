@@ -157,11 +157,14 @@ input:focus {
   z-index: 2;
   box-shadow: 3px 3px 5px rgba($color: #000000, $alpha: 0.5);
 }
+
 .folder::before {
   content: '';
   position: absolute;
-  top: -6px;  /* Ajustado proporcionalmente */
-  left: 5px;   /* Ajustado proporcionalmente */
+  top: -6px;
+  /* Ajustado proporcionalmente */
+  left: 5px;
+  /* Ajustado proporcionalmente */
   width: 15px;
   height: 7.5px;
   background-color: #FFD700;
@@ -199,11 +202,12 @@ input:focus {
   cursor: pointer;
   transform: scale(0.9, 0.9);
 }
-.folder:hover ~ .documentos {
+
+.folder:hover~.documentos {
   transform: scale(0.9, 0.9);
 }
 
 .inputFolder {
-position: relative;
-top: -30px;
+  position: relative;
+  top: -30px;
 }
