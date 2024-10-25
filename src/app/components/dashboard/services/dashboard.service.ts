@@ -21,8 +21,8 @@ export class DashboardService {
     return this.http.post(this.urlApi + 'tipoLista/guardarTipoLista', model);
   }
 
-  actualizarTipoLista(model: any, id: number) {
-    return this.http.put(this.urlApi + 'tipoLista/ActualizarTipoLista' + id, model);
+  actualizarTipoLista( id: number, model: any) {
+    return this.http.put(this.urlApi + 'tipoLista/ActualizarTipoLista/' + id, model);
   }
 
   eliminarTipoLista(id: number) {

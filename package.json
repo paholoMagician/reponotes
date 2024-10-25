@@ -31,6 +31,8 @@
     "express": "^4.18.2",
     "firebase": "^10.14.1",
     "jquery": "^3.7.1",
+    "ngx-quill": "^26.0.8",
+    "quill": "^2.0.2",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.14.3",
     "tslib": "^2.3.0",

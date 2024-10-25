@@ -1,12 +1,24 @@
+<div class="spinner-overlay" *ngIf="_show_spinner">
+    <div class="spinner-container">
+        <span class="loader"></span>
+    </div>
+</div>
+
+
 <div class="p-3">
     <form [formGroup]="folderForm" class="mb-2" (ngSubmit)="onSubmit()">
         <div class="mb-3 w-100">
-            <label for="folderName" class="form-label text-secondary d-flex align-content-center">
-                <mat-icon>folder_open</mat-icon> &nbsp; <span> Nombre de tu carpeta: <span
+            <label for="folderName" class="form-label text-light d-flex align-content-center" style="font-size: 10pt;">
+                <mat-icon>folder_open</mat-icon> &nbsp; <span> Name folder: <span
                         class="text-danger">*</span></span>
             </label>
             <input type="text" class="form-control" formControlName="folderName" #folderName id="folderName"
                 placeholder="" />
+                <div class="w-100 d-flex justify-content-end mt-1">
+                    <button class="btns" style="font-size: 10pt;">
+                        <mat-icon> save </mat-icon> <span> Crear </span>
+                    </button>
+                </div>
         </div>
     </form>
 </div>

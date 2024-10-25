@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DashboardService } from '../services/dashboard.service';
 
@@ -8,6 +8,10 @@ import { DashboardService } from '../services/dashboard.service';
   styleUrl: './window-function.component.scss'
 })
 export class WindowFunctionComponent implements OnInit {
+
+  @Output() folerEmit: EventEmitter<any> = new EventEmitter<any>();
+  modelFolder: any = [];
+  _show_spinner: boolean = false;
 
   public folderForm = new FormGroup({
     folderName: new FormControl('')
@@ -19,14 +23,18 @@ export class WindowFunctionComponent implements OnInit {
 
   }
 
-  onSubmit() { }
+  onSubmit() { 
 
+    this.guardarFolder();
 
-  modelFolder: any = [];
+  }
+
+  res: any = [];
   guardarFolder() {
+    
     let xfolder: any = this.folderForm.controls['folderName'].value?.trim() || '';
-    console.log(xfolder);
     let xuser: any = sessionStorage.getItem('id');
+    this._show_spinner = true;
     this.modelFolder = {
       nombretipo: xfolder,
       iduser: xuser,
@@ -38,13 +46,22 @@ export class WindowFunctionComponent implements OnInit {
     this.notesServices.guardarTipoLista(this.modelFolder).subscribe({
       next: (x) => {
         console.warn(x);
+        this.res = x;
       }, error: (e) => {
         console.error(e);
+        this._show_spinner = false;
       }, complete: () => {
-
+        this.folerEmit.emit(this.res);
+        this._show_spinner = false;
+        this.limpiar();
       }
     })
 
+  }
+
+
+  limpiar() {
+    this.folderForm.controls['folderName'].setValue('');
   }
 
 

@@ -12,24 +12,74 @@
     </span>
 </div>
 
-<div class="container-fluid p-2 d-flex" *ngIf="_show_app_online">
+
+<div class="container-fluid p-2 d-flex flex-wrap" *ngIf="_show_app_online">
     <div class="containerFolderDocs" *ngFor="let carpeta of folderWithNotes">
-        <div class="folder d-flex justify-content-center align-items-center">
+        <!-- Carpeta -->
+        <div class="folder d-flex justify-content-center align-items-center"
+             [ngClass]="{'active': carpeta.active}"
+             (click)="toggleActive(carpeta)"
+             (contextmenu)="openContextMenu($event, carpeta)"
+             [matMenuTriggerFor]="menu">
             {{ carpeta.notas.length }}
         </div>
+            <!-- Menú contextual -->
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item
+                    class="d-flex align-items-center"
+                    (click)="crearNota(carpeta.id)">
+                    <mat-icon>add</mat-icon>
+                    <span> Crear Nota </span>
+            </button>
+            <button mat-menu-item
+                    class="d-flex align-items-center"
+                    (click)="eliminarCarpeta(carpeta.id)">
+                    <mat-icon>delete</mat-icon>
+                    <span> Eliminar Carpeta </span>
+            </button>
+        </mat-menu>
+        <!-- Documentos dentro de la carpeta -->
         <div class="documentos" *ngIf="carpeta.notas.length > 0">
             <div class="linea" *ngFor="let nota of carpeta.notas">
                 <!-- {{ nota.nombreproducto }} -->
             </div>
         </div>
+
+        <!-- Input para el nombre de la carpeta -->
         <div class="inputFolder bg-secondary p-2 rounded-pill shadow-sm text-light"
-            style="width: 150px; font-size: 9pt;">
+             style="width: 150px; font-size: 9pt;">
             <input [value]="carpeta.nombretipo"
-                style="width: 100% !important; background-color: transparent !important; border: none !important;">
+                   (keyup.enter)="actualizarFolder(carpeta.id)"
+                   [id]="'folder-' + carpeta.id"
+                   style="width: 100% !important; background-color: transparent !important; border: none !important;">
         </div>
     </div>
-    <app-window-function *ngIf="_folder_open"></app-window-function>
+
+    <div *ngIf="_folder_open" class="window-function-overlay">
+        <div class="window-function" cdkDrag>
+            <div class="title" cdkDragHandle>
+                <h6>Create Folder</h6>
+                <button type="button" 
+                        (click)="_folder_open = false">
+                        <mat-icon>cancel</mat-icon>
+                </button>
+            </div>
+            <app-window-function (folerEmit)="getFolderOutput($event)"></app-window-function>
+        </div>
+    </div>
+    <div *ngIf="_notes_open" class="window-function-overlay">
+        <div class="window-function" cdkDrag>
+            <div class="title" cdkDragHandle>
+                <h6>Notes editor</h6>
+                <button type="button" (click)="_notes_open = false">
+                    <mat-icon>cancel</mat-icon>
+                </button>
+            </div>
+            <app-notas style="overflow-y: auto;" ></app-notas>
+        </div>
+    </div>    
 </div>
+
 
 <div class=" container-fluid p-2" *ngIf="_show_app_local">
     <div class="d-flex">

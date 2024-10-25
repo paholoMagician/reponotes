@@ -203,11 +203,121 @@ input:focus {
   transform: scale(0.9, 0.9);
 }
 
-.folder:hover~.documentos {
+.folder:hover ~ .documentos {
   transform: scale(0.9, 0.9);
 }
 
 .inputFolder {
   position: relative;
   top: -30px;
+}
+
+.folder.active {
+  background-color: #e7c718;
+  transform: scale(0.9, 0.9);
+  transition: ease all 0.5s;
+}
+
+.btns {
+  background-color: transparent;
+  border: solid 2px yellowgreen;
+  padding: 5px;
+  border-radius:  5px;
+  color: yellowgreen;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: ease all 1s;
+}
+
+.btns:hover {
+  transition: ease all 1s;
+  cursor: pointer;
+  background-color: yellowgreen;
+  color: #444;
+}
+
+/* Fondo overlay detrás de la ventana */
+.window-function-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.159); /* Transparencia para el overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Estilos para la ventana emergente */
+.window-function {
+  display: flex; /* Agregado para permitir ajuste automático del contenido */
+  flex-direction: column; /* Permite apilar el contenido verticalmente */
+  position: relative; /* Necesario para el pseudo-elemento ::before */
+  background: linear-gradient(to bottom, rgba(82, 85, 87, 0.8), rgba(7, 33, 138, 0.4));
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  width: 80%;
+  max-width: none; /* Permite que la ventana funcione sin límite de ancho */
+  max-height: none;
+  min-width: 300px; /* Define un tamaño mínimo para evitar que se vuelva demasiado pequeño */
+  min-height: 200px; /* Definir un tamaño mínimo también ayuda a la altura */
+  overflow: hidden; /* Evita que el contenido desborde */
+  resize: both; /* Activa el redimensionamiento desde cualquier borde */
+  backdrop-filter: blur(5px);
+}
+
+.window-function .editor-container {
+  flex: 1; /* Permite que el editor tome todo el espacio disponible */
+  overflow: auto; /* Permite el desplazamiento dentro del editor si es necesario */
+}
+
+.window-function::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  background: transparent;
+  border-right: 2px solid #ddd;
+  border-bottom: 2px solid #ddd;
+  cursor: nwse-resize; /* Cambia el cursor para indicar redimensionamiento */
+}
+
+@media (max-width: 768px) {
+  .window-function {
+      resize: none; /* Desactiva el ajuste de tamaño en pantallas pequeñas */
+      width: 100vw; /* Ancho total de la pantalla */
+      height: 80vh; /* Altura del 80% de la pantalla */
+  }
+}
+
+
+
+/* Estilos para el encabezado de la ventana */
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: move; /* Mostrar el cursor de arrastre */
+  color: whitesmoke;
+}
+
+.title h6 {
+  margin: 0;
+}
+
+.title button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+}
+
+.title button mat-icon {
+  font-size: 20px;
 }

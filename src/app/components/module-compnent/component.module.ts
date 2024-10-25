@@ -60,6 +60,8 @@ import { InputPromptComponent } from "../input-prompt/input-prompt.component";
 import { SocialLoginModule, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
 import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
 import { WindowFunctionComponent } from "../dashboard/window-function/window-function.component";
+import { NotasComponent } from "../dashboard/notas/notas.component";
+import { QuillModule } from "ngx-quill";
 
 @NgModule({
   declarations: [
@@ -67,7 +69,8 @@ import { WindowFunctionComponent } from "../dashboard/window-function/window-fun
     DashboardComponent,
     NavsideComponent,
     InputPromptComponent,
-    WindowFunctionComponent
+    WindowFunctionComponent,
+    NotasComponent
   ], imports: [
     SocialLoginModule,
     DragDropModule,
@@ -104,11 +107,13 @@ import { WindowFunctionComponent } from "../dashboard/window-function/window-fun
     MatSelectModule,
     FormsModule,
     ReactiveFormsModule,
-    DragDropModule
+    DragDropModule,
+    QuillModule.forRoot(),
   ], exports: [
     LoginComponent,
     NavsideComponent,
-    WindowFunctionComponent
+    WindowFunctionComponent,
+    NotasComponent
   ], providers: [
     provideHttpClient(withFetch(),),
     {
