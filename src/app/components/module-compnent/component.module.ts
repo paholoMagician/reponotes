@@ -59,13 +59,15 @@ import { InputPromptComponent } from "../input-prompt/input-prompt.component";
 /** GOOGLE MODULES */
 import { SocialLoginModule, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
 import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
+import { WindowFunctionComponent } from "../dashboard/window-function/window-function.component";
 
 @NgModule({
   declarations: [
     LoginComponent,
     DashboardComponent,
     NavsideComponent,
-    InputPromptComponent
+    InputPromptComponent,
+    WindowFunctionComponent
   ], imports: [
     SocialLoginModule,
     DragDropModule,
@@ -105,7 +107,8 @@ import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
     DragDropModule
   ], exports: [
     LoginComponent,
-    NavsideComponent
+    NavsideComponent,
+    WindowFunctionComponent
   ], providers: [
     provideHttpClient(withFetch(),),
     {

@@ -257,7 +257,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
       }
 
       this.modelPushFolders.push(arr);
-      m.notas.filter( (n:any) => {
+      m.notas.filter((n: any) => {
         let arrNotes: any = {
           cantidad: 0,
           nombreproducto: n.nombreproducto,
@@ -267,13 +267,13 @@ export class InputPromptComponent implements OnInit, OnChanges {
           // idlistatipo: '',
           estado: 100,
           urlimagen: m.nombretipo,
-          permiso: 1,           
+          permiso: 1,
         }
 
         this.modelPushNotes.push(arrNotes);
 
       })
-      
+
     })
 
     this.modelPushFolders.filter((f: any) => {
@@ -293,22 +293,23 @@ export class InputPromptComponent implements OnInit, OnChanges {
       })
     })
 
-    this.modelServerSetFolder.filter( (mp:any) => {
-      this.modelPushNotes.filter( (np:any) => {
-        if ( mp.nombretipo == np.urlimagen ) {
+    this.modelServerSetFolder.filter((mp: any) => {
+      this.modelPushNotes.filter((np: any) => {
+        if (mp.nombretipo == np.urlimagen) {
           np.idlistatipo = mp.id
         }
       })
     })
 
-    this.modelPushNotes.filter( (n:any) => {
-      this.notesServices.guardarLista( n ).subscribe({
+    this.modelPushNotes.filter((n: any) => {
+      this._show_spinner = true;
+      this.notesServices.guardarLista(n).subscribe({
         next: (x) => {
           console.warn('Nota guardada: ' + n)
+          this._show_spinner = false;
         }, error: (e) => {
           console.error(e);
-        }, complete: () => {
-
+          this._show_spinner = false;
         }
       })
     })
@@ -320,7 +321,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   //   const x: any = localStorage.getItem('data_tipo_lista');
   //   const xuser: any = sessionStorage.getItem('id');
   //   this.listaLocalFolders = x ? JSON.parse(x) : [];
-  
+
   //   // Preparar los datos para carpetas y notas
   //   this.listaLocalFolders.forEach((m: any) => {
   //     const folder = {
@@ -331,7 +332,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   //       presupuesto: 0
   //     };
   //     this.modelPushFolders.push(folder);
-  
+
   //     m.notas.forEach((n: any) => {
   //       const note = {
   //         cantidad: 0,
@@ -346,7 +347,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   //       this.modelPushNotes.push(note);
   //     });
   //   });
-  
+
   //   // Guardar las carpetas y luego asociar las notas con sus ids
   //   from(this.modelPushFolders).pipe(
   //     mergeMap(folder => 
@@ -365,7 +366,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   //     finalize(() => {
   //       this._show_spinner = false;
   //       this.displayMessage('Carpetas han sido guardadas en la nube.', 'yellowgreen');
-  
+
   //       // Asociar ids de las carpetas guardadas con las notas
   //       this.modelServerSetFolder.forEach((mp: any) => {
   //         this.modelPushNotes.forEach((np: any) => {
@@ -374,13 +375,13 @@ export class InputPromptComponent implements OnInit, OnChanges {
   //           }
   //         });
   //       });
-  
+
   //       // Guardar las notas en base a la carpeta asociada
   //       this.guardarNotas();
   //     })
   //   ).subscribe();
   // }
-  
+
   // guardarNotas() {
   //   from(this.modelPushNotes).pipe(
   //     mergeMap((note:any) =>

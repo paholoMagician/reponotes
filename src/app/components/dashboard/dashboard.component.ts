@@ -10,6 +10,7 @@ import { DashboardService } from './services/dashboard.service';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
+  _folder_open: boolean = false;
   _show_spinner: boolean = false;
   _show_app_local: boolean = false;
   _show_app_online: boolean = true;
@@ -48,6 +49,18 @@ export class DashboardComponent implements OnInit {
       this.togglePromptCall(); // Alternar la visibilidad del div
     }
   }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.ctrlKey && event.shiftKey && event.key === 'F') {
+      this.createFolder();
+    }
+  }
+
+  createFolder() {
+    this._folder_open = true
+  }
+
 
   listaCarpetas: any = [];
   listaNotas: any = [];

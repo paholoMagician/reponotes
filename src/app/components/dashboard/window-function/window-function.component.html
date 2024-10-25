@@ -1,0 +1,12 @@
+<div class="p-3">
+    <form [formGroup]="folderForm" class="mb-2" (ngSubmit)="onSubmit()">
+        <div class="mb-3 w-100">
+            <label for="folderName" class="form-label text-secondary d-flex align-content-center">
+                <mat-icon>folder_open</mat-icon> &nbsp; <span> Nombre de tu carpeta: <span
+                        class="text-danger">*</span></span>
+            </label>
+            <input type="text" class="form-control" formControlName="folderName" #folderName id="folderName"
+                placeholder="" />
+        </div>
+    </form>
+</div>
