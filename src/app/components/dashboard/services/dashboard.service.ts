@@ -21,7 +21,7 @@ export class DashboardService {
     return this.http.post(this.urlApi + 'tipoLista/guardarTipoLista', model);
   }
 
-  actualizarTipoLista( id: number, model: any) {
+  actualizarTipoLista(id: number, model: any) {
     return this.http.put(this.urlApi + 'tipoLista/ActualizarTipoLista/' + id, model);
   }
 
@@ -30,6 +30,7 @@ export class DashboardService {
   }
 
   guardarLista(model: any[]) {
+    console.warn(this.urlApi + 'Lista/guardarLista', model)
     return this.http.post(this.urlApi + 'Lista/guardarLista', model);
   }
 

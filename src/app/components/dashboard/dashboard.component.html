@@ -16,26 +16,19 @@
 <div class="container-fluid p-2 d-flex flex-wrap" *ngIf="_show_app_online">
     <div class="containerFolderDocs" *ngFor="let carpeta of folderWithNotes">
         <!-- Carpeta -->
-        <div class="folder d-flex justify-content-center align-items-center"
-             [ngClass]="{'active': carpeta.active}"
-             (click)="toggleActive(carpeta)"
-             (contextmenu)="openContextMenu($event, carpeta)"
-             [matMenuTriggerFor]="menu">
+        <div class="folder d-flex justify-content-center align-items-center" [ngClass]="{'active': carpeta.active}"
+            (click)="toggleActive(carpeta)" (contextmenu)="openContextMenu($event, carpeta)" [matMenuTriggerFor]="menu">
             {{ carpeta.notas.length }}
         </div>
-            <!-- Menú contextual -->
+        <!-- Menú contextual -->
         <mat-menu #menu="matMenu">
-            <button mat-menu-item
-                    class="d-flex align-items-center"
-                    (click)="crearNota(carpeta.id)">
-                    <mat-icon>add</mat-icon>
-                    <span> Crear Nota </span>
+            <button mat-menu-item class="d-flex align-items-center" (click)="crearNota(carpeta.id)">
+                <mat-icon>add</mat-icon>
+                <span> Crear Nota </span>
             </button>
-            <button mat-menu-item
-                    class="d-flex align-items-center"
-                    (click)="eliminarCarpeta(carpeta.id)">
-                    <mat-icon>delete</mat-icon>
-                    <span> Eliminar Carpeta </span>
+            <button mat-menu-item class="d-flex align-items-center" (click)="eliminarCarpeta(carpeta.id)">
+                <mat-icon>delete</mat-icon>
+                <span> Eliminar Carpeta </span>
             </button>
         </mat-menu>
         <!-- Documentos dentro de la carpeta -->
@@ -47,11 +40,10 @@
 
         <!-- Input para el nombre de la carpeta -->
         <div class="inputFolder bg-secondary p-2 rounded-pill shadow-sm text-light"
-             style="width: 150px; font-size: 9pt;">
-            <input [value]="carpeta.nombretipo"
-                   (keyup.enter)="actualizarFolder(carpeta.id)"
-                   [id]="'folder-' + carpeta.id"
-                   style="width: 100% !important; background-color: transparent !important; border: none !important;">
+            style="width: 150px; font-size: 9pt;">
+            <input [value]="carpeta.nombretipo" (keyup.enter)="actualizarFolder(carpeta.id)"
+                [id]="'folder-' + carpeta.id"
+                style="width: 100% !important; background-color: transparent !important; border: none !important;">
         </div>
     </div>
 
@@ -59,9 +51,8 @@
         <div class="window-function" cdkDrag>
             <div class="title" cdkDragHandle>
                 <h6>Create Folder</h6>
-                <button type="button" 
-                        (click)="_folder_open = false">
-                        <mat-icon>cancel</mat-icon>
+                <button type="button" (click)="_folder_open = false">
+                    <mat-icon>cancel</mat-icon>
                 </button>
             </div>
             <app-window-function (folerEmit)="getFolderOutput($event)"></app-window-function>
@@ -75,9 +66,9 @@
                     <mat-icon>cancel</mat-icon>
                 </button>
             </div>
-            <app-notas style="overflow-y: auto;" ></app-notas>
+            <app-notas style="overflow-y: auto;" [folderId]="notasId"></app-notas>
         </div>
-    </div>    
+    </div>
 </div>
 
 

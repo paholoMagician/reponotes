@@ -1,7 +1,10 @@
 <div class="editor-container" [formGroup]="notaForm">
-    <quill-editor formControlName="notaContent" [style]="{height: '70vh'}"></quill-editor>
-    <button type="button" class="btn btn-outline-dark d-flex align-items-center"
-     (click)="onSubmit()"  >
-       <mat-icon>save</mat-icon> <span> Guardar Nota </span>
+  <quill-editor formControlName="notaContent" [modules]="{ toolbar: toolbarOptions }"
+    [style]="{height: '70vh', width: '100%'}">
+  </quill-editor>
+  <div class="w-100 d-flex justify-content-end">
+    <button type="button" class="btn btn-outline-dark d-flex align-items-center" (click)="onSubmit()">
+      <mat-icon>save</mat-icon> <span> Guardar Nota </span>
     </button>
+  </div>
 </div>

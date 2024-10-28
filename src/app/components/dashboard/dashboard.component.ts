@@ -33,23 +33,25 @@ export class DashboardComponent implements OnInit {
   folderWithNotes: any = [];
   notesListInFolder: any = null;
 
-  constructor( private router: Router, 
-               private log: LoginService,
-               private networkService: NetworkService,
-               private dash: DashboardService ) 
-              { }
- 
+  constructor(private router: Router,
+    private log: LoginService,
+    private networkService: NetworkService,
+    private dash: DashboardService) { }
+
 
   ngOnInit(): void {
+
     this.log.validacion();
     this.networkService.getOnlineStatus().subscribe((status: boolean) => {
       this.isConnected = status;
-      this.idUser = sessionStorage.getItem('id')
+      this.idUser = sessionStorage.getItem('id');
       console.log('Conectado a Internet:', status);
     });
+
     // Detectar la combinación Ctrl + I
     document.addEventListener('keydown', this.handleKeydown.bind(this));
     this.obtenerCarpetas();
+
   }
 
   ngOnDestroy(): void {
@@ -58,105 +60,107 @@ export class DashboardComponent implements OnInit {
   }
 
   res: any = [];
-  modelFolder: any = [];  
+  modelFolder: any = [];
   actualizarFolder(id: number) {
-    
-      let inputElement = <HTMLInputElement> document.getElementById('folder-'+id.toString());
-      console.warn(inputElement.value);    
-  
-      let xuser: any = sessionStorage.getItem('id');
-      this._show_spinner = true;
-      this.modelFolder = {
-          id: id,
-          nombretipo: inputElement.value,
-          iduser: xuser,
-          fecrea: new Date(),
-          estado: 100,
-          permiso: 1,
-          presupuesto: 0
-      }
 
-      this.dash.actualizarTipoLista(id, this.modelFolder).subscribe({
-          next: (x) => {
-              console.warn(x);
-              this.res = x;
-          }, 
-          error: (e) => {
-              console.error(e);
-              this._show_spinner = false;
-          }, 
-          complete: () => {
-              this._show_spinner = false;
-              this.limpiar();
-          }
-      });
+    let inputElement = <HTMLInputElement>document.getElementById('folder-' + id.toString());
+    console.warn(inputElement.value);
+
+    let xuser: any = sessionStorage.getItem('id');
+    this._show_spinner = true;
+    this.modelFolder = {
+      id: id,
+      nombretipo: inputElement.value,
+      iduser: xuser,
+      fecrea: new Date(),
+      estado: 100,
+      permiso: 1,
+      presupuesto: 0
+    }
+
+    this.dash.actualizarTipoLista(id, this.modelFolder).subscribe({
+      next: (x) => {
+        console.warn(x);
+        this.res = x;
+      },
+      error: (e) => {
+        console.error(e);
+        this._show_spinner = false;
+      },
+      complete: () => {
+        this._show_spinner = false;
+        this.limpiar();
+      }
+    });
   }
-  
+
   limpiar() {
-      // Tu lógica de limpieza aquí
+    // Tu lógica de limpieza aquí
   }
 
   openContextMenu(event: MouseEvent, carpeta: any) {
     event.preventDefault(); // Prevenir el menú contextual del navegador
-}
+  }
 
-crearNota(folderId: number) {
+  notasId: any;
+  crearNota(folderId: number) {
     console.log('Crear nota en la carpeta:', folderId);
-    this.folderEmit.emit(folderId);
+    // this.folderEmit.emit(folderId);
+    this.notasId = folderId;
     this._notes_open = true;
-}
+  }
 
-eliminarCarpeta(folderId: number) {
+  eliminarCarpeta(folderId: number) {
     console.log('Eliminar carpeta:', folderId);
-}
+  }
 
 
   obtenerCarpetas() {
-      this._show_spinner = true;
-      this.dash.obtenerTipoLista(this.idUser).subscribe({
-          next: (x) => {
-              this.listaCarpetas = x;
-              console.table(this.listaCarpetas);
-          },
-          error: (e) => {
-              console.error(e);
-              this._show_spinner = false;
-          },
-          complete: () => {
-              this.unirCarpetasNotas();
-              this._show_spinner = false;
-          }
-      });
-  }
-  
-  obtenerLista(idTipoLista: number) {
-      return this.dash.obtenerListas(idTipoLista).toPromise();
-  }
-  
-  async unirCarpetasNotas() {
-      for (let carpeta of this.listaCarpetas) {
-          try {
-              const notas = await this.obtenerLista(carpeta.id);
-              carpeta.notas = notas;
-              carpeta.active = false; // Agrega la propiedad active
-          } catch (error) {
-              console.error(`Error obteniendo notas para la carpeta ${carpeta.id}:`, error);
-          }
+    this._show_spinner = true;
+    this.dash.obtenerTipoLista(this.idUser).subscribe({
+      next: (x) => {
+        this.listaCarpetas = x;
+        console.table(this.listaCarpetas);
+      },
+      error: (e) => {
+        console.error(e);
+        this._show_spinner = false;
+      },
+      complete: () => {
+        this.unirCarpetasNotas();
+        this._show_spinner = false;
       }
-      this.folderWithNotes = this.listaCarpetas;
-      console.warn(this.folderWithNotes);
+    });
   }
-  
+
+  obtenerLista(idTipoLista: number) {
+    return this.dash.obtenerListas(idTipoLista).toPromise();
+  }
+
+  async unirCarpetasNotas() {
+    for (let carpeta of this.listaCarpetas) {
+      try {
+        const notas = await this.obtenerLista(carpeta.id);
+        carpeta.notas = notas;
+        carpeta.active = false; // Agrega la propiedad active
+      } catch (error) {
+        console.error(`Error obteniendo notas para la carpeta ${carpeta.id}:`, error);
+      }
+    }
+    this.folderWithNotes = this.listaCarpetas;
+    console.warn(this.folderWithNotes);
+  }
+
   toggleActive(carpeta: any) {
-      this.folderWithNotes.forEach((f:any) => f.active = false); // Desactiva todas las carpetas
-      carpeta.active = true; // Activa la carpeta seleccionada
+    this.folderWithNotes.forEach((f: any) => f.active = false); // Desactiva todas las carpetas
+    carpeta.active = true; // Activa la carpeta seleccionada
   }
-  
+
 
   // Manejar la combinación Ctrl + I
   handleKeydown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key === 'i') {
-      event.preventDefault(); // Prevenir el comportamiento por defecto del navegador
+      event.preventDefault();  // Prevenir el comportamiento por defecto del navegador
       this.togglePromptCall(); // Alternar la visibilidad del div
     }
   }
@@ -174,7 +178,7 @@ eliminarCarpeta(folderId: number) {
 
 
 
-  getFolderOutput(event:any) {
+  getFolderOutput(event: any) {
     this.listaCarpetas.push(event);
     this._folder_open = false;
   }

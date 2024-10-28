@@ -15,6 +15,9 @@ export class InputPromptComponent implements OnInit, OnChanges {
   @ViewChild('prompt') promptInput!: ElementRef
   _show_spinner: boolean = false;
 
+  modelPushNotes: any = [];
+  modelServerSetFolder: any = [];
+
   @Input() getPrompt: any;
   @Input() getCopyCodec: any;
 
@@ -240,8 +243,6 @@ export class InputPromptComponent implements OnInit, OnChanges {
     }
   }
 
-  modelPushNotes: any = [];
-  modelServerSetFolder: any = [];
   guardarFolder() {
     this._show_spinner = true;
     let x: any = localStorage.getItem('data_tipo_lista');
