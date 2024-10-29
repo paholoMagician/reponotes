@@ -95,7 +95,7 @@ export class DashboardComponent implements OnInit {
   }
 
   limpiar() {
-    // Tu lógica de limpieza aquí
+    // Tu lógica de limpieza aquíw
   }
 
   openContextMenu(event: MouseEvent, carpeta: any) {

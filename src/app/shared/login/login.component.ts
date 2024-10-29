@@ -28,14 +28,17 @@ const Toast = Swal.mixin({
 })
 
 export class LoginComponent implements OnInit {
+  
   title_head:         string = 'Registro';
   pass_type:          string = 'password';
   isConnected:        boolean = true;
   actionForm:         string = 'sign';
+
   _show_spinner:      boolean = false;
   show_log:           boolean = true;
   showPassword:       boolean = false;
   text_action_button: string = 'Registrarse';
+
   showSignIn: boolean = true;
   showLogin: boolean = false;
 
@@ -200,6 +203,10 @@ export class LoginComponent implements OnInit {
 
       this.logUser.login(this.modelUserGuardar).subscribe({
         next: (x: any) => {
+
+          console.warn('TOKEN')
+          console.warn(x)
+
           Toast.fire({
             icon: "success",
             title: "Ingreso correcto!"

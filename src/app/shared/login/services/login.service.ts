@@ -8,7 +8,8 @@ import { isPlatformBrowser } from '@angular/common';
 })
 export class LoginService {
 
-  private urlApi: string = 'https://rpsoftdev.store:444/api/';
+  // private urlApi: string = 'https://rpsoftdev.store:444/api/';
+  private urlApi: string = 'https://localhost:7213/api/';
   constructor(private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) private platformId: Object) { }
 
   validacion() {
@@ -19,8 +20,8 @@ export class LoginService {
       let j: any = sessionStorage.getItem('email');
       let h: any = sessionStorage.getItem('usuario');
 
-      if (!x || !j || !h) this.router.navigate(['login']); 
-      else this.router.navigate(['home']);
+      if ( !x || !j || !h ) this.router.navigate( ['login'] );
+      else this.router.navigate( ['home'] );
 
     } else {
       console.error('sessionStorage is not available in this environment (probably server-side rendering).');
@@ -40,7 +41,7 @@ export class LoginService {
   }
 
   login(model: any) {
-    return this.http.post( this.urlApi + 'login/loginUser', model);
+    return this.http.post( this.urlApi + 'Login/login', model);
   }
 
   logingoogle( email:string ) {

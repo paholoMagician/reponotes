@@ -25,25 +25,40 @@ export class WindowFunctionComponent implements OnInit {
 
   onSubmit() { 
 
-    this.guardarFolder();
+    this.guardarFolder(null,1);
 
   }
 
   res: any = [];
-  guardarFolder() {
+  guardarFolder(idfolder: any, positionFolder: any) {
     
     let xfolder: any = this.folderForm.controls['folderName'].value?.trim() || '';
     let xuser: any = sessionStorage.getItem('id');
     this._show_spinner = true;
     this.modelFolder = {
-      nombretipo: xfolder,
+      nameFolder: xfolder,
+      descripcion: '',
+      positionFolder: positionFolder,
       iduser: xuser,
-      estado: 100,
-      permiso: 1,
-      presupuesto: 0
+      estado: 1,
+      permisos: 1,
+      password: '',
+      idfolder: idfolder
     }
 
-    this.notesServices.guardarTipoLista(this.modelFolder).subscribe({
+    /*
+      nameFolder
+      descripcion
+      colorFolder
+      positionFolder
+      iduser
+      estado
+      permisos
+      password
+      idfolder
+    */
+
+    this.notesServices.saveFolder(this.modelFolder).subscribe({
       next: (x) => {
         console.warn(x);
         this.res = x;

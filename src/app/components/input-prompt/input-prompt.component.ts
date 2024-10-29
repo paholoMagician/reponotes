@@ -201,9 +201,9 @@ export class InputPromptComponent implements OnInit, OnChanges {
         this.deleteNote(xcommand);
         this.helpListEmit.emit(false);
       }
-      else if (xcommand.startsWith('rpn push server f -c')) {
-        this.guardarFolder();
-      }
+      // else if (xcommand.startsWith('rpn push server f -c')) {
+      //   this.guardarFolder();
+      // }
       else if (xcommand.startsWith('rpn help')) {
         if (this.toggleHelpShow) {
           this.toggleHelpShow = false;
@@ -243,79 +243,79 @@ export class InputPromptComponent implements OnInit, OnChanges {
     }
   }
 
-  guardarFolder() {
-    this._show_spinner = true;
-    let x: any = localStorage.getItem('data_tipo_lista');
-    let xuser: any = sessionStorage.getItem('id');
-    this.listaLocalFolders = x ? JSON.parse(x) : [];
-    this.listaLocalFolders.filter((m: any) => {
-      let arr: any = {
-        nombretipo: m.nombretipo,
-        iduser: xuser,
-        estado: 100,
-        permiso: 1,
-        presupuesto: 0
-      }
+  // guardarFolder() {
+  //   this._show_spinner = true;
+  //   let x: any = localStorage.getItem('data_tipo_lista');
+  //   let xuser: any = sessionStorage.getItem('id');
+  //   this.listaLocalFolders = x ? JSON.parse(x) : [];
+  //   this.listaLocalFolders.filter((m: any) => {
+  //     let arr: any = {
+  //       nombretipo: m.nombretipo,
+  //       iduser: xuser,
+  //       estado: 100,
+  //       permiso: 1,
+  //       presupuesto: 0
+  //     }
 
-      this.modelPushFolders.push(arr);
-      m.notas.filter((n: any) => {
-        let arrNotes: any = {
-          cantidad: 0,
-          nombreproducto: n.nombreproducto,
-          valor: 0,
-          fecrea: new Date(),
-          iduser: xuser,
-          // idlistatipo: '',
-          estado: 100,
-          urlimagen: m.nombretipo,
-          permiso: 1,
-        }
+  //     this.modelPushFolders.push(arr);
+  //     m.notas.filter((n: any) => {
+  //       let arrNotes: any = {
+  //         cantidad: 0,
+  //         nombreproducto: n.nombreproducto,
+  //         valor: 0,
+  //         fecrea: new Date(),
+  //         iduser: xuser,
+  //         // idlistatipo: '',
+  //         estado: 100,
+  //         urlimagen: m.nombretipo,
+  //         permiso: 1,
+  //       }
 
-        this.modelPushNotes.push(arrNotes);
+  //       this.modelPushNotes.push(arrNotes);
 
-      })
+  //     })
 
-    })
+  //   })
 
-    this.modelPushFolders.filter((f: any) => {
-      this.notesServices.guardarTipoLista(f).subscribe({
-        next: (x) => {
-          console.warn(x);
-          this.modelServerSetFolder.push(x);
-        }, error: (e) => {
-          console.error(e);
-          this._show_spinner = false;
-          this.displayMessage('Hay repositorios existenetes en nuestros servidores.', 'orange');
-        }, complete: () => {
-          this._show_spinner = false;
-          this.displayMessage('Carpetas han sido guardadas en la nube.', 'yellowgreen');
-          this.limpiarPrompt();
-        }
-      })
-    })
+  //   this.modelPushFolders.filter((f: any) => {
+  //     this.notesServices.guardarTipoLista(f).subscribe({
+  //       next: (x) => {
+  //         console.warn(x);
+  //         this.modelServerSetFolder.push(x);
+  //       }, error: (e) => {
+  //         console.error(e);
+  //         this._show_spinner = false;
+  //         this.displayMessage('Hay repositorios existenetes en nuestros servidores.', 'orange');
+  //       }, complete: () => {
+  //         this._show_spinner = false;
+  //         this.displayMessage('Carpetas han sido guardadas en la nube.', 'yellowgreen');
+  //         this.limpiarPrompt();
+  //       }
+  //     })
+  //   })
 
-    this.modelServerSetFolder.filter((mp: any) => {
-      this.modelPushNotes.filter((np: any) => {
-        if (mp.nombretipo == np.urlimagen) {
-          np.idlistatipo = mp.id
-        }
-      })
-    })
+  //   this.modelServerSetFolder.filter((mp: any) => {
+  //     this.modelPushNotes.filter((np: any) => {
+  //       if (mp.nombretipo == np.urlimagen) {
+  //         np.idlistatipo = mp.id
+  //       }
+  //     })
+  //   })
 
-    this.modelPushNotes.filter((n: any) => {
-      this._show_spinner = true;
-      this.notesServices.guardarLista(n).subscribe({
-        next: (x) => {
-          console.warn('Nota guardada: ' + n)
-          this._show_spinner = false;
-        }, error: (e) => {
-          console.error(e);
-          this._show_spinner = false;
-        }
-      })
-    })
+  //   this.modelPushNotes.filter((n: any) => {
+  //     this._show_spinner = true;
+  //     this.notesServices.guardarLista(n).subscribe({
+  //       next: (x) => {
+  //         console.warn('Nota guardada: ' + n)
+  //         this._show_spinner = false;
+  //       }, error: (e) => {
+  //         console.error(e);
+  //         this._show_spinner = false;
+  //       }
+  //     })
+  //   })
 
-  }
+  // }
 
   // guardarFolder() {
   //   this._show_spinner = true;

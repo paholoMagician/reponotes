@@ -6,7 +6,8 @@ import { Injectable } from '@angular/core';
 })
 export class DashboardService {
 
-  private urlApi: string = 'https://rpsoftdev.store:444/api/';
+  // private urlApi: string = 'https://rpsoftdev.store:444/api/';
+  private urlApi: string = 'https://localhost:7213/api/';
   constructor(private http: HttpClient) { }
 
   obtenerTipoLista(id: number) {
@@ -17,8 +18,8 @@ export class DashboardService {
     return this.http.get(this.urlApi + 'tipoLista/ObtenerFolderDocs/' + id);
   }
 
-  guardarTipoLista(model: any) {
-    return this.http.post(this.urlApi + 'tipoLista/guardarTipoLista', model);
+  saveFolder(model: any) {
+    return this.http.post(this.urlApi + 'Folder/FolderCreate', model);
   }
 
   actualizarTipoLista(id: number, model: any) {
