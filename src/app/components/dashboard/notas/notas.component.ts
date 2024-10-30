@@ -53,34 +53,34 @@ export class NotasComponent implements OnInit, OnChanges {
 
   onSubmit() {
     const notaContentValue = this.notaForm.get('notaContent')?.value;
-    this.guardarNota(this.idFolder, notaContentValue);
+    // this.guardarNota(this.idFolder, notaContentValue);
   }
 
-  guardarNota(idfolder: any, nota: any) {
+  // guardarNota(idfolder: any, nota: any) {
 
-    this.modelSendNotes = {
-      cantidad: 0,
-      nombreproducto: nota,
-      valor: 0,
-      fecrea: new Date(),
-      iduser: this.xidUser,
-      idlistatipo: idfolder,
-      estado: 100,
-      urlimagen: '',
-      permiso: 1,
-    }
+  //   this.modelSendNotes = {
+  //     cantidad: 0,
+  //     nombreproducto: nota,
+  //     valor: 0,
+  //     fecrea: new Date(),
+  //     iduser: this.xidUser,
+  //     idlistatipo: idfolder,
+  //     estado: 100,
+  //     urlimagen: '',
+  //     permiso: 1,
+  //   }
 
-    this.notesServices.guardarLista(this.modelSendNotes).subscribe({
-      next: (x) => {
-        this.listaNota = x;
-        this._show_spinner = false;
-      }, error: (e) => {
-        console.error(e);
-        this._show_spinner = false;
-      }, complete: () => {
-        this.notetEmit.emit(this.listaNota);
-      }
-    })
-  }
+  //   this.notesServices.guardarLista(this.modelSendNotes).subscribe({
+  //     next: (x) => {
+  //       this.listaNota = x;
+  //       this._show_spinner = false;
+  //     }, error: (e) => {
+  //       console.error(e);
+  //       this._show_spinner = false;
+  //     }, complete: () => {
+  //       this.notetEmit.emit(this.listaNota);
+  //     }
+  //   })
+  // }
 
 }

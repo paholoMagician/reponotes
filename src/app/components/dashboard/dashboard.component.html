@@ -41,8 +41,8 @@
         <!-- Input para el nombre de la carpeta -->
         <div class="inputFolder bg-secondary p-2 rounded-pill shadow-sm text-light"
             style="width: 150px; font-size: 9pt;">
-            <input [value]="carpeta.nombretipo" (keyup.enter)="actualizarFolder(carpeta.id)"
-                [id]="'folder-' + carpeta.id"
+            <!-- (keyup.enter)="actualizarFolder(carpeta.id)" -->
+            <input [value]="carpeta.nombretipo" [id]="'folder-' + carpeta.id"
                 style="width: 100% !important; background-color: transparent !important; border: none !important;">
         </div>
     </div>

@@ -8,6 +8,7 @@ import { SocialAuthService, GoogleLoginProvider } from '@abacritt/angularx-socia
 import Swal from 'sweetalert2'
 import { LoginService } from './services/login.service';
 import { NetworkService } from '../network/network-service.service';
+import { EncryptService } from '../services/encrypt.service';
 const Toast = Swal.mixin({
   toast: true,
   position: 'top-end',
@@ -28,15 +29,15 @@ const Toast = Swal.mixin({
 })
 
 export class LoginComponent implements OnInit {
-  
-  title_head:         string = 'Registro';
-  pass_type:          string = 'password';
-  isConnected:        boolean = true;
-  actionForm:         string = 'sign';
 
-  _show_spinner:      boolean = false;
-  show_log:           boolean = true;
-  showPassword:       boolean = false;
+  title_head: string = 'Registro';
+  pass_type: string = 'password';
+  isConnected: boolean = true;
+  actionForm: string = 'sign';
+
+  _show_spinner: boolean = false;
+  show_log: boolean = true;
+  showPassword: boolean = false;
   text_action_button: string = 'Registrarse';
 
   showSignIn: boolean = true;
@@ -52,15 +53,19 @@ export class LoginComponent implements OnInit {
     password: new FormControl(''),
   })
 
-  constructor(private router: Router, private logUser: LoginService, private authService: SocialAuthService, private networkService: NetworkService) { }
+  constructor(private router: Router, private ncrypt: EncryptService,
+    private logUser: LoginService, private authService: SocialAuthService,
+    private networkService: NetworkService) { }
 
   ngOnInit(): void {
+
     this.logUser.validacion();
     this.networkService.getOnlineStatus().subscribe((status: boolean) => {
       this.isConnected = status;
-      console.log('Conectado a Internet:', status);
-      if ( this.isConnected ) this.authGoogleClient();
-    });    
+      // console.log('Conectado a Internet:', status);
+      if (this.isConnected) this.authGoogleClient();
+    });
+
   }
 
   authGoogleClient() {
@@ -69,8 +74,8 @@ export class LoginComponent implements OnInit {
         // console.log('Usuario ha iniciado sesión:', user);
         // Maneja el éxito del inicio de sesión, quizás redirigir a otra página
         this._show_spinner = true;
-        this.logUser.logingoogle( user.email ).subscribe( {
-          next: (x:any) => {
+        this.logUser.logingoogle(user.email).subscribe({
+          next: (x: any) => {
             sessionStorage.setItem('id', x.id);
             sessionStorage.setItem('usuario', x.nombre);
             sessionStorage.setItem('email', user.email);
@@ -212,9 +217,8 @@ export class LoginComponent implements OnInit {
             title: "Ingreso correcto!"
           });
 
-          sessionStorage.setItem('usuario', x.nombre);
-          sessionStorage.setItem('email', x.email);
-          sessionStorage.setItem('id', x.id);
+          const tokenEn: any = this.ncrypt.encryptWithAsciiSeed(x.token, 5, 10);
+          sessionStorage.setItem('token', tokenEn);
 
         }, error: (e) => {
           console.error(e);

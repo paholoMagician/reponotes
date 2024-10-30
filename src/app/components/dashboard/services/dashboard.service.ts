@@ -1,42 +1,31 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Environments } from '../../../environments/environments';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
 
-  // private urlApi: string = 'https://rpsoftdev.store:444/api/';
-  private urlApi: string = 'https://localhost:7213/api/';
-  constructor(private http: HttpClient) { }
-
-  obtenerTipoLista(id: number) {
-    return this.http.get(this.urlApi + 'tipoLista/ObtenerTipoLista/' + id);
+  private get headers(): HttpHeaders {
+    return new HttpHeaders({
+      'Authorization': `Bearer ${this.env.TokenJWT()}`,
+      'Content-Type': 'application/json'
+    },);
   }
 
-  obtenerFolders(id: number) {
-    return this.http.get(this.urlApi + 'tipoLista/ObtenerFolderDocs/' + id);
+  // private urlApi: string = 'https://rpsoftdev.store:444/api/';
+
+  constructor(private http: HttpClient, private env: Environments) { }
+
+
+  obtenerFolders(idUser: number, tipoFolder: string, idFolder: number) {
+    return this.http.get(this.env.apingRok + 'Folder/getFolder/' + idUser + '/' + tipoFolder + '/' + idFolder, { headers: this.headers });
   }
 
   saveFolder(model: any) {
-    return this.http.post(this.urlApi + 'Folder/FolderCreate', model);
+    return this.http.post(this.env.apingRok + 'Folder/FolderCreate', model, { headers: this.headers });
   }
 
-  actualizarTipoLista(id: number, model: any) {
-    return this.http.put(this.urlApi + 'tipoLista/ActualizarTipoLista/' + id, model);
-  }
-
-  eliminarTipoLista(id: number) {
-    return this.http.get(this.urlApi + 'tipoLista/EliminarTipoLista/' + id);
-  }
-
-  guardarLista(model: any[]) {
-    console.warn(this.urlApi + 'Lista/guardarLista', model)
-    return this.http.post(this.urlApi + 'Lista/guardarLista', model);
-  }
-
-  obtenerListas(idTipoLista: number) {
-    return this.http.get(this.urlApi + 'Lista/ObtenerLista/' + idTipoLista);
-  }
 
 }

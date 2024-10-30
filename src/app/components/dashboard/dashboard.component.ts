@@ -4,7 +4,10 @@ import { LoginService } from '../../shared/login/services/login.service';
 import { NetworkService } from '../../shared/network/network-service.service';
 import { DashboardService } from './services/dashboard.service';
 import { MatMenuTrigger } from '@angular/material/menu';
-
+import { EncryptService } from '../../shared/services/encrypt.service';
+import { Environments } from '../../environments/environments';
+import { jwtDecode } from "jwt-decode";
+import Swal from 'sweetalert2'
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -33,25 +36,107 @@ export class DashboardComponent implements OnInit {
   folderWithNotes: any = [];
   notesListInFolder: any = null;
 
+  rol: any;
+  email: any;
+  nombre: any;
+  dataUser: any = [];
+  iduserclaim: number = 0;
+  tiempoExpiracionSesion: any;
+
   constructor(private router: Router,
     private log: LoginService,
     private networkService: NetworkService,
-    private dash: DashboardService) { }
+    private dash: DashboardService, private ncrypt: EncryptService, private env: Environments) { }
 
 
   ngOnInit(): void {
 
     this.log.validacion();
+    let xtoken: any = sessionStorage.getItem('token');
+    let xtokenDecript: any;
+    if (xtoken) {
+      xtokenDecript = this.ncrypt.decryptWithAsciiSeed(xtoken, this.env.es, this.env.hash);
+      if (xtokenDecript != null || xtokenDecript != undefined) {
+        var decoded: any = jwtDecode(xtokenDecript);
+        console.warn('Token decodificado')
+        console.warn(decoded)
+        this.rol = decoded['role'];
+        console.log(this.rol);
+        this.iduserclaim = decoded['nameid']
+        console.log(this.iduserclaim);
+        this.dataUser = decoded['unique_name'];
+        console.log(this.dataUser);
+        this.email = this.dataUser[0];
+        this.nombre = this.dataUser[1];
+        this.tiempoExpiracionSesion = this.convertTimestampToReadableDate(decoded['exp']);
+        console.log(this.tiempoExpiracionSesion);
+      }
+
+    }
+
+
+
     this.networkService.getOnlineStatus().subscribe((status: boolean) => {
       this.isConnected = status;
       this.idUser = sessionStorage.getItem('id');
       console.log('Conectado a Internet:', status);
+
     });
+
 
     // Detectar la combinación Ctrl + I
     document.addEventListener('keydown', this.handleKeydown.bind(this));
     this.obtenerCarpetas();
 
+  }
+
+  /** TOKEN NO TOCAR [EXPIRACION SESION] */
+  startSessionTimer(exp: number): void {
+    const currentTime = Math.floor(Date.now() / 1000); // Obtener el tiempo actual en segundos
+    const timeUntilExpiration = exp - currentTime;
+    const twoMinutesInSeconds = 2 * 60;
+
+    if (timeUntilExpiration > 0) {
+      if (timeUntilExpiration > twoMinutesInSeconds) {
+        setTimeout(() => {
+          const minutesLeft = Math.floor((exp - Math.floor(Date.now() / 1000)) / 60);
+          Swal.fire({
+            title: "Sesión por expirar.",
+            text: `Por motivos de seguridad su sesión está por expirar en ${minutesLeft} minutos`,
+            footer: 'Puedes volver a iniciar sesión para generar un token de sesión nuevo.',
+            icon: "warning"
+          });
+          setTimeout(() => {
+            this.closeSession();
+          }, twoMinutesInSeconds * 1000); // Esperar los dos minutos restantes
+        }, (timeUntilExpiration - twoMinutesInSeconds) * 1000); // Esperar hasta que queden dos minutos
+      } else {
+        setTimeout(() => {
+          this.closeSession();
+        }, timeUntilExpiration * 1000); // Convertir a milisegundos
+      }
+    } else {
+      this.closeSession(); // Expiró el token, cerrar la sesión inmediatamente
+    }
+  }
+
+  closeSession() {
+    sessionStorage.removeItem('token');
+    let xtoken: any = sessionStorage.getItem('token');
+    if (xtoken == undefined || xtoken == null || xtoken == '') {
+      this.router.navigate(['login']);
+    }
+  }
+
+
+  convertTimestampToReadableDate(timestamp: number): string {
+    // Convertir el timestamp a milisegundos
+    const date = new Date(timestamp * 1000);
+
+    // Formatear la fecha a una cadena legible
+    const readableDate = date.toLocaleString();
+
+    return readableDate;
   }
 
   ngOnDestroy(): void {
@@ -61,38 +146,38 @@ export class DashboardComponent implements OnInit {
 
   res: any = [];
   modelFolder: any = [];
-  actualizarFolder(id: number) {
+  // actualizarFolder(id: number) {
 
-    let inputElement = <HTMLInputElement>document.getElementById('folder-' + id.toString());
-    console.warn(inputElement.value);
+  //   let inputElement = <HTMLInputElement>document.getElementById('folder-' + id.toString());
+  //   console.warn(inputElement.value);
 
-    let xuser: any = sessionStorage.getItem('id');
-    this._show_spinner = true;
-    this.modelFolder = {
-      id: id,
-      nombretipo: inputElement.value,
-      iduser: xuser,
-      fecrea: new Date(),
-      estado: 100,
-      permiso: 1,
-      presupuesto: 0
-    }
+  //   let xuser: any = sessionStorage.getItem('id');
+  //   this._show_spinner = true;
+  //   this.modelFolder = {
+  //     id: id,
+  //     nombretipo: inputElement.value,
+  //     iduser: xuser,
+  //     fecrea: new Date(),
+  //     estado: 100,
+  //     permiso: 1,
+  //     presupuesto: 0
+  //   }
 
-    this.dash.actualizarTipoLista(id, this.modelFolder).subscribe({
-      next: (x) => {
-        console.warn(x);
-        this.res = x;
-      },
-      error: (e) => {
-        console.error(e);
-        this._show_spinner = false;
-      },
-      complete: () => {
-        this._show_spinner = false;
-        this.limpiar();
-      }
-    });
-  }
+  //   this.dash.actualizarTipoLista(id, this.modelFolder).subscribe({
+  //     next: (x) => {
+  //       console.warn(x);
+  //       this.res = x;
+  //     },
+  //     error: (e) => {
+  //       console.error(e);
+  //       this._show_spinner = false;
+  //     },
+  //     complete: () => {
+  //       this._show_spinner = false;
+  //       this.limpiar();
+  //     }
+  //   });
+  // }
 
   limpiar() {
     // Tu lógica de limpieza aquíw
@@ -117,7 +202,7 @@ export class DashboardComponent implements OnInit {
 
   obtenerCarpetas() {
     this._show_spinner = true;
-    this.dash.obtenerTipoLista(this.idUser).subscribe({
+    this.dash.obtenerFolders(this.iduserclaim, 'folder', 0).subscribe({
       next: (x) => {
         this.listaCarpetas = x;
         console.table(this.listaCarpetas);
@@ -127,29 +212,29 @@ export class DashboardComponent implements OnInit {
         this._show_spinner = false;
       },
       complete: () => {
-        this.unirCarpetasNotas();
+        // this.unirCarpetasNotas();
         this._show_spinner = false;
       }
     });
   }
 
-  obtenerLista(idTipoLista: number) {
-    return this.dash.obtenerListas(idTipoLista).toPromise();
-  }
+  // obtenerLista(idTipoLista: number) {
+  //   return this.dash.obtenerListas(idTipoLista).toPromise();
+  // }
 
-  async unirCarpetasNotas() {
-    for (let carpeta of this.listaCarpetas) {
-      try {
-        const notas = await this.obtenerLista(carpeta.id);
-        carpeta.notas = notas;
-        carpeta.active = false; // Agrega la propiedad active
-      } catch (error) {
-        console.error(`Error obteniendo notas para la carpeta ${carpeta.id}:`, error);
-      }
-    }
-    this.folderWithNotes = this.listaCarpetas;
-    console.warn(this.folderWithNotes);
-  }
+  // async unirCarpetasNotas() {
+  //   for (let carpeta of this.listaCarpetas) {
+  //     try {
+  //       const notas = await this.obtenerLista(carpeta.id);
+  //       carpeta.notas = notas;
+  //       carpeta.active = false; // Agrega la propiedad active
+  //     } catch (error) {
+  //       console.error(`Error obteniendo notas para la carpeta ${carpeta.id}:`, error);
+  //     }
+  //   }
+  //   this.folderWithNotes = this.listaCarpetas;
+  //   console.warn(this.folderWithNotes);
+  // }
 
   toggleActive(carpeta: any) {
     this.folderWithNotes.forEach((f: any) => f.active = false); // Desactiva todas las carpetas
