@@ -14,11 +14,11 @@
 
 
 <div class="container-fluid p-2 d-flex flex-wrap" *ngIf="_show_app_online">
-    <div class="containerFolderDocs" *ngFor="let carpeta of folderWithNotes">
+    <div class="containerFolderDocs" *ngFor="let carpeta of listaCarpetas">
         <!-- Carpeta -->
         <div class="folder d-flex justify-content-center align-items-center" [ngClass]="{'active': carpeta.active}"
             (click)="toggleActive(carpeta)" (contextmenu)="openContextMenu($event, carpeta)" [matMenuTriggerFor]="menu">
-            {{ carpeta.notas.length }}
+            <!-- {{ carpeta.notas.length }} -->
         </div>
         <!-- Menú contextual -->
         <mat-menu #menu="matMenu">
@@ -32,18 +32,17 @@
             </button>
         </mat-menu>
         <!-- Documentos dentro de la carpeta -->
-        <div class="documentos" *ngIf="carpeta.notas.length > 0">
-            <div class="linea" *ngFor="let nota of carpeta.notas">
-                <!-- {{ nota.nombreproducto }} -->
-            </div>
-        </div>
-
+        <!-- <div class="documentos" *ngIf="carpeta.notas.length > 0">
+            <div class="linea" *ngFor="let nota of carpeta.notas"> -->
+        <!-- {{ nota.nombreproducto }} -->
+        <!-- </div>
+        </div> -->
         <!-- Input para el nombre de la carpeta -->
         <div class="inputFolder bg-secondary p-2 rounded-pill shadow-sm text-light"
             style="width: 150px; font-size: 9pt;">
             <!-- (keyup.enter)="actualizarFolder(carpeta.id)" -->
-            <input [value]="carpeta.nombretipo" [id]="'folder-' + carpeta.id"
-                style="width: 100% !important; background-color: transparent !important; border: none !important;">
+            <input [value]="carpeta.nameFolder" [id]="'folder-' + carpeta.id"
+                style="width: 100% !important; background-color: transparent !important; border: none !important; text-align: center;">
         </div>
     </div>
 
@@ -58,6 +57,7 @@
             <app-window-function (folerEmit)="getFolderOutput($event)"></app-window-function>
         </div>
     </div>
+
     <div *ngIf="_notes_open" class="window-function-overlay">
         <div class="window-function" cdkDrag>
             <div class="title" cdkDragHandle>
@@ -68,165 +68,5 @@
             </div>
             <app-notas style="overflow-y: auto;" [folderId]="notasId"></app-notas>
         </div>
-    </div>
-</div>
-
-
-<div class=" container-fluid p-2" *ngIf="_show_app_local">
-    <div class="d-flex">
-        <div class="navside w-25">
-            <app-navside [dataShowPrompt]="promptData" (dataHistoryToPromptRPN)="obtenerPromptCopy($event)"
-                class="w-100"></app-navside>
-        </div>
-        <div class="dashboard w-75">
-            <div class="m-1 p-2" *ngIf="_show_help">
-                <div class="title_head text-light d-flex flex-column fs-6">
-                    <span> REPONOTES > Ayuda inicial </span>
-                    <small style="color: rgba(240, 248, 255, 0.74); font-size: 9pt;">
-                        Estos son nuestros comandos actualmente, puedes empezar a mostrar el PROMPT con el shorcut
-                        CTRL + i .
-                    </small>
-                </div>
-                <span>
-                    <ol class="text-light">
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> Shortcut: " ctrl + i "</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Esconde y muestra la entrada de texto inferior.
-                            </small>
-                        </li>
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> Shortcut: " ctrl + ROW RIGHT ( → )"</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Maximiza el prompt (Siempre y cuando el prompt este visible).
-                            </small>
-                        </li>
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> Shortcut: " ctrl + ROW LEFT ( ← ) "</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Minimiza el prompt (Siempre y cuando el prompt este visible).
-                            </small>
-                        </li>
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> command: " rpn help "</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Viusaliza o esconde la ayuda inicial de comandos rpn.
-                            </small>
-                        </li>
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> command: " rpn c f n= "</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Crea un contenedor para guardar las notas, donde "n=" es el nombre del contenedor.
-                            </small>
-                        </li>
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> command: " rpn read f -g "</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Visualiza los contenedores ccreados.
-                            </small>
-                        </li>
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> command: " rpn update f= n= "</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Actualiza el nombre del contenedor donde "f=" es igual al código único de la carpeta
-                                ubicado en la parte derecha, y "n=" es igual al nuevo nombre de la carpeta.
-                            </small>
-                        </li>
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> command: " rpn del f= "</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Elimina el contenedor y su contenido donde "f=" es igual al código único de la carpeta
-                                ubicado en la parte derecha.
-                            </small>
-                        </li>
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> command: " rpn c nt f= n= "</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Crea un nota en la carpeta elgida, donde "f=" es igual al código único de la carpeta
-                                ubicado en la parte derecha, y "n=" es igual al contenido de la nota.
-                            </small>
-                        </li>
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> command: " rpn read nt f= "</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Visualiza las notas dentro de un contenedor donde "f=" es igual al código único del
-                                contenedor.
-                            </small>
-                        </li>
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> command: " rpn update nt= n= "</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Actualiza el nombre de la nota donde "f=" es igual al código único de la nota
-                                ubicado en la parte derecha, y "n=" es igual al nuevo contenido de la nota.
-                            </small>
-                        </li>
-                        <li class="d-flex flex-column">
-                            <strong style="font-size: 9pt;"> command: " rpn del nt= "</strong>
-                            <small style="color: rgba(240, 248, 255, 0.74) !important; font-size: 9pt !important;">
-                                Elimina una nota donde "nt=" es igual al código único de la nota ubicado en la parte
-                                derecha.
-                            </small>
-                        </li>
-
-                    </ol>
-                </span>
-            </div>
-            <!-- Visualizacion de carpetas -->
-            <div *ngIf=" showFolders">
-                <div *ngFor="let folders of folderList" class="m-1 text-light w-100 rounded-3 box-folders">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <mat-icon>{{ folders.icon }}</mat-icon>
-                            &nbsp;
-                            <span>{{ folders.nombretipo }}</span>
-                        </div>
-                        &nbsp;
-                        <div class="codec-folder d-flex align-items-center">
-                            <span>{{ folders.uniquecode }}</span>
-                            <button type="button" (click)="copyToClipboard(folders.uniquecode)"
-                                class="btnico d-flex align-items-center justify-content-center">
-                                <mat-icon style="font-size: 12pt; color: yellowgreen !important;">
-                                    content_copy
-                                </mat-icon>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Visualizacion de notas -->
-            <div *ngIf="showNotes">
-                <div *ngFor="let notes of notesListInFolder" class="p-2 m-1 text-light w-100 rounded-3 box-folders">
-                    <div class="d-flex justify-content-between align-items-start flex-wrap">
-                        <div class="d-flex align-items-start w-75"
-                            style="word-wrap: break-word; overflow-wrap: break-word;">
-                            <mat-icon style="flex-shrink: 0;">{{ notes.icon }}</mat-icon>
-                            &nbsp;
-                            <span [innerHTML]="notes.nombreproducto" style="flex-grow: 1; text-align: justify;"></span>
-                            <!-- Usar innerHTML -->
-                        </div>
-                        &nbsp;
-                        <div>
-                            <div class="codec-folder d-flex align-items-center " style="width: 25%;">
-                                <span>{{ notes.uniquecode }}</span>
-                                <button type="button" (click)="copyToClipboard(notes.uniquecode)"
-                                    class="btnico d-flex align-items-center justify-content-center">
-                                    <mat-icon
-                                        style="font-size: 12pt; color: yellowgreen !important; ">content_copy</mat-icon>
-                                </button>
-                            </div>
-                            <div>
-                                {{notes.fecrea | date: 'short' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="prompt-call" *ngIf="showPromptCall">
-        <app-input-prompt (listasFolderEmit)="obtenerFoldersList($event)" (notesInFolderEmit)="obtenerNotesList($event)"
-            (helpListEmit)="gettoggleHelp($event)" (promptEmit)="obtenerPrompt($event)" [getPrompt]="histCopyPrompt"
-            [getCopyCodec]="copy_codec" (emitShowApp)="obteneremitShowApp($event)">
-        </app-input-prompt>
     </div>
 </div>

@@ -58,7 +58,6 @@ export class LoginComponent implements OnInit {
     private networkService: NetworkService) { }
 
   ngOnInit(): void {
-
     this.logUser.validacion();
     this.networkService.getOnlineStatus().subscribe((status: boolean) => {
       this.isConnected = status;
@@ -208,9 +207,6 @@ export class LoginComponent implements OnInit {
 
       this.logUser.login(this.modelUserGuardar).subscribe({
         next: (x: any) => {
-
-          console.warn('TOKEN')
-          console.warn(x)
 
           Toast.fire({
             icon: "success",

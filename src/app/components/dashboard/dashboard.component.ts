@@ -3,10 +3,7 @@ import { Router } from '@angular/router';
 import { LoginService } from '../../shared/login/services/login.service';
 import { NetworkService } from '../../shared/network/network-service.service';
 import { DashboardService } from './services/dashboard.service';
-import { MatMenuTrigger } from '@angular/material/menu';
 import { EncryptService } from '../../shared/services/encrypt.service';
-import { Environments } from '../../environments/environments';
-import { jwtDecode } from "jwt-decode";
 import Swal from 'sweetalert2'
 @Component({
   selector: 'app-dashboard',
@@ -36,51 +33,19 @@ export class DashboardComponent implements OnInit {
   folderWithNotes: any = [];
   notesListInFolder: any = null;
 
-  rol: any;
-  email: any;
-  nombre: any;
-  dataUser: any = [];
-  iduserclaim: number = 0;
-  tiempoExpiracionSesion: any;
 
   constructor(private router: Router,
     private log: LoginService,
     private networkService: NetworkService,
-    private dash: DashboardService, private ncrypt: EncryptService, private env: Environments) { }
+    private dash: DashboardService, private ncrypt: EncryptService) { }
 
-
+  arrTOKEN: any;
   ngOnInit(): void {
-
+    this.arrTOKEN = this.ncrypt.decodeJwtToken();
     this.log.validacion();
-    let xtoken: any = sessionStorage.getItem('token');
-    let xtokenDecript: any;
-    if (xtoken) {
-      xtokenDecript = this.ncrypt.decryptWithAsciiSeed(xtoken, this.env.es, this.env.hash);
-      if (xtokenDecript != null || xtokenDecript != undefined) {
-        var decoded: any = jwtDecode(xtokenDecript);
-        console.warn('Token decodificado')
-        console.warn(decoded)
-        this.rol = decoded['role'];
-        console.log(this.rol);
-        this.iduserclaim = decoded['nameid']
-        console.log(this.iduserclaim);
-        this.dataUser = decoded['unique_name'];
-        console.log(this.dataUser);
-        this.email = this.dataUser[0];
-        this.nombre = this.dataUser[1];
-        this.tiempoExpiracionSesion = this.convertTimestampToReadableDate(decoded['exp']);
-        console.log(this.tiempoExpiracionSesion);
-      }
-
-    }
-
-
-
     this.networkService.getOnlineStatus().subscribe((status: boolean) => {
       this.isConnected = status;
-      this.idUser = sessionStorage.getItem('id');
       console.log('Conectado a Internet:', status);
-
     });
 
 
@@ -128,16 +93,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-
-  convertTimestampToReadableDate(timestamp: number): string {
-    // Convertir el timestamp a milisegundos
-    const date = new Date(timestamp * 1000);
-
-    // Formatear la fecha a una cadena legible
-    const readableDate = date.toLocaleString();
-
-    return readableDate;
-  }
 
   ngOnDestroy(): void {
     // Remover el listener para evitar fugas de memoria
@@ -202,7 +157,7 @@ export class DashboardComponent implements OnInit {
 
   obtenerCarpetas() {
     this._show_spinner = true;
-    this.dash.obtenerFolders(this.iduserclaim, 'folder', 0).subscribe({
+    this.dash.obtenerFolders(this.arrTOKEN.iduser, 'folder', 0).subscribe({
       next: (x) => {
         this.listaCarpetas = x;
         console.table(this.listaCarpetas);
@@ -218,23 +173,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // obtenerLista(idTipoLista: number) {
-  //   return this.dash.obtenerListas(idTipoLista).toPromise();
-  // }
-
-  // async unirCarpetasNotas() {
-  //   for (let carpeta of this.listaCarpetas) {
-  //     try {
-  //       const notas = await this.obtenerLista(carpeta.id);
-  //       carpeta.notas = notas;
-  //       carpeta.active = false; // Agrega la propiedad active
-  //     } catch (error) {
-  //       console.error(`Error obteniendo notas para la carpeta ${carpeta.id}:`, error);
-  //     }
-  //   }
-  //   this.folderWithNotes = this.listaCarpetas;
-  //   console.warn(this.folderWithNotes);
-  // }
 
   toggleActive(carpeta: any) {
     this.folderWithNotes.forEach((f: any) => f.active = false); // Desactiva todas las carpetas
@@ -261,8 +199,6 @@ export class DashboardComponent implements OnInit {
     this._folder_open = true
   }
 
-
-
   getFolderOutput(event: any) {
     this.listaCarpetas.push(event);
     this._folder_open = false;
@@ -285,50 +221,6 @@ export class DashboardComponent implements OnInit {
       }, 500);
     }
 
-  }
-
-  obtenerFoldersList(event: any) {
-    if (event) this.folderList = event, this.showFolders = true, this.showNotes = false;
-    //console.table(this.folderList);
-  }
-
-  gettoggleHelp(event: any) {
-    // console.warn('dashboard: ' + event)
-    this._show_help = event;
-  }
-
-  obtenerPrompt(event: any) {
-    this.promptData = event;
-    //console.warn('dashbaord: ' + this.promptData)
-  }
-
-  histCopyPrompt: any = '';
-  obtenerPromptCopy(event: any) {
-    //console.warn('Dashboard :' + event);
-    this.histCopyPrompt = event;
-  }
-
-
-  obteneremitShowApp(event: any) {
-    this._show_app_local = event;
-  }
-
-  obtenerNotesList(event: any) {
-    if (event) this.notesListInFolder = event, this.showFolders = false, this.showNotes = true;
-  }
-
-  copyToClipboard(codec: string) {
-    if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(codec).then(() => {
-        this.copy_codec = codec;
-        console.log(this.copy_codec)
-      }).catch(err => {
-        console.error('Error al copiar el código:', err);
-      });
-    } else {
-      // //console.warn('La API de portapapeles no está disponible en este navegador.');
-      this.copy_codec = codec;
-    }
   }
 
 

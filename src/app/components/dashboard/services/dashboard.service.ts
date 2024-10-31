@@ -14,8 +14,6 @@ export class DashboardService {
     },);
   }
 
-  // private urlApi: string = 'https://rpsoftdev.store:444/api/';
-
   constructor(private http: HttpClient, private env: Environments) { }
 
 
@@ -26,6 +24,7 @@ export class DashboardService {
   saveFolder(model: any) {
     return this.http.post(this.env.apingRok + 'Folder/FolderCreate', model, { headers: this.headers });
   }
+
 
 
 }

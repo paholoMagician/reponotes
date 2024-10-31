@@ -9,18 +9,13 @@ import { Environments } from '../../../environments/environments';
 })
 export class LoginService {
 
-  // private urlApi: string = 'https://rpsoftdev.store:444/api/';
-  // private urlApi: string = 'https://localhost:7213/api/';
   constructor(private env: Environments, private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) private platformId: Object) { }
-
-
 
   validacion() {
 
     if (isPlatformBrowser(this.platformId)) {
 
       let t: any = sessionStorage.getItem('token');
-
       if (!t) this.router.navigate(['login']);
       else this.router.navigate(['home']);
 

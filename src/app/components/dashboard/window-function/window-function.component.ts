@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DashboardService } from '../services/dashboard.service';
+import { EncryptService } from '../../../shared/services/encrypt.service';
 
 @Component({
   selector: 'app-window-function',
@@ -12,55 +13,42 @@ export class WindowFunctionComponent implements OnInit {
   @Output() folerEmit: EventEmitter<any> = new EventEmitter<any>();
   modelFolder: any = [];
   _show_spinner: boolean = false;
-
+  arrTOKEN: any;
   public folderForm = new FormGroup({
     folderName: new FormControl('')
   })
 
-  constructor(private notesServices: DashboardService) { }
+  constructor(private notesServices: DashboardService, private ncrypt: EncryptService) { }
 
   ngOnInit(): void {
-
+    this.arrTOKEN = this.ncrypt.decodeJwtToken();
   }
 
-  onSubmit() { 
+  onSubmit() {
 
-    this.guardarFolder(null,1);
+    this.guardarFolder(null, 1);
 
   }
 
   res: any = [];
   guardarFolder(idfolder: any, positionFolder: any) {
-    
+
     let xfolder: any = this.folderForm.controls['folderName'].value?.trim() || '';
-    let xuser: any = sessionStorage.getItem('id');
     this._show_spinner = true;
     this.modelFolder = {
       nameFolder: xfolder,
       descripcion: '',
       positionFolder: positionFolder,
-      iduser: xuser,
+      iduser: this.arrTOKEN.iduser,
       estado: 1,
       permisos: 1,
       password: '',
-      idfolder: idfolder
+      idfolder: idfolder,
+      colorFolder: ''
     }
-
-    /*
-      nameFolder
-      descripcion
-      colorFolder
-      positionFolder
-      iduser
-      estado
-      permisos
-      password
-      idfolder
-    */
 
     this.notesServices.saveFolder(this.modelFolder).subscribe({
       next: (x) => {
-        console.warn(x);
         this.res = x;
       }, error: (e) => {
         console.error(e);
