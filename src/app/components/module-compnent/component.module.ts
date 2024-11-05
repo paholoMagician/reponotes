@@ -62,6 +62,7 @@ import { GoogleLoginProvider } from '@abacritt/angularx-social-login';
 import { WindowFunctionComponent } from "../dashboard/window-function/window-function.component";
 import { NotasComponent } from "../dashboard/notas/notas.component";
 import { QuillModule } from "ngx-quill";
+import { UploadFileComponent } from "../dashboard/upload-file/upload-file.component";
 
 @NgModule({
   declarations: [
@@ -70,7 +71,8 @@ import { QuillModule } from "ngx-quill";
     NavsideComponent,
     InputPromptComponent,
     WindowFunctionComponent,
-    NotasComponent
+    NotasComponent,
+    UploadFileComponent
   ], imports: [
     SocialLoginModule,
     DragDropModule,
@@ -113,7 +115,8 @@ import { QuillModule } from "ngx-quill";
     LoginComponent,
     NavsideComponent,
     WindowFunctionComponent,
-    NotasComponent
+    NotasComponent,
+    UploadFileComponent
   ], providers: [
     provideHttpClient(withFetch(),),
     {

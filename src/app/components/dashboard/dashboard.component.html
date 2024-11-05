@@ -14,7 +14,9 @@
 
 
 <div class="container-fluid p-2 d-flex flex-wrap" *ngIf="_show_app_online">
-    <div class="containerFolderDocs" *ngFor="let carpeta of listaCarpetas">
+    <div class="containerFolderDocs" *ngFor="let carpeta of listaCarpetas" [id]="'folder-'+carpeta.id"
+        (dragleave)="onDragLeave($event, carpeta)" (dragenter)="onDragEnter($event)"
+        (dragover)="onDragOver($event, carpeta)" (drop)="onDrop($event, carpeta)">
         <!-- Carpeta -->
         <div class="folder d-flex justify-content-center align-items-center" [ngClass]="{'active': carpeta.active}"
             (click)="toggleActive(carpeta)" (contextmenu)="openContextMenu($event, carpeta)" [matMenuTriggerFor]="menu">
@@ -22,6 +24,10 @@
         </div>
         <!-- Menú contextual -->
         <mat-menu #menu="matMenu">
+            <button mat-menu-item class="d-flex align-items-center" (click)="interfazUpload(carpeta)">
+                <mat-icon>upload</mat-icon>
+                <span> Subir Archivo </span>
+            </button>
             <button mat-menu-item class="d-flex align-items-center" (click)="crearNota(carpeta.id)">
                 <mat-icon>add</mat-icon>
                 <span> Crear Nota </span>
@@ -54,7 +60,21 @@
                     <mat-icon>cancel</mat-icon>
                 </button>
             </div>
-            <app-window-function (folerEmit)="getFolderOutput($event)"></app-window-function>
+            <app-window-function [folderLists]="listFolderActuallyDesktop" (folerEmit)="getFolderOutput($event)">
+            </app-window-function>
+        </div>
+    </div>
+
+    <div *ngIf="_file_upload_open" class="window-function-overlay">
+        <div class="window-function" cdkDrag>
+            <div class="title" cdkDragHandle>
+                <h6>Upload files</h6>
+                <button type="button" (click)="_file_upload_open = false">
+                    <mat-icon>cancel</mat-icon>
+                </button>
+            </div>
+            <app-upload-file [carpetaList]="dataFolderSend">
+            </app-upload-file>
         </div>
     </div>
 

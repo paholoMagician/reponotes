@@ -35,3 +35,12 @@
     border-radius: 5px;
 }
 
+.containerFolderDocs {
+    margin: 5px;
+}
+
+.containerFolderDocs.drag-over {
+    border-radius: 10px;
+    background-color: rgba(0, 123, 255, 0.1);
+    transition: ease all 1s;
+}

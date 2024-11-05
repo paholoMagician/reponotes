@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DashboardService } from '../services/dashboard.service';
 import { EncryptService } from '../../../shared/services/encrypt.service';
@@ -8,9 +8,12 @@ import { EncryptService } from '../../../shared/services/encrypt.service';
   templateUrl: './window-function.component.html',
   styleUrl: './window-function.component.scss'
 })
-export class WindowFunctionComponent implements OnInit {
+export class WindowFunctionComponent implements OnInit, OnChanges {
 
   @Output() folerEmit: EventEmitter<any> = new EventEmitter<any>();
+  @Input() folderLists: any;
+
+
   modelFolder: any = [];
   _show_spinner: boolean = false;
   arrTOKEN: any;
@@ -24,6 +27,12 @@ export class WindowFunctionComponent implements OnInit {
     this.arrTOKEN = this.ncrypt.decodeJwtToken();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes) {
+      console.warn(this.folderLists)
+    }
+  }
+
   onSubmit() {
 
     this.guardarFolder(null, 1);
@@ -34,6 +43,12 @@ export class WindowFunctionComponent implements OnInit {
   guardarFolder(idfolder: any, positionFolder: any) {
 
     let xfolder: any = this.folderForm.controls['folderName'].value?.trim() || '';
+    this.folderLists.filter((x: any) => {
+      if (x.nameFolder == xfolder) {
+        xfolder = xfolder + '_copy';
+      }
+    })
+
     this._show_spinner = true;
     this.modelFolder = {
       nameFolder: xfolder,
@@ -50,6 +65,7 @@ export class WindowFunctionComponent implements OnInit {
     this.notesServices.saveFolder(this.modelFolder).subscribe({
       next: (x) => {
         this.res = x;
+        console.log('Carpeta guardada')
       }, error: (e) => {
         console.error(e);
         this._show_spinner = false;
@@ -61,7 +77,6 @@ export class WindowFunctionComponent implements OnInit {
     })
 
   }
-
 
   limpiar() {
     this.folderForm.controls['folderName'].setValue('');

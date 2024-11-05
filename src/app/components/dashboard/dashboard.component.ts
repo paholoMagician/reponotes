@@ -15,6 +15,7 @@ export class DashboardComponent implements OnInit {
   @Output() folderEmit: EventEmitter<any> = new EventEmitter<any>();
 
   _folder_open: boolean = false;
+  _file_upload_open: boolean = false;
   _notes_open: boolean = false;
   _show_spinner: boolean = false;
   _show_app_local: boolean = false;
@@ -32,14 +33,15 @@ export class DashboardComponent implements OnInit {
   listaNotas: any = [];
   folderWithNotes: any = [];
   notesListInFolder: any = null;
-
+  res: any = [];
+  modelFolder: any = [];
+  arrTOKEN: any;
 
   constructor(private router: Router,
     private log: LoginService,
     private networkService: NetworkService,
     private dash: DashboardService, private ncrypt: EncryptService) { }
 
-  arrTOKEN: any;
   ngOnInit(): void {
     this.arrTOKEN = this.ncrypt.decodeJwtToken();
     this.log.validacion();
@@ -99,40 +101,57 @@ export class DashboardComponent implements OnInit {
     document.removeEventListener('keydown', this.handleKeydown.bind(this));
   }
 
-  res: any = [];
-  modelFolder: any = [];
-  // actualizarFolder(id: number) {
 
-  //   let inputElement = <HTMLInputElement>document.getElementById('folder-' + id.toString());
-  //   console.warn(inputElement.value);
+  onDragOver(event: DragEvent, carpeta: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    let xdiv = <HTMLDivElement>document.getElementById('folder-' + carpeta.id);
+    // console.warn(xdiv);
+    xdiv.style.transition = 'ease all 1s';
+    xdiv.style.background = 'rgba(0, 123, 255, 0.1)';
+    xdiv.style.borderRadius = '10px';
+  }
 
-  //   let xuser: any = sessionStorage.getItem('id');
-  //   this._show_spinner = true;
-  //   this.modelFolder = {
-  //     id: id,
-  //     nombretipo: inputElement.value,
-  //     iduser: xuser,
-  //     fecrea: new Date(),
-  //     estado: 100,
-  //     permiso: 1,
-  //     presupuesto: 0
-  //   }
+  onDragEnter(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 
-  //   this.dash.actualizarTipoLista(id, this.modelFolder).subscribe({
-  //     next: (x) => {
-  //       console.warn(x);
-  //       this.res = x;
-  //     },
-  //     error: (e) => {
-  //       console.error(e);
-  //       this._show_spinner = false;
-  //     },
-  //     complete: () => {
-  //       this._show_spinner = false;
-  //       this.limpiar();
-  //     }
-  //   });
-  // }
+  onDragLeave(event: DragEvent, carpeta: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    let xdiv = <HTMLDivElement>document.getElementById('folder-' + carpeta.id);
+    xdiv.style.transition = 'ease all 1s';
+    xdiv.style.background = 'transparent';
+    xdiv.style.borderRadius = '0px';
+  }
+
+
+  onDrop(event: DragEvent, carpeta: any) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      const file = event.dataTransfer.files[0];
+      console.warn(file);
+      // Llamar al servicio para cargar el archivo
+      this.dash.uploadFileDriveServer(this.arrTOKEN.iduser, carpeta.id, file).subscribe({
+        next: (response) => {
+          console.log('Archivo cargado exitosamente:', response);
+        },
+        error: (error) => {
+          console.error('Error al cargar el archivo:', error);
+        }, complete: () => {
+          let xdiv = <HTMLDivElement>document.getElementById('folder-' + carpeta.id);
+          xdiv.style.transition = 'ease all 1s';
+          xdiv.style.background = 'transparent';
+          xdiv.style.borderRadius = '0px';
+        }
+      });
+
+      event.dataTransfer.clearData();
+    }
+  }
 
   limpiar() {
     // Tu lógica de limpieza aquíw
@@ -140,6 +159,14 @@ export class DashboardComponent implements OnInit {
 
   openContextMenu(event: MouseEvent, carpeta: any) {
     event.preventDefault(); // Prevenir el menú contextual del navegador
+  }
+
+
+  dataFolderSend: any = [];
+  interfazUpload(data: any) {
+    this._file_upload_open = true;
+    this.dataFolderSend = data;
+    console.warn(this.dataFolderSend);
   }
 
   notasId: any;
@@ -188,9 +215,12 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  listFolderActuallyDesktop: any = [];
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     if (event.ctrlKey && event.shiftKey && event.key === 'F') {
+      this.listFolderActuallyDesktop = this.listaCarpetas;
+      console.warn(this.listFolderActuallyDesktop)
       this.createFolder();
     }
   }
@@ -203,6 +233,8 @@ export class DashboardComponent implements OnInit {
     this.listaCarpetas.push(event);
     this._folder_open = false;
   }
+
+
 
   togglePromptCall() {
 
