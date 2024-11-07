@@ -73,7 +73,7 @@
                     <mat-icon>cancel</mat-icon>
                 </button>
             </div>
-            <app-upload-file [carpetaList]="dataFolderSend">
+            <app-upload-file [carpetaList]="dataFolderSend" (folderEmit)="getFileUpdate($event)">
             </app-upload-file>
         </div>
     </div>

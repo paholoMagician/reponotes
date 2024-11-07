@@ -64,8 +64,6 @@ export class DashboardService {
   uploadFileDriveServer(email: string, folderName: string, file: File): Observable<any> {
     const formData: FormData = new FormData();
     formData.append('Archivo', file);
-    console.warn('ARCHIVO A ENVIAR AL SERVIDOR')
-    console.warn(file)
     console.warn(this.headers)
     return this.http.post(`https://localhost:7213/api/storage/uploadFileDriveServer/${email}/${folderName}`, formData);
   }
@@ -73,6 +71,11 @@ export class DashboardService {
 
   dowloadFileServer(email: string, folderName: string, fileName: string) {
     return this.http.get(this.env.apingRok + 'Folder/getFile/' + email + '/' + folderName + '/' + fileName, { headers: this.headers });
+  }
+
+
+  guardarArchivos(model: any[]) {
+    return this.http.post(this.env.apingRok + 'filesDB/FileCreate', model, { headers: this.headers });
   }
 
 

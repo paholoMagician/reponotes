@@ -169,6 +169,10 @@ export class DashboardComponent implements OnInit {
     console.warn(this.dataFolderSend);
   }
 
+  getFileUpdate(event: any) {
+    console.warn(event);
+  }
+
   notasId: any;
   crearNota(folderId: number) {
     console.log('Crear nota en la carpeta:', folderId);

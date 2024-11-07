@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { EncryptService } from '../../../shared/services/encrypt.service';
 import { DashboardService } from '../services/dashboard.service';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -11,6 +11,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 export class UploadFileComponent implements OnInit, OnChanges {
 
   @Input() carpetaList: any;
+  @Output() fileEmit: EventEmitter<any> = new EventEmitter<any>();
+
   _show_spinner: boolean = false;
   arrTOKEN: any;
   selectedFile: File | null = null;
@@ -61,7 +63,17 @@ export class UploadFileComponent implements OnInit, OnChanges {
       error: (error) => {
         console.error('Error al cargar el archivo:', error);
         this._show_spinner = false;
+      }, complete: () => {
+
       }
     });
   }
+
+  modelFileServerDb: any = [];
+  guardarArchivoDB() {
+
+    // this.dash.guardarArchivos(  )
+
+  }
+
 }
