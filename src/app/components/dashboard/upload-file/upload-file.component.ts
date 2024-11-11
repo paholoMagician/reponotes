@@ -63,16 +63,47 @@ export class UploadFileComponent implements OnInit, OnChanges {
       error: (error) => {
         console.error('Error al cargar el archivo:', error);
         this._show_spinner = false;
-      }, complete: () => {
-
+      },
+      complete: () => {
+        // Llama a guardarArchivoDB pasándole el nombre del archivo
+        if (this.selectedFile) {
+          this.guardarArchivoDB(this.selectedFile.name);
+        }
       }
     });
   }
 
   modelFileServerDb: any = [];
-  guardarArchivoDB() {
+  guardarArchivoDB(nameFile: any) {
 
-    // this.dash.guardarArchivos(  )
+    if (nameFile != undefined || nameFile != null) {
+      this._show_spinner = true;
+      this.modelFileServerDb = {
+        "position": 1,
+        "nameFile": nameFile,
+        "tagdescription": "",
+        "estado": 1,
+        "permisos": 1,
+        "password": "",
+        "type": "",
+        "idFolder": this.carpetaList.id
+      }
+
+      console.log(this.modelFileServerDb);
+
+      this.dash.guardarArchivos(this.modelFileServerDb).subscribe({
+        next: (x) => {
+          console.log(x);
+        }, error: (e) => {
+          this._show_spinner = false;
+          console.error(e);
+        }, complete: () => {
+          this._show_spinner = false;
+          this.fileEmit.emit(false);
+        }
+      })
+
+    }
 
   }
 

@@ -69,14 +69,22 @@ export class DashboardService {
   }
 
 
-  dowloadFileServer(email: string, folderName: string, fileName: string) {
-    return this.http.get(this.env.apingRok + 'Folder/getFile/' + email + '/' + folderName + '/' + fileName, { headers: this.headers });
+  downloadFileServer(id: any, folderName: string, fileName: string) {
+    return this.http.get('https://localhost:7213/api/storage/getFile/' + id + '/' + folderName + '/' + fileName, {
+      responseType: 'blob'  // Especifica que el tipo de respuesta es un Blob (archivo binario)
+    });
   }
-
 
   guardarArchivos(model: any[]) {
     return this.http.post(this.env.apingRok + 'filesDB/FileCreate', model, { headers: this.headers });
   }
 
+  obtenerArchivos(idUser: any, idFolder: any) {
+    return this.http.get(this.env.apingRok + 'filesDB/GetFileServerDB/' + idUser + '/' + idFolder, { headers: this.headers });
+  }
+
+  deleteFileServer(userId: number, folderId: number) {
+    return this.http.delete(this.env.apingRok + 'storage/DeleteFolder/' + userId + '/' + folderId)
+  }
 
 }

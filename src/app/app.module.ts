@@ -8,7 +8,6 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { componentModule } from './components/module-compnent/component.module';
 import { CommonModule } from '@angular/common';
 import { DashComponent } from './components/dashboard/dash/dash.component';
-import { QuillModule } from 'ngx-quill';
 
 
 @NgModule({

@@ -5,6 +5,7 @@ import { NetworkService } from '../../shared/network/network-service.service';
 import { DashboardService } from './services/dashboard.service';
 import { EncryptService } from '../../shared/services/encrypt.service';
 import Swal from 'sweetalert2'
+import { FormControl, FormGroup } from '@angular/forms';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -14,11 +15,15 @@ export class DashboardComponent implements OnInit {
 
   @Output() folderEmit: EventEmitter<any> = new EventEmitter<any>();
 
+  dataEmitFolder: any;
+  filelistEmit: any;
+  folder_choice: string = '';
   _folder_open: boolean = false;
   _file_upload_open: boolean = false;
   _notes_open: boolean = false;
   _show_spinner: boolean = false;
   _show_app_local: boolean = false;
+  _folder_show: boolean = false;
   _show_app_online: boolean = true;
   isConnected: boolean = true;
   showFolders: boolean = true;
@@ -37,6 +42,10 @@ export class DashboardComponent implements OnInit {
   modelFolder: any = [];
   arrTOKEN: any;
 
+  public folderForm = new FormGroup({
+    searchItem: new FormControl('')
+  });
+
   constructor(private router: Router,
     private log: LoginService,
     private networkService: NetworkService,
@@ -50,11 +59,15 @@ export class DashboardComponent implements OnInit {
       console.log('Conectado a Internet:', status);
     });
 
-
     // Detectar la combinación Ctrl + I
     document.addEventListener('keydown', this.handleKeydown.bind(this));
     this.obtenerCarpetas();
 
+  }
+
+  xfilter: string = '';
+  sendFilter() {
+    this.xfilter = this.folderForm.controls['searchItem'].value || '';
   }
 
   /** TOKEN NO TOCAR [EXPIRACION SESION] */
@@ -89,10 +102,7 @@ export class DashboardComponent implements OnInit {
 
   closeSession() {
     sessionStorage.removeItem('token');
-    let xtoken: any = sessionStorage.getItem('token');
-    if (xtoken == undefined || xtoken == null || xtoken == '') {
-      this.router.navigate(['login']);
-    }
+    this.router.navigate(['login']);
   }
 
 
@@ -128,6 +138,7 @@ export class DashboardComponent implements OnInit {
 
 
   onDrop(event: DragEvent, carpeta: any) {
+
     event.preventDefault();
     event.stopPropagation();
 
@@ -143,6 +154,7 @@ export class DashboardComponent implements OnInit {
           console.error('Error al cargar el archivo:', error);
         }, complete: () => {
           let xdiv = <HTMLDivElement>document.getElementById('folder-' + carpeta.id);
+          this.guardarArchivoDB(file.name, carpeta.id);
           xdiv.style.transition = 'ease all 1s';
           xdiv.style.background = 'transparent';
           xdiv.style.borderRadius = '0px';
@@ -150,6 +162,7 @@ export class DashboardComponent implements OnInit {
       });
 
       event.dataTransfer.clearData();
+
     }
   }
 
@@ -173,6 +186,11 @@ export class DashboardComponent implements OnInit {
     console.warn(event);
   }
 
+  getFileEmit(event: any) {
+    console.warn(event)
+    this._file_upload_open = event;
+  }
+
   notasId: any;
   crearNota(folderId: number) {
     console.log('Crear nota en la carpeta:', folderId);
@@ -183,6 +201,49 @@ export class DashboardComponent implements OnInit {
 
   eliminarCarpeta(folderId: number) {
     console.log('Eliminar carpeta:', folderId);
+  }
+
+
+  modelFileServerDb: any = [];
+  guardarArchivoDB(nameFile: any, carpetaList: any) {
+
+    if (nameFile != undefined || nameFile != null) {
+      this._show_spinner = true;
+      this.modelFileServerDb = {
+        "position": 1,
+        "nameFile": nameFile,
+        "tagdescription": "",
+        "estado": 1,
+        "permisos": 1,
+        "password": "",
+        "type": "",
+        "idFolder": carpetaList
+      }
+
+      console.log(this.modelFileServerDb);
+
+      this.dash.guardarArchivos(this.modelFileServerDb).subscribe({
+        next: (x) => {
+          Swal.fire({
+            title: "Carpeta creada.",
+            text: `Carpeta ha sido creada exitosamente en tu escritorio web`,
+            icon: "success"
+          });
+        }, error: (e) => {
+          this._show_spinner = false;
+          Swal.fire({
+            title: "Oops!",
+            text: `lago ha pasado en nuestros servidores!`,
+            icon: "error"
+          });
+          console.error(e);
+        }, complete: () => {
+          this._show_spinner = false;
+        }
+      })
+
+    }
+
   }
 
 
@@ -204,6 +265,45 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  obtenerArchivosServerDB(folder: any) {
+    this._show_spinner = true;
+    this.dataEmitFolder = folder;
+    this._folder_show = true;
+    this.folder_choice = folder.nameFolder;
+    this.dash.obtenerArchivos(this.arrTOKEN.iduser, folder.id).subscribe({
+      next: (x) => {
+        this.filelistEmit = x;
+        console.warn('ARCHIVOS');
+        console.warn(this.filelistEmit);
+      }, error: (e) => {
+        console.error(e);
+        this._folder_show = false;
+      }, complete: () => {
+        this._show_spinner = false
+
+      }
+    })
+  }
+
+  deleteFolder(folder: any) {
+    this.dash.deleteFileServer(this.arrTOKEN.iduser, folder.id).subscribe({
+      next: (x) => {
+        console.warn(x);
+        Swal.fire({
+          title: "Carpeta eliminada.",
+          // text: `Carpeta ha sido creada exitosamente en tu escritorio web`,
+          icon: "success"
+        });
+      }, error: (e) => {
+        console.error(e);
+        Swal.fire({
+          title: "Oops!",
+          text: `Algo ha pasado en nuestros servidores!`,
+          icon: "error"
+        });
+      }
+    })
+  }
 
   toggleActive(carpeta: any) {
     this.folderWithNotes.forEach((f: any) => f.active = false); // Desactiva todas las carpetas

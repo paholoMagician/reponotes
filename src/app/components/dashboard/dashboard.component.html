@@ -19,11 +19,16 @@
         (dragover)="onDragOver($event, carpeta)" (drop)="onDrop($event, carpeta)">
         <!-- Carpeta -->
         <div class="folder d-flex justify-content-center align-items-center" [ngClass]="{'active': carpeta.active}"
-            (click)="toggleActive(carpeta)" (contextmenu)="openContextMenu($event, carpeta)" [matMenuTriggerFor]="menu">
-            <!-- {{ carpeta.notas.length }} -->
+            (dblclick)="obtenerArchivosServerDB(carpeta)" (click)="toggleActive(carpeta)"
+            (contextmenu)="openContextMenu($event, carpeta)" [matMenuTriggerFor]="menu" [matBadge]="carpeta.cantFile"
+            matBadgeColor="warn">
         </div>
         <!-- Menú contextual -->
         <mat-menu #menu="matMenu">
+            <button mat-menu-item class="d-flex align-items-center" (click)="obtenerArchivosServerDB(carpeta)">
+                <mat-icon>folder_open</mat-icon>
+                <span> Abrir carpeta </span>
+            </button>
             <button mat-menu-item class="d-flex align-items-center" (click)="interfazUpload(carpeta)">
                 <mat-icon>upload</mat-icon>
                 <span> Subir Archivo </span>
@@ -32,7 +37,7 @@
                 <mat-icon>add</mat-icon>
                 <span> Crear Nota </span>
             </button>
-            <button mat-menu-item class="d-flex align-items-center" (click)="eliminarCarpeta(carpeta.id)">
+            <button mat-menu-item class="d-flex align-items-center" (click)="deleteFolder(carpeta)">
                 <mat-icon>delete</mat-icon>
                 <span> Eliminar Carpeta </span>
             </button>
@@ -52,10 +57,10 @@
         </div>
     </div>
 
-    <div *ngIf="_folder_open" class="window-function-overlay">
+    <div *ngIf="_folder_open" class="window-function-overlay animate__animated animate__fadeIn">
         <div class="window-function" cdkDrag>
             <div class="title" cdkDragHandle>
-                <h6>Create Folder</h6>
+                <h6> Create Folder</h6>
                 <button type="button" (click)="_folder_open = false">
                     <mat-icon>cancel</mat-icon>
                 </button>
@@ -65,7 +70,34 @@
         </div>
     </div>
 
-    <div *ngIf="_file_upload_open" class="window-function-overlay">
+    <div *ngIf="_folder_show" class="window-function-overlay animate__animated animate__fadeIn">
+        <div class="window-function" cdkDrag>
+            <div class="title" cdkDragHandle>
+                <div class="d-flex">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <mat-icon>perm_media</mat-icon>&nbsp;<span>../{{ folder_choice }}</span>
+                    </div>
+                    &nbsp;
+                    &nbsp;
+                    <div>
+                        <form [formGroup]="folderForm" class="mb-2">
+                            <div class="form-group mb-2 d-flex">
+                                <input type="text" id="searchItem" formControlName="searchItem" (keyup)="sendFilter()"
+                                    class="form-control rounded-pill">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <button type="button" (click)="_folder_show = false">
+                    <mat-icon>cancel</mat-icon>
+                </button>
+            </div>
+            <app-folder-open [folderData]="dataEmitFolder" [fileFilter]="xfilter"
+                [fileList]="filelistEmit"></app-folder-open>
+        </div>
+    </div>
+
+    <div *ngIf="_file_upload_open" class="window-function-overlay animate__animated animate__fadeIn">
         <div class="window-function" cdkDrag>
             <div class="title" cdkDragHandle>
                 <h6>Upload files</h6>
@@ -73,12 +105,13 @@
                     <mat-icon>cancel</mat-icon>
                 </button>
             </div>
-            <app-upload-file [carpetaList]="dataFolderSend" (folderEmit)="getFileUpdate($event)">
+            <app-upload-file [carpetaList]="dataFolderSend" (folderEmit)="getFileUpdate($event)"
+                (fileEmit)="getFileEmit($event)">
             </app-upload-file>
         </div>
     </div>
 
-    <div *ngIf="_notes_open" class="window-function-overlay">
+    <div *ngIf="_notes_open" class="window-function-overlay animate__animated animate__fadeIn">
         <div class="window-function" cdkDrag>
             <div class="title" cdkDragHandle>
                 <h6>Notes editor</h6>

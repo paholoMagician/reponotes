@@ -1,0 +1,24 @@
+<div class="p-2">
+
+    <div class=" mb-2" *ngFor="let files of file; let i = index">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="fileDb w-75 d-flex align-items-center">
+                {{ i + 1 }}> &nbsp;
+                <mat-icon>view_in_ar</mat-icon>
+                &nbsp;
+                <span>{{ files.nameFile }}</span>
+            </div>
+            <div class="fileDb d-flex align-content-center">
+                <div class="iconbtn d-flex align-content-center" (click)="downLoadFileServer(files)"
+                    title="Download file from server">
+                    <mat-icon>download</mat-icon>
+                </div>
+                &nbsp;
+                <div class="iconbtn d-flex align-content-center" title="Delete file from server">
+                    <mat-icon>delete</mat-icon>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -63,6 +63,7 @@ import { WindowFunctionComponent } from "../dashboard/window-function/window-fun
 import { NotasComponent } from "../dashboard/notas/notas.component";
 import { QuillModule } from "ngx-quill";
 import { UploadFileComponent } from "../dashboard/upload-file/upload-file.component";
+import { FolderOpenComponent } from "../dashboard/folder-open/folder-open.component";
 
 @NgModule({
   declarations: [
@@ -72,7 +73,8 @@ import { UploadFileComponent } from "../dashboard/upload-file/upload-file.compon
     InputPromptComponent,
     WindowFunctionComponent,
     NotasComponent,
-    UploadFileComponent
+    UploadFileComponent,
+    FolderOpenComponent
   ], imports: [
     SocialLoginModule,
     DragDropModule,
@@ -116,7 +118,8 @@ import { UploadFileComponent } from "../dashboard/upload-file/upload-file.compon
     NavsideComponent,
     WindowFunctionComponent,
     NotasComponent,
-    UploadFileComponent
+    UploadFileComponent,
+    FolderOpenComponent
   ], providers: [
     provideHttpClient(withFetch(),),
     {
