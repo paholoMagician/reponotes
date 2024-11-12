@@ -208,6 +208,7 @@ export class DashboardComponent implements OnInit {
   guardarArchivoDB(nameFile: any, carpetaList: any) {
 
     if (nameFile != undefined || nameFile != null) {
+
       this._show_spinner = true;
       this.modelFileServerDb = {
         "position": 1,
@@ -225,15 +226,15 @@ export class DashboardComponent implements OnInit {
       this.dash.guardarArchivos(this.modelFileServerDb).subscribe({
         next: (x) => {
           Swal.fire({
-            title: "Carpeta creada.",
-            text: `Carpeta ha sido creada exitosamente en tu escritorio web`,
+            title: "File has been added.",
+            text: "File has been successfully added to your folder",
             icon: "success"
           });
         }, error: (e) => {
           this._show_spinner = false;
           Swal.fire({
             title: "Oops!",
-            text: `lago ha pasado en nuestros servidores!`,
+            text: "Something went wrong on our servers!",
             icon: "error"
           });
           console.error(e);
@@ -286,30 +287,57 @@ export class DashboardComponent implements OnInit {
   }
 
   deleteFolder(folder: any) {
-    this.dash.deleteFileServer(this.arrTOKEN.iduser, folder.id).subscribe({
-      next: (x) => {
-        console.warn(x);
-        Swal.fire({
-          title: "Carpeta eliminada.",
-          // text: `Carpeta ha sido creada exitosamente en tu escritorio web`,
-          icon: "success"
-        });
-      }, error: (e) => {
-        console.error(e);
-        Swal.fire({
-          title: "Oops!",
-          text: `Algo ha pasado en nuestros servidores!`,
-          icon: "error"
-        });
-      }
-    })
+    if (folder != null || folder != undefined) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.dash.deleteFolderServer(this.arrTOKEN.iduser, folder.id).subscribe({
+            next: (x) => {
+
+              this.dash.deleteFolderDB(folder.id).subscribe({
+                next: () => {
+                  Swal.fire({
+                    title: "Deleted!",
+                    text: "Your folder has been deleted.",
+                    icon: "success"
+                  });
+                }, error: (e) => {
+                  console.error(e);
+                  Swal.fire({
+                    title: "Oops!",
+                    text: `Something went wrong on our data base!`,
+                    icon: "error"
+                  });
+                }
+              })
+            }, error: (e) => {
+              console.error(e);
+              Swal.fire({
+                title: "Oops!",
+                text: "Something went wrong on our servers!",
+                icon: "error"
+              });
+            }, complete: () => {
+
+            }
+          })
+
+        }
+      });
+    }
   }
 
   toggleActive(carpeta: any) {
     this.folderWithNotes.forEach((f: any) => f.active = false); // Desactiva todas las carpetas
     carpeta.active = true; // Activa la carpeta seleccionada
   }
-
 
   // Manejar la combinación Ctrl + I
   handleKeydown(event: KeyboardEvent) {

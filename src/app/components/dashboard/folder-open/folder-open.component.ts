@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { DashboardService } from '../services/dashboard.service';
 import { EncryptService } from '../../../shared/services/encrypt.service';
-
+import Swal from 'sweetalert2'
 @Component({
   selector: 'app-folder-open',
   templateUrl: './folder-open.component.html',
@@ -34,6 +34,7 @@ export class FolderOpenComponent implements OnInit, OnChanges {
   }
 
   downLoadFileServer(fileDB: any) {
+
     this.dash.downloadFileServer(this.arrTOKEN.iduser, this.folderData.id, fileDB.nameFile).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -50,5 +51,53 @@ export class FolderOpenComponent implements OnInit, OnChanges {
     });
   }
 
+  deleteFile(file: any, index: number) {
+
+    console.warn(file)
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.dash.deletFileServer(this.arrTOKEN.iduser, file.idFolder, file.nameFile).subscribe({
+          next: (x) => {
+            this.dash.deleteFileDB(file.id).subscribe({
+              next: () => {
+                Swal.fire({
+                  title: "Deleted!",
+                  text: "Your file has been deleted.",
+                  icon: "success"
+                });
+              }, error: (e) => {
+                console.error(e);
+                Swal.fire({
+                  title: "Oops!",
+                  text: `Something went wrong on our data base!`,
+                  icon: "error"
+                });
+              }
+            })
+          }, error: (e) => {
+            console.error(e);
+            Swal.fire({
+              title: "Oops!",
+              text: "Something went wrong on our servers!",
+              icon: "error"
+            });
+          }, complete: () => {
+            this.file.splice(index, 1);
+          }
+        })
+
+      }
+    });
+
+  }
 
 }

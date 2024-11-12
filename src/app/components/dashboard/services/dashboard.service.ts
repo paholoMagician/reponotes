@@ -83,8 +83,20 @@ export class DashboardService {
     return this.http.get(this.env.apingRok + 'filesDB/GetFileServerDB/' + idUser + '/' + idFolder, { headers: this.headers });
   }
 
-  deleteFileServer(userId: number, folderId: number) {
+  deleteFolderServer(userId: number, folderId: number) {
     return this.http.delete(this.env.apingRok + 'storage/DeleteFolder/' + userId + '/' + folderId)
+  }
+
+  deleteFolderDB(folderId: number) {
+    return this.http.delete(this.env.apingRok + 'storage/DeleteFolderDB/' + folderId);
+  }
+
+  deletFileServer(userId: number, folderId: number, fileName: string) {
+    return this.http.delete(this.env.apingRok + 'storage/DeleteFile/' + userId + '/' + folderId + '/' + fileName);
+  }
+
+  deleteFileDB(idfile: number) {
+    return this.http.delete(this.env.apingRok + 'storage/DeleteFileDB/' + idfile);
   }
 
 }

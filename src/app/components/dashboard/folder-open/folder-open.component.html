@@ -14,7 +14,8 @@
                     <mat-icon>download</mat-icon>
                 </div>
                 &nbsp;
-                <div class="iconbtn d-flex align-content-center" title="Delete file from server">
+                <div class="iconbtn d-flex align-content-center" (click)="deleteFile( files, i )"
+                    title="Delete file from server">
                     <mat-icon>delete</mat-icon>
                 </div>
             </div>
