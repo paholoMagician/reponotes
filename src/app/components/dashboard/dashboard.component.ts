@@ -99,9 +99,27 @@ export class DashboardComponent implements OnInit {
     this.xfilter = this.folderForm.controls['searchItem'].value || '';
   }
 
-  closeSession() {
+  closeSession( typeClose: number ) {
     sessionStorage.removeItem('token');
-    this.router.navigate(['/login']);
+    let closeAutoType: boolean;
+    /** ================================================ */
+    if ( typeClose == 1 )
+    {
+      // Cerro sesion de manera manual
+      closeAutoType = true;
+    } else if ( typeClose == 0 ) {
+      // Expiro su token de sesion
+      closeAutoType = false;
+    }
+    /** ================================================ */
+    
+    const dateNow: any = new Date();
+
+    localStorage.setItem( 'dataCloseSessionEmail', this.arrTOKEN.email );
+    localStorage.setItem( 'dataCloseSessionType', closeAutoType!.toString() );
+    localStorage.setItem( 'dataCloseSessionDate', dateNow );
+    this.router.navigate( ['/login'] );
+
   }
 
   ngOnDestroy(): void {
@@ -141,7 +159,7 @@ export class DashboardComponent implements OnInit {
     this.clearActivityTimeout(); // Limpiar cualquier timeout previo
     this.activityTimeout = setTimeout(() => {
       // Si no hay actividad en 1 minuto, cerrar sesión
-      this.closeSession();
+      this.closeSession(0);
     }, 60000); // 1 minuto de espera para detectar actividad
   }
 
@@ -589,6 +607,22 @@ sleep(ms: number): Promise<void> {
       }
     })
   }
+
+  onRightClick(event: MouseEvent, carpeta: any): void {
+    event.preventDefault(); // Prevenir el menú contextual predeterminado
+    this.toggleActive(carpeta); // Ejecutar toggleActive con clic derecho
+  
+    // Abrir el menú manualmente
+    const matMenuTrigger = event.target as HTMLElement;
+    matMenuTrigger.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+  }
+  
+  onLeftClick(event: MouseEvent): void {
+    if (event.button === 0) { // Detecta clic izquierdo (button 0)
+      event.preventDefault(); // Prevenir cualquier acción asociada al clic izquierdo
+    }
+  }
+  
 
   deleteFolderEmpty(folder: any, index: number) {
 

@@ -12,25 +12,50 @@
     </span>
 </div> -->
 
-<div class="header">
-    <div style="font-size: 9pt;" class="text-light">
-        <label for="countdown">Tiempo restante para el cierre de sesión:</label>
-        <span id="countdown">{{ countdown }}</span>
+<div class="header d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center">
+        <div class="icon_button" title="Force close session" (click)="closeSession(1)">
+            <mat-icon>
+                power_settings_new
+            </mat-icon>
+        </div>
+        &nbsp;
+        <div style="font-size: 9pt;" class="text-light animate__animated animate__fadeIn">
+            <label for="countdown">Token session expire in </label>
+            &nbsp;
+            <span id="countdown" style="color: yellowgreen;" class="animate__animated animate__fadeIn" >{{ countdown }}</span>
+        </div>
     </div>
+
+    <div class="btn-settings">
+        <div class="btn-header" title="Create new folder ( CTRL+SHIFT+F )" (click)="createFolder()">
+            <mat-icon> create_new_folder </mat-icon>
+        </div>
+    </div>
+
 </div>
-<div class="container-fluid p-2 d-flex flex-wrap " *ngIf="_show_app_online">
-    
+<div class="container-fluid p-2 d-flex flex-wrap " *ngIf="_show_app_online">    
     <div class="containerFolderDocs d-flex flex-column align-items-center"
         *ngFor="let carpeta of listaCarpetas; let i = index" [id]="'folder-'+carpeta.id"
+        (dblclick)="obtenerArchivosServerDB(carpeta)" 
         (dragleave)="onDragLeave($event, carpeta)" (dragenter)="onDragEnter($event)"
         (dragover)="onDragOver($event, carpeta)" (drop)="onDrop($event, carpeta)">
+            
+            <!-- <div class="folder d-flex justify-content-center align-items-center" [ngClass]="{'active': carpeta.active}"
+                (dblclick)="obtenerArchivosServerDB(carpeta)" (click)="toggleActive(carpeta)"
+                (contextmenu)="openContextMenu($event, carpeta)" [matMenuTriggerFor]="menu">
+                <span class="badge badge-pill text-black badge-danger">{{carpeta.cantFile}}</span>
+            </div> -->
 
-        <!-- Carpeta -->
-        <div class="folder d-flex justify-content-center align-items-center" [ngClass]="{'active': carpeta.active}"
-            (dblclick)="obtenerArchivosServerDB(carpeta)" (click)="toggleActive(carpeta)"
-            (contextmenu)="openContextMenu($event, carpeta)" [matMenuTriggerFor]="menu">
-            <span class="badge badge-pill text-black badge-danger">{{carpeta.cantFile}}</span>
-        </div>
+            <div class="folder d-flex justify-content-center align-items-center" 
+                 [ngClass]="{'active': carpeta.active}"
+                 (contextmenu)="onRightClick($event, carpeta)" 
+                 [matMenuTriggerFor]="menu"
+                 (click)="$event.preventDefault()"> <!-- Prevenir que el clic izquierdo abra el menú -->
+              <span class="badge badge-pill text-black badge-danger">{{carpeta.cantFile}}</span>
+            </div>
+       
+
 
         <div>
             

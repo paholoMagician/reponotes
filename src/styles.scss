@@ -348,6 +348,58 @@ input:focus::placeholder {
   /* Color del placeholder cuando el input está enfocado */
 }
 
+.icon_button {
+  transition: ease all 0.5s;
+  background-color: rgba(241, 199, 10, 0.967);
+  color: rgb(59, 59, 59);
+  border-radius: 100%;
+  width: 27px;
+  height: 27px;
+  border: groove 1px rgba(9, 62, 105, 0.807);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  // box-shadow: 5px 5px 5px rgba($color: #0000009a, $alpha: 0.5);
+}
+
+.btn-header {
+  width: 40px;
+  height: 40px;
+  border: groove 1px rgba(34, 130, 209, 0.804);
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  color: rgb(231, 244, 245);
+  background-color: #0000001e;
+  padding: 7px;
+  transition: ease all 0.5s;
+}
+
+
+.btn-header:hover {
+  cursor: pointer;
+  transition: ease all 0.5s;
+  width: 40px;
+  height: 40px;
+  border: groove 1px rgb(255, 218, 10);
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  color: rgb(251, 207, 13);
+  background-color: #0000000f;
+  padding: 7px;
+  box-shadow: 5px 5px 5px rgba($color: #0000009a, $alpha: 0.5);
+}
+
+
+.icon_button:hover {
+  transition: ease all 0.5s;
+  cursor: pointer;
+  // box-shadow: 0px 0px 0px rgba($color: #0000009a, $alpha: 0.0);
+  background-color: yellowgreen;
+  border: groove 1px rgba(27, 98, 7, 0.807);
+}
+
 .footer {
   background-color: #22337e;
   position: fixed;
