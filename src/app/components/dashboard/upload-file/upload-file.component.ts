@@ -55,7 +55,7 @@ export class UploadFileComponent implements OnInit, OnChanges {
     if (!this.selectedFile) return;
 
     this._show_spinner = true;
-    this.dash.uploadFileDriveServer(this.arrTOKEN.iduser, this.carpetaList.id, this.selectedFile).subscribe({
+    this.dash.uploadFileDriveServerUnic(this.selectedFile, this.arrTOKEN.iduser, this.carpetaList.id).subscribe({
       next: (response) => {
         console.log('Archivo cargado exitosamente:', response);
         this._show_spinner = false;
@@ -67,14 +67,14 @@ export class UploadFileComponent implements OnInit, OnChanges {
       complete: () => {
         // Llama a guardarArchivoDB pasándole el nombre del archivo
         if (this.selectedFile) {
-          this.guardarArchivoDB(this.selectedFile.name);
+          this.guardarArchivoDB(this.selectedFile.name, this.selectedFile.size);
         }
       }
     });
   }
 
   modelFileServerDb: any = [];
-  guardarArchivoDB(nameFile: any) {
+  guardarArchivoDB(nameFile: any, size: number) {
 
     if (nameFile != undefined || nameFile != null) {
       this._show_spinner = true;
@@ -86,7 +86,8 @@ export class UploadFileComponent implements OnInit, OnChanges {
         "permisos": 1,
         "password": "",
         "type": "",
-        "idFolder": this.carpetaList.id
+        "idFolder": this.carpetaList.id,
+        "size": size
       }
 
       console.log(this.modelFileServerDb);

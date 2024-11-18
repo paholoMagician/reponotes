@@ -12,6 +12,10 @@ export class EncryptService {
   dataUser: any = [];
   iduserclaim: number = 0;
   tiempoExpiracionSesion: any;
+  membresiaNombrePaquete: any;
+  membresiaDuracionDias: any;
+  membresiaDescripcion: any;
+  membresiaCapacidad: any;
   modelTokenInitSession: any = [];
   private envService!: Environments;
 
@@ -61,6 +65,10 @@ export class EncryptService {
           this.rol = decoded['role'];
           this.iduserclaim = decoded['nameid'];
           this.dataUser = decoded['unique_name'];
+          this.membresiaNombrePaquete = decoded["MembresiaNombrePaquete"];
+          this.membresiaDuracionDias = decoded["MembresiaDuracionDias"];
+          this.membresiaDescripcion = decoded["MembresiaDescripcion"];
+          this.membresiaCapacidad = decoded["MembresiaCapacidad"];
           this.email = this.dataUser[0];
           this.nombre = this.dataUser[1];
           this.tiempoExpiracionSesion = this.convertTimestampToReadableDate(decoded['exp']);
@@ -69,7 +77,11 @@ export class EncryptService {
             iduser: this.iduserclaim,
             email: this.email,
             nombre: this.nombre,
-            tiempoExp: this.tiempoExpiracionSesion
+            tiempoExp: this.tiempoExpiracionSesion,
+            membresiaNombrePaquete: this.membresiaNombrePaquete,
+            membresiaDuracionDias: this.membresiaDuracionDias,
+            membresiaDescripcion: this.membresiaDescripcion,
+            membresiaCapacidad: this.membresiaCapacidad
           };
           return this.modelTokenInitSession;
         }

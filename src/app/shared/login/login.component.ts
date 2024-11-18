@@ -207,6 +207,7 @@ export class LoginComponent implements OnInit {
 
       this.logUser.login(this.modelUserGuardar).subscribe({
         next: (x: any) => {
+          console.warn('TOKEN');
           console.warn(x);
           Toast.fire({
             icon: "success",

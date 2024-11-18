@@ -152,7 +152,7 @@ input:focus {
   background-color: #FFD700;
   border-radius: 3px 3px 0 0;
   position: relative;
-  margin: 50px;
+  margin: 30px;
   transition: ease all 0.5s;
   z-index: 2;
   box-shadow: 3px 3px 5px rgba($color: #000000, $alpha: 0.5);
@@ -203,7 +203,7 @@ input:focus {
   transform: scale(0.9, 0.9);
 }
 
-.folder:hover ~ .documentos {
+.folder:hover~.documentos {
   transform: scale(0.9, 0.9);
 }
 
@@ -222,7 +222,7 @@ input:focus {
   background-color: transparent;
   border: solid 2px yellowgreen;
   padding: 5px;
-  border-radius:  5px;
+  border-radius: 5px;
   color: yellowgreen;
   display: flex;
   align-items: center;
@@ -244,7 +244,8 @@ input:focus {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.159); /* Transparencia para el overlay */
+  background-color: rgba(0, 0, 0, 0.159);
+  /* Transparencia para el overlay */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -253,26 +254,36 @@ input:focus {
 
 /* Estilos para la ventana emergente */
 .window-function {
-  display: flex; /* Agregado para permitir ajuste automático del contenido */
-  flex-direction: column; /* Permite apilar el contenido verticalmente */
-  position: relative; /* Necesario para el pseudo-elemento ::before */
+  display: flex;
+  /* Agregado para permitir ajuste automático del contenido */
+  flex-direction: column;
+  /* Permite apilar el contenido verticalmente */
+  position: relative;
+  /* Necesario para el pseudo-elemento ::before */
   background: linear-gradient(to bottom, rgba(82, 85, 87, 0.8), rgba(7, 33, 138, 0.4));
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   padding: 1rem;
   width: 80%;
-  max-width: none; /* Permite que la ventana funcione sin límite de ancho */
+  max-width: none;
+  /* Permite que la ventana funcione sin límite de ancho */
   max-height: none;
-  min-width: 300px; /* Define un tamaño mínimo para evitar que se vuelva demasiado pequeño */
-  min-height: 200px; /* Definir un tamaño mínimo también ayuda a la altura */
-  overflow: hidden; /* Evita que el contenido desborde */
-  resize: both; /* Activa el redimensionamiento desde cualquier borde */
+  min-width: 300px;
+  /* Define un tamaño mínimo para evitar que se vuelva demasiado pequeño */
+  min-height: 200px;
+  /* Definir un tamaño mínimo también ayuda a la altura */
+  overflow: hidden;
+  /* Evita que el contenido desborde */
+  resize: both;
+  /* Activa el redimensionamiento desde cualquier borde */
   backdrop-filter: blur(5px);
 }
 
 .window-function .editor-container {
-  flex: 1; /* Permite que el editor tome todo el espacio disponible */
-  overflow: auto; /* Permite el desplazamiento dentro del editor si es necesario */
+  flex: 1;
+  /* Permite que el editor tome todo el espacio disponible */
+  overflow: auto;
+  /* Permite el desplazamiento dentro del editor si es necesario */
 }
 
 .window-function::after {
@@ -285,14 +296,18 @@ input:focus {
   background: transparent;
   border-right: 2px solid #ddd;
   border-bottom: 2px solid #ddd;
-  cursor: nwse-resize; /* Cambia el cursor para indicar redimensionamiento */
+  cursor: nwse-resize;
+  /* Cambia el cursor para indicar redimensionamiento */
 }
 
 @media (max-width: 768px) {
   .window-function {
-      resize: none; /* Desactiva el ajuste de tamaño en pantallas pequeñas */
-      width: 100vw; /* Ancho total de la pantalla */
-      height: 80vh; /* Altura del 80% de la pantalla */
+    resize: none;
+    /* Desactiva el ajuste de tamaño en pantallas pequeñas */
+    width: 100vw;
+    /* Ancho total de la pantalla */
+    height: 80vh;
+    /* Altura del 80% de la pantalla */
   }
 }
 
@@ -303,7 +318,8 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: move; /* Mostrar el cursor de arrastre */
+  cursor: move;
+  /* Mostrar el cursor de arrastre */
   color: whitesmoke;
 }
 
@@ -320,4 +336,37 @@ input:focus {
 
 .title button mat-icon {
   font-size: 20px;
+}
+
+input::placeholder {
+  color: #7e7e7e9a;
+  /* Cambia este valor al color que prefieras */
+}
+
+input:focus::placeholder {
+  color: #8f8f8fbd;
+  /* Color del placeholder cuando el input está enfocado */
+}
+
+.footer {
+  background-color: #22337e;
+  position: fixed;
+  bottom: 2px;
+  width: 100%;
+  padding: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border: groove 2px rgb(35, 46, 94);
+  left: 0;
+}
+
+.header {
+  background-color: #22337e;
+  position: relative;
+  width: 100%;
+  padding: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border: groove 2px rgb(35, 46, 94);
+  left: 0;
 }

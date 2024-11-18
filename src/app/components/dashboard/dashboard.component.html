@@ -4,25 +4,46 @@
     </div>
 </div>
 
-<div *ngIf="!isConnected" class="alert alert-warning d-flex align-content-center">
+<!-- <div *ngIf="!isConnected" class="alert alert-warning d-flex align-content-center">
     <mat-icon>wifi_off </mat-icon>
     &nbsp;
     <span>
         No estás conectado a Internet.
     </span>
+</div> -->
+
+<div class="header">
+    <div style="font-size: 9pt;" class="text-light">
+        <label for="countdown">Tiempo restante para el cierre de sesión:</label>
+        <span id="countdown">{{ countdown }}</span>
+    </div>
 </div>
-
-
-<div class="container-fluid p-2 d-flex flex-wrap" *ngIf="_show_app_online">
-    <div class="containerFolderDocs" *ngFor="let carpeta of listaCarpetas" [id]="'folder-'+carpeta.id"
+<div class="container-fluid p-2 d-flex flex-wrap " *ngIf="_show_app_online">
+    
+    <div class="containerFolderDocs d-flex flex-column align-items-center"
+        *ngFor="let carpeta of listaCarpetas; let i = index" [id]="'folder-'+carpeta.id"
         (dragleave)="onDragLeave($event, carpeta)" (dragenter)="onDragEnter($event)"
         (dragover)="onDragOver($event, carpeta)" (drop)="onDrop($event, carpeta)">
+
         <!-- Carpeta -->
         <div class="folder d-flex justify-content-center align-items-center" [ngClass]="{'active': carpeta.active}"
             (dblclick)="obtenerArchivosServerDB(carpeta)" (click)="toggleActive(carpeta)"
-            (contextmenu)="openContextMenu($event, carpeta)" [matMenuTriggerFor]="menu" [matBadge]="carpeta.cantFile"
-            matBadgeColor="warn">
+            (contextmenu)="openContextMenu($event, carpeta)" [matMenuTriggerFor]="menu">
+            <span class="badge badge-pill text-black badge-danger">{{carpeta.cantFile}}</span>
         </div>
+
+        <div>
+            
+            <!-- Input para seleccionar múltiples archivos -->
+            <input type="file" multiple (change)="onFilesSelected($event, carpeta)" style="display: none;" #fileInput />
+            <!-- Botón para abrir el selector de archivos -->
+            <button (click)="fileInput.click()" class="w-100 btn btn-sm btn-outline-warning d-flex align-items-center">
+                <mat-icon>upload</mat-icon>
+                <span> {{ carpeta.nameFolder }}</span>
+            </button>
+
+        </div>
+
         <!-- Menú contextual -->
         <mat-menu #menu="matMenu">
             <button mat-menu-item class="d-flex align-items-center" (click)="obtenerArchivosServerDB(carpeta)">
@@ -33,30 +54,50 @@
                 <mat-icon>upload</mat-icon>
                 <span> Subir Archivo </span>
             </button>
-            <button mat-menu-item class="d-flex align-items-center" (click)="crearNota(carpeta.id)">
-                <mat-icon>add</mat-icon>
-                <span> Crear Nota </span>
-            </button>
-            <button mat-menu-item class="d-flex align-items-center" (click)="deleteFolder(carpeta)">
+            <!-- 
+                <button mat-menu-item
+                    class="d-flex align-items-center"
+                    (click)="crearNota(carpeta.id)">
+                    <mat-icon>add</mat-icon>
+                    <span> Crear Nota </span>
+                </button> 
+            -->
+            <button mat-menu-item class="d-flex align-items-center" (click)="deleteFolderEmpty(carpeta, i)">
                 <mat-icon>delete</mat-icon>
                 <span> Eliminar Carpeta </span>
             </button>
         </mat-menu>
-        <!-- Documentos dentro de la carpeta -->
-        <!-- <div class="documentos" *ngIf="carpeta.notas.length > 0">
-            <div class="linea" *ngFor="let nota of carpeta.notas"> -->
-        <!-- {{ nota.nombreproducto }} -->
-        <!-- </div>
-        </div> -->
-        <!-- Input para el nombre de la carpeta -->
-        <div class="inputFolder bg-secondary p-2 rounded-pill shadow-sm text-light"
-            style="width: 150px; font-size: 9pt;">
-            <!-- (keyup.enter)="actualizarFolder(carpeta.id)" -->
-            <input [value]="carpeta.nameFolder" [id]="'folder-' + carpeta.id"
-                style="width: 100% !important; background-color: transparent !important; border: none !important; text-align: center;">
-        </div>
+
     </div>
 
+    <div class="footer d-flex justify-content-between align-content-center p-2 mt-2 animate__animated animate__fadeIn">
+        <div class="connect text-warning d-flex align-content-center" *ngIf="!isConnected" style="font-size: 9pt;">
+            <mat-icon style="font-size: 15pt;">wifi_off</mat-icon>
+            &nbsp;
+            <span>No estás conectado a Internet.</span>
+        </div>
+        <div class="capacidad d-flex">
+            <div class="capacidad-actual">Plan: {{ membresiaNombrePaquete }}</div>
+            &nbsp;|&nbsp;
+            <div class="capacidad-membresia" style="cursor: pointer;"
+                title="{{ (pesoActual / 1024) | number:'1.0-2' }} MB">
+                {{ (pesoActual) | number:'1.0-7' }} GB
+            </div>
+            &nbsp;de&nbsp;
+            <div class="capacidad-membresia" style="cursor: pointer;" [title]="membresiaDescripcion">
+                {{ capacidadGB }} GB
+            </div>
+        </div>
+          <div class="d-flex flex-column p-1 rounded-2 w-25" style="border: groove 2px rgb(39, 39, 93);">
+              <small class="text-light">
+                {{labelProgress}}
+              </small>
+              <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
+          </div>
+    </div>
+
+
+    <!-- OTRAS APLICACIONES -->
     <div *ngIf="_folder_open" class="window-function-overlay animate__animated animate__fadeIn">
         <div class="window-function" cdkDrag>
             <div class="title" cdkDragHandle>
@@ -82,7 +123,8 @@
                     <div>
                         <form [formGroup]="folderForm" class="mb-2">
                             <div class="form-group mb-2 d-flex">
-                                <input type="text" id="searchItem" formControlName="searchItem" (keyup)="sendFilter()"
+                                <input type="text" id="searchItem" placeholder="Search items"
+                                    formControlName="searchItem" (keyup)="sendFilter()"
                                     class="form-control rounded-pill">
                             </div>
                         </form>

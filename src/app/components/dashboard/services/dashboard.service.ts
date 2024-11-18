@@ -61,16 +61,46 @@ export class DashboardService {
 
 
 
-  uploadFileDriveServer(email: string, folderName: string, file: File): Observable<any> {
+  // uploadFileDriveServer(email: string, folderName: string, file: File): Observable<any> {
+  //   const formData: FormData = new FormData();
+  //   formData.append('Archivo', file);
+  //   console.warn(this.headers)
+  //   return this.http.post(`https://localhost:7213/api/storage/uploadFileDriveServer/${email}/${folderName}`, formData);
+  // }
+
+  uploadFileDriveServerUnic(file: File, email: string, folderName: string): Observable<any> {
     const formData: FormData = new FormData();
     formData.append('Archivo', file);
-    console.warn(this.headers)
-    return this.http.post(`https://localhost:7213/api/storage/uploadFileDriveServer/${email}/${folderName}`, formData);
+
+    return this.http.post(`http://192.168.55.28:5028/api/storage/uploadFileDriveServerOne/${email}/${folderName}`, formData, {
+      reportProgress: true,
+      observe: 'events'
+    });
+  }
+
+  uploadFileDriveServer(
+    chunk: Blob,
+    fileName: string,
+    email: string,
+    folderName: string,
+    currentChunk: number,
+    totalChunks: number
+  ): Observable<any> {
+    const formData: FormData = new FormData();
+    formData.append('Archivo', chunk, fileName); // El archivo debe tener un tercer argumento como nombre
+    formData.append('fileName', fileName);
+    formData.append('currentChunk', currentChunk.toString()); // Convertir a string para evitar errores de tipo
+    formData.append('totalChunks', totalChunks.toString());   // Convertir a string para evitar errores de tipo
+
+    return this.http.post(`http://192.168.55.28:5028/api/storage/uploadFileDriveServer/${email}/${folderName}`, formData, {
+      reportProgress: true,
+      observe: 'events'
+    });
   }
 
 
   downloadFileServer(id: any, folderName: string, fileName: string) {
-    return this.http.get('https://localhost:7213/api/storage/getFile/' + id + '/' + folderName + '/' + fileName, {
+    return this.http.get('http://192.168.55.28:5028/api/storage/getFile/' + id + '/' + folderName + '/' + fileName, {
       responseType: 'blob'  // Especifica que el tipo de respuesta es un Blob (archivo binario)
     });
   }
@@ -97,6 +127,10 @@ export class DashboardService {
 
   deleteFileDB(idfile: number) {
     return this.http.delete(this.env.apingRok + 'storage/DeleteFileDB/' + idfile);
+  }
+
+  obtenerPesoArchivos(iduser: number) {
+    return this.http.get(this.env.apingRok + 'storage/GetTotalFileSize/' + iduser);
   }
 
 }

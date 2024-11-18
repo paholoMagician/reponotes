@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { DashboardService } from '../services/dashboard.service';
 import { EncryptService } from '../../../shared/services/encrypt.service';
 import Swal from 'sweetalert2'
@@ -13,6 +13,8 @@ export class FolderOpenComponent implements OnInit, OnChanges {
   @Input() fileList: any;
   @Input() fileFilter: any;
 
+  @Output() NewFileSize: EventEmitter<any> = new EventEmitter<any>();
+
   arrTOKEN: any;
 
   constructor(private dash: DashboardService, private ncrypt: EncryptService) { }
@@ -25,11 +27,13 @@ export class FolderOpenComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes) {
-      this.file = this.fileList
-      this.fileGhost = this.fileList
-      this.file = this.fileGhost.filter((item: any) =>
-        item.nameFile.toLowerCase().includes(this.fileFilter.toLowerCase())
-      );
+      this.file = this.fileList;
+      this.fileGhost = this.fileList;
+      if (this.fileList != undefined || this.fileList != null) {
+        this.file = this.fileGhost.filter((item: any) =>
+          item.nameFile.toLowerCase().includes(this.fileFilter.toLowerCase())
+        );
+      }
     }
   }
 
@@ -52,9 +56,6 @@ export class FolderOpenComponent implements OnInit, OnChanges {
   }
 
   deleteFile(file: any, index: number) {
-
-    console.warn(file)
-
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -92,6 +93,7 @@ export class FolderOpenComponent implements OnInit, OnChanges {
             });
           }, complete: () => {
             this.file.splice(index, 1);
+            this.obtenerFileSize(this.arrTOKEN.iduser);
           }
         })
 
@@ -99,5 +101,14 @@ export class FolderOpenComponent implements OnInit, OnChanges {
     });
 
   }
+
+  obtenerFileSize(iduser: number) {
+    this.dash.obtenerPesoArchivos(iduser).subscribe({
+      next: (x: any) => {
+        this.NewFileSize.emit(x.totalSize); 
+      }
+    })
+  }
+
 
 }

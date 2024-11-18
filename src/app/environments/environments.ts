@@ -13,8 +13,10 @@ export class Environments {
   /** ======================================================= */
 
   constructor(private encrypt: EncryptService) { }
-
-  apingRok: any = 'https://localhost:7213/api/';
+  // /** LOCAL */
+  // apingRok: any = 'https://localhost:7213/api/';
+  /** RED */
+  apingRok: any = 'http://192.168.55.28:5028/api/';
 
   version: string = 'V.1.0.1';
   es: number = 5;
