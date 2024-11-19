@@ -410,6 +410,7 @@ input:focus::placeholder {
   border-bottom-right-radius: 10px;
   border: groove 2px rgb(35, 46, 94);
   left: 0;
+  z-index: 10;
 }
 
 .header {

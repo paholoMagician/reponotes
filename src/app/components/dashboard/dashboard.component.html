@@ -23,7 +23,8 @@
         <div style="font-size: 9pt;" class="text-light animate__animated animate__fadeIn">
             <label for="countdown">Token session expire in </label>
             &nbsp;
-            <span id="countdown" style="color: yellowgreen;" class="animate__animated animate__fadeIn" >{{ countdown }}</span>
+            <span id="countdown" style="color: yellowgreen;" class="animate__animated animate__fadeIn">{{ countdown
+                }}</span>
         </div>
     </div>
 
@@ -34,31 +35,17 @@
     </div>
 
 </div>
-<div class="container-fluid p-2 d-flex flex-wrap " *ngIf="_show_app_online">    
+<div class="container-fluid p-2 d-flex flex-wrap " *ngIf="_show_app_online">
     <div class="containerFolderDocs d-flex flex-column align-items-center"
         *ngFor="let carpeta of listaCarpetas; let i = index" [id]="'folder-'+carpeta.id"
-        (dblclick)="obtenerArchivosServerDB(carpeta)" 
-        (dragleave)="onDragLeave($event, carpeta)" (dragenter)="onDragEnter($event)"
-        (dragover)="onDragOver($event, carpeta)" (drop)="onDrop($event, carpeta)">
-            
-            <!-- <div class="folder d-flex justify-content-center align-items-center" [ngClass]="{'active': carpeta.active}"
-                (dblclick)="obtenerArchivosServerDB(carpeta)" (click)="toggleActive(carpeta)"
-                (contextmenu)="openContextMenu($event, carpeta)" [matMenuTriggerFor]="menu">
-                <span class="badge badge-pill text-black badge-danger">{{carpeta.cantFile}}</span>
-            </div> -->
-
-            <div class="folder d-flex justify-content-center align-items-center" 
-                 [ngClass]="{'active': carpeta.active}"
-                 (contextmenu)="onRightClick($event, carpeta)" 
-                 [matMenuTriggerFor]="menu"
-                 (click)="$event.preventDefault()"> <!-- Prevenir que el clic izquierdo abra el menú -->
-              <span class="badge badge-pill text-black badge-danger">{{carpeta.cantFile}}</span>
-            </div>
-       
-
-
+        (dblclick)="obtenerArchivosServerDB(carpeta)" (dragleave)="onDragLeave($event, carpeta)"
+        (dragenter)="onDragEnter($event)" (dragover)="onDragOver($event, carpeta)" (drop)="onDrop($event, carpeta)">
+        <div class="folder d-flex justify-content-center align-items-center" [ngClass]="{'active': carpeta.active}"
+            (contextmenu)="onRightClick($event, carpeta)" [matMenuTriggerFor]="menu" (click)="$event.preventDefault()">
+            <!-- Prevenir que el clic izquierdo abra el menú -->
+            <span class="badge badge-pill text-black badge-danger">{{carpeta.cantFile}}</span>
+        </div>
         <div>
-            
             <!-- Input para seleccionar múltiples archivos -->
             <input type="file" multiple (change)="onFilesSelected($event, carpeta)" style="display: none;" #fileInput />
             <!-- Botón para abrir el selector de archivos -->
@@ -66,7 +53,6 @@
                 <mat-icon>upload</mat-icon>
                 <span> {{ carpeta.nameFolder }}</span>
             </button>
-
         </div>
 
         <!-- Menú contextual -->
@@ -79,14 +65,6 @@
                 <mat-icon>upload</mat-icon>
                 <span> Subir Archivo </span>
             </button>
-            <!-- 
-                <button mat-menu-item
-                    class="d-flex align-items-center"
-                    (click)="crearNota(carpeta.id)">
-                    <mat-icon>add</mat-icon>
-                    <span> Crear Nota </span>
-                </button> 
-            -->
             <button mat-menu-item class="d-flex align-items-center" (click)="deleteFolderEmpty(carpeta, i)">
                 <mat-icon>delete</mat-icon>
                 <span> Eliminar Carpeta </span>
@@ -95,7 +73,8 @@
 
     </div>
 
-    <div class="footer d-flex justify-content-between align-content-center p-2 mt-2 animate__animated animate__fadeIn">
+    <div
+        class="footer d-flex justify-content-between align-content-center flex-wrap p-2 mt-2 animate__animated animate__fadeIn">
         <div class="connect text-warning d-flex align-content-center" *ngIf="!isConnected" style="font-size: 9pt;">
             <mat-icon style="font-size: 15pt;">wifi_off</mat-icon>
             &nbsp;
@@ -113,12 +92,12 @@
                 {{ capacidadGB }} GB
             </div>
         </div>
-          <div class="d-flex flex-column p-1 rounded-2 w-25" style="border: groove 2px rgb(39, 39, 93);">
-              <small class="text-light">
-                {{labelProgress}}
-              </small>
-              <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
-          </div>
+        <div class="labelProgress d-flex flex-column p-1 rounded-2 w-25" style="border: groove 2px rgb(39, 39, 93);">
+            <small class="text-light">
+                {{labelProgress}} > Parts Uplaoding : {{ currentChunkIndex }} / {{ totalChunks }}
+            </small>
+            <mat-progress-bar class="mt-1 mb-1" mode="determinate" [value]="progress"></mat-progress-bar>
+        </div>
     </div>
 
 
