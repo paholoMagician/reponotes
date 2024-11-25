@@ -275,7 +275,11 @@ export class LoginComponent implements OnInit {
       this.modelUserGuardar = {
         nombre: xuser,
         email: xemail,
-        password: xpass
+        password: xpass,
+        estado: 1,
+        rol: 1,
+        idMembresia: 1,
+        fecrea: new Date()
       }
 
       this.logUser.registroUsuario(this.modelUserGuardar).subscribe({
@@ -292,6 +296,12 @@ export class LoginComponent implements OnInit {
           });
           console.error(e);
         }, complete: () => {
+          this.ingresarLog('log');
+          setTimeout(() => {
+            let x: any = sessionStorage.getItem('email');
+            console.warn(x);
+            this.registerForm.controls['email'].setValue(x);
+          }, 1000);
           this._show_spinner = false;
           this.limpiar();
         }

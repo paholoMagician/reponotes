@@ -72,7 +72,7 @@ export class DashboardService {
     const formData: FormData = new FormData();
     formData.append('Archivo', file);
 
-    return this.http.post(`http://192.168.55.28:5028/api/storage/uploadFileDriveServerOne/${email}/${folderName}`, formData, {
+    return this.http.post(this.env.apingRok + `storage/uploadFileDriveServerOne/${email}/${folderName}`, formData, {
       reportProgress: true,
       observe: 'events'
     });
@@ -92,7 +92,7 @@ export class DashboardService {
     formData.append('currentChunk', currentChunk.toString()); // Convertir a string para evitar errores de tipo
     formData.append('totalChunks', totalChunks.toString());   // Convertir a string para evitar errores de tipo
 
-    return this.http.post(`http://192.168.55.28:5028/api/storage/uploadFileDriveServer/${email}/${folderName}`, formData, {
+    return this.http.post(this.env.apingRok + `storage/uploadFileDriveServer/${email}/${folderName}`, formData, {
       reportProgress: true,
       observe: 'events'
     });
@@ -100,7 +100,7 @@ export class DashboardService {
 
 
   downloadFileServer(id: any, folderName: string, fileName: string) {
-    return this.http.get('http://192.168.55.28:5028/api/storage/getFile/' + id + '/' + folderName + '/' + fileName, {
+    return this.http.get(this.env.apingRok + 'storage/getFile/' + id + '/' + folderName + '/' + fileName, {
       responseType: 'blob'  // Especifica que el tipo de respuesta es un Blob (archivo binario)
     });
   }

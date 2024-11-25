@@ -26,3 +26,18 @@
     background-color: #f1c708;
     color: #444;
 }
+
+.fileDb {
+    word-break: break-word;
+    /* Permite que las palabras largas se rompan y hagan salto de línea */
+}
+
+.file-name {
+    display: inline-block;
+    max-width: 100%;
+    /* Ajusta el ancho máximo del contenedor */
+    word-wrap: break-word;
+    /* Permite el ajuste de palabras largas */
+    white-space: normal;
+    /* Asegura que el texto puede saltar de línea */
+}

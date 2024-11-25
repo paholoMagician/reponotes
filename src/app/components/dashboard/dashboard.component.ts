@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostListener, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginService } from '../../shared/login/services/login.service';
 import { NetworkService } from '../../shared/network/network-service.service';
@@ -6,8 +6,8 @@ import { DashboardService } from './services/dashboard.service';
 import { EncryptService } from '../../shared/services/encrypt.service';
 import Swal from 'sweetalert2'
 import { FormControl, FormGroup } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
 import { HttpEventType } from '@angular/common/http';
+import { take } from 'rxjs';
 
 const Toast = Swal.mixin({
   toast: true,
@@ -65,12 +65,30 @@ export class DashboardComponent implements OnInit {
   isExpired: boolean = false; // Indica si el token ha expirado
   activityTimeout: any; // Controla la inactividad del usuario
 
+  chunkProgress: number = 0;
+  labelChunkProgress: string = '';
+  labelProgress: string = '';
+  progress: number = 0;
+  totalChunks: number = 0;
+  currentChunkIndex: number = 0;
+
+  show_cola_archivos: boolean = false;
+  archivosEnCola: { nombre: string; size: any, folder: string, folderId: number, progreso: number }[] = [];
+
+  cantidadArchivosPorSubir: number = 0;
+  archivosParaCarpeta: any = [];
+
+  // Objeto para almacenar el progreso de cada archivo
+  progressMap: { [key: string]: number } = {};
+  chunkProgressLabel: string = '';
+
   public folderForm = new FormGroup({
     searchItem: new FormControl('')
   });
 
   constructor(private router: Router,
     private log: LoginService,
+    private cdr: ChangeDetectorRef,
     private networkService: NetworkService,
     private dash: DashboardService, private ncrypt: EncryptService) { }
 
@@ -99,9 +117,26 @@ export class DashboardComponent implements OnInit {
     this.xfilter = this.folderForm.controls['searchItem'].value || '';
   }
 
-  closeSession() {
+  closeSession(typeClose: number) {
     sessionStorage.removeItem('token');
+    let closeAutoType: boolean;
+    /** ================================================ */
+    if (typeClose == 1) {
+      // Cerro sesion de manera manual
+      closeAutoType = true;
+    } else if (typeClose == 0) {
+      // Expiro su token de sesion
+      closeAutoType = false;
+    }
+    /** ================================================ */
+
+    const dateNow: any = new Date();
+
+    localStorage.setItem('dataCloseSessionEmail', this.arrTOKEN.email);
+    localStorage.setItem('dataCloseSessionType', closeAutoType!.toString());
+    localStorage.setItem('dataCloseSessionDate', dateNow);
     this.router.navigate(['/login']);
+
   }
 
   ngOnDestroy(): void {
@@ -141,7 +176,7 @@ export class DashboardComponent implements OnInit {
     this.clearActivityTimeout(); // Limpiar cualquier timeout previo
     this.activityTimeout = setTimeout(() => {
       // Si no hay actividad en 1 minuto, cerrar sesión
-      this.closeSession();
+      this.closeSession(0);
     }, 60000); // 1 minuto de espera para detectar actividad
   }
 
@@ -165,6 +200,17 @@ export class DashboardComponent implements OnInit {
 
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
+
+  getProgressKeys(): string[] {
+    return Object.keys(this.progressMap);
+  }
+
+  /** =================================================================== */
+  /** Esta funcion se dispara despues de eliminar un archivo */
+  getFileSize(event: any) {
+    this.pesoActual = event;
+  }
+  /** =================================================================== */
 
   // Array para almacenar los archivos seleccionados
   archivosSeleccionados: File[] = [];
@@ -191,268 +237,210 @@ export class DashboardComponent implements OnInit {
     xdiv.style.borderRadius = '0px';
   }
 
-  onDrop(event: DragEvent, carpeta: any) {
-    event.preventDefault();
-    event.stopPropagation();
-    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
-      for (let i = 0; i < event.dataTransfer.files.length; i++) {
-        this.archivosSeleccionados.push(event.dataTransfer.files[i]);
-      }
-      event.dataTransfer.clearData();
-      this.subirArchivos(this.archivosSeleccionados, carpeta); // Llama a la función para subir los archivos
-
-    }
-  }
-
-  getProgressKeys(): string[] {
-    return Object.keys(this.progressMap);
-  }
-
-  // Objeto para almacenar el progreso de cada archivo
-  progressMap: { [key: string]: number } = {};
-  chunkProgressLabel: string = '';
-
-  // Función para obtener el progreso total de todos los archivos seleccionados
-  getTotalProgress(): number {
-    const totalFiles = this.archivosSeleccionados.length;
-    if (totalFiles === 0) return 0;
-
-    const totalProgress = Object.values(this.progressMap).reduce((acc, progress) => acc + progress, 0);
-    return Math.floor(totalProgress / totalFiles); // Porcentaje promedio de todos los archivos
-  }
 
   onFilesSelected(event: Event, carpeta: any) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      const archivosParaCarpeta = Array.from(input.files); // Crear una lista específica para esta carpeta
-      this.subirArchivos(archivosParaCarpeta, carpeta); // Pasar los archivos junto con la carpeta específica
+      const nuevosArchivos: File[] = Array.from(input.files);
+
+      // Filtrar archivos duplicados en `archivosEnCola`
+      this.archivosFiltrados = nuevosArchivos.filter(
+        (nuevoArchivo) =>
+          !this.archivosEnCola.some(
+            (archivoEnCola) =>
+              archivoEnCola.nombre === nuevoArchivo.name && archivoEnCola.folderId === carpeta.id
+          )
+      );
+
+      console.warn('this.archivosFiltrados')
+      console.warn(this.archivosFiltrados)
+      // Añadir archivos filtrados a la cola
+      this.archivosCola(this.archivosFiltrados, carpeta.nameFolder, carpeta.id);
+
+      // Iniciar subida
+      this.subirArchivos(this.archivosFiltrados, carpeta);
     }
   }
-  
-  /** =================================================================== */
-  /** Esta funcion se dispara despues de eliminar un archivo */
-  getFileSize(event:any) {
-    this.pesoActual = event;
+
+  archivosFiltrados: any = [];
+  onDrop(event: DragEvent, carpeta: any) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      const nuevosArchivos: File[] = Array.from(event.dataTransfer.files);
+
+      // Filtrar archivos duplicados en `archivosEnCola`
+      this.archivosFiltrados = nuevosArchivos.filter(
+        (nuevoArchivo) =>
+          !this.archivosEnCola.some(
+            (archivoEnCola) =>
+              archivoEnCola.nombre === nuevoArchivo.name && archivoEnCola.folderId === carpeta.id
+          )
+      );
+      console.warn('this.archivosFiltrados')
+      console.warn(this.archivosFiltrados)
+      // Añadir archivos filtrados a la cola
+      this.archivosCola(this.archivosFiltrados, carpeta.nameFolder, carpeta.id);
+
+      // Iniciar subida
+      this.subirArchivos(this.archivosFiltrados, carpeta);
+    }
   }
-  /** =================================================================== */
+
+  archivosCola(files: File[], carpeta: string, idFolder: number) {
+    files.forEach((file: File) => {
+      const sizeInMB = (file.size / (1024 * 1024)).toFixed(2); // Convertir tamaño a MB
+      this.archivosEnCola.push({
+        nombre: file.name,
+        size: `${sizeInMB} MB`,
+        folder: carpeta,
+        folderId: idFolder,
+        progreso: 0 // Inicializamos progreso en 0
+      });
+    });
+    this.cantidadArchivosPorSubir = this.archivosEnCola.length;
+  }
+
+
+  async subirArchivos(archivos: File[], carpeta: any) {
+
+    // Agrupar archivos por carpeta.id
+    const archivosPorCarpeta = new Map<number, File[]>();
+
+    archivos.forEach((file) => {
+      const carpetaId = carpeta.id;
+      if (!archivosPorCarpeta.has(carpetaId)) {
+        archivosPorCarpeta.set(carpetaId, []);
+      }
+      archivosPorCarpeta.get(carpetaId)!.push(file);
+    });
+
+    // Subir archivos carpeta por carpeta
+    for (const [carpetaId, archivosDeCarpeta] of archivosPorCarpeta.entries()) {
+      const carpetaActual: any = { id: carpetaId, nameFolder: carpeta.nameFolder }; // Ajustar para obtener el nombre de carpeta si es necesario
+
+      console.log(`Iniciando subida de archivos para carpeta: ${carpetaActual.nameFolder} (ID: ${carpetaId})`);
+
+      for (const file of archivosDeCarpeta) {
+        console.log(`Subiendo archivo: ${file.name} en carpeta ${carpetaActual.nameFolder}`);
+
+        const chunkSize = 5 * 1024 * 1024; // Tamaño del chunk: 5 MB
+        const chunks = this.splitFile(file, chunkSize);
+        const totalChunks = chunks.length;
+
+        for (let currentChunkIndex = 0; currentChunkIndex < totalChunks; currentChunkIndex++) {
+          const chunk = chunks[currentChunkIndex];
+          const progresoArchivo = Math.round((100 * (currentChunkIndex + 1)) / totalChunks);
+
+          // Encuentra el archivo actual en archivosEnCola y actualiza su progreso
+          const archivoEnCola = this.archivosEnCola.find(
+            (archivo) => archivo.nombre === file.name && archivo.folderId === carpetaActual.id
+          );
+          if (archivoEnCola) {
+            archivoEnCola.progreso = progresoArchivo;
+          }
+          let success = false;
+          let attempts = 0;
+          const maxAttempts = 3; // Intentar un máximo de 3 veces
+
+          while (!success && attempts < maxAttempts) {
+            attempts++;
+            try {
+              // Subir chunk usando .subscribe()
+              await new Promise<void>((resolve, reject) => {
+                this.dash.uploadFileDriveServer(
+                  chunk,
+                  file.name,
+                  this.arrTOKEN.iduser,
+                  carpetaActual.id,
+                  currentChunkIndex,
+                  totalChunks
+                ).subscribe({
+                  next: (event) => {
+                    switch (event.type) {
+                      case HttpEventType.UploadProgress:
+                        if (event.total) {
+                          const chunkProgress = Math.round((100 * event.loaded) / event.total);
+                          console.log(`Progreso del chunk ${currentChunkIndex + 1}/${totalChunks} de archivo ${file.name}: ${chunkProgress}%`);
+                        }
+                        break;
+                      case HttpEventType.Response:
+                        success = true;
+                        console.log(`Chunk ${currentChunkIndex + 1}/${totalChunks} de archivo ${file.name} subido exitosamente.`);
+                        resolve(); // Indica que el chunk se subió exitosamente
+                        break;
+                      default:
+                        break;
+                    }
+                  },
+                  error: (err) => {
+                    console.error(`Error subiendo chunk ${currentChunkIndex + 1} para archivo ${file.name} en carpeta ${carpetaActual.nameFolder}:`, err);
+                    if (attempts === maxAttempts) {
+                      console.error(`Falló el chunk ${currentChunkIndex + 1} después de ${maxAttempts} intentos.`);
+                      reject(err); // Marca el chunk como fallido
+                    }
+                  },
+                });
+              });
+            } catch (err) {
+              console.error(`Error subiendo chunk ${currentChunkIndex + 1} para archivo ${file.name} en carpeta ${carpetaActual.nameFolder}:`, err);
+            }
+
+            if (!success) {
+              await this.sleep(1000); // Delay entre intentos
+            }
+          }
+
+          if (!success) {
+            console.error(`Fallo definitivo subiendo el archivo ${file.name} en carpeta ${carpetaActual.nameFolder}.`);
+            break; // Rompe el bucle de chunks si falla definitivamente
+          }
+        }
+
+        console.log(`Archivo ${file.name} cargado completamente en carpeta ${carpetaActual.nameFolder}.`);
+        this.guardarArchivoDB(file.name, carpetaActual.id, file.size);
+
+        this.archivosEnCola = this.archivosEnCola.filter(
+          (archivo) => archivo.nombre !== file.name || archivo.folderId !== carpetaActual.id
+        );
+
+        this.cantidadArchivosPorSubir--;
+
+      }
+
+      // Actualiza el estilo de la carpeta específica
+      const xdiv = document.getElementById('folder-' + carpetaId) as HTMLDivElement;
+      if (xdiv) {
+        xdiv.style.transition = 'ease all 1s';
+        xdiv.style.background = 'transparent';
+        xdiv.style.borderRadius = '0px';
+      }
+
+      console.log(`Subida completa para carpeta: ${carpetaActual.nameFolder}`);
+
+    }
+  }
+
 
   private splitFile(file: File, chunkSize: number): Blob[] {
     const chunks: Blob[] = [];
+
     let start = 0;
-  
+
     while (start < file.size) {
       const end = Math.min(start + chunkSize, file.size);
       chunks.push(file.slice(start, end));
       start = end;
     }
-  
     return chunks;
   }
 
 
-  chunkProgress: number = 0;
-  labelChunkProgress: string = '';
-  labelProgress: string = '';
-  progress: number = 0;
-  async subirArchivos(archivos: File[], carpeta: any) {
-    console.warn('Iniciando subida para carpeta:', carpeta.nameFolder);
-  
-    for (const file of archivos) {
-      const chunkSize = 5 * 1024 * 1024; // Tamaño del chunk: 5 MB
-      const chunks = this.splitFile(file, chunkSize);
-      const totalChunks = chunks.length;
-  
-      console.log(`Subiendo archivo: ${file.name}, Total chunks: ${totalChunks}, Carpeta: ${carpeta.nameFolder}`);
-  
-      let totalUploaded = 0;
-      for (let currentChunkIndex = 0; currentChunkIndex < totalChunks; currentChunkIndex++) {
-        const chunk = chunks[currentChunkIndex];
-        let success = false;
-        let attempts = 0;
-        const maxAttempts = 3; // Intentar un máximo de 3 veces
-  
-        while (!success && attempts < maxAttempts) {
-          attempts++;
-          try {
-            this.dash.uploadFileDriveServer(
-              chunk,
-              file.name,
-              this.arrTOKEN.iduser,
-              carpeta.id, // Asegurar que se use la carpeta correcta
-              currentChunkIndex,
-              totalChunks
-            ).subscribe({
-              next: (event) => {
-                // Manejo de los diferentes tipos de eventos HTTP
-                switch (event.type) {
-                  case HttpEventType.UploadProgress:
-                    if (event.total) {
-                      this.chunkProgress = Math.round((100 * event.loaded) / event.total);
-                      this.labelChunkProgress = `Progreso del chunk ${currentChunkIndex + 1}: ${this.chunkProgress}%`;
-                      console.log(`Progreso del chunk ${currentChunkIndex + 1}: ${this.chunkProgress}%`);
-                    }
-                    break;
-  
-                  case HttpEventType.Response:
-                    success = true;
-                    totalUploaded += chunk.size;
-                    this.progress = Math.round((100 * totalUploaded) / file.size);
-                    this.labelProgress = `Progreso [ ${file.name} ]: ${this.progress}%`; 
-                    console.log(`Progreso [ ${file.name} ]: ${this.progress}%`);
-                    break;
-  
-                  default:
-                    break;
-                }
-              },
-              error: (err) => {
-                console.error(`Error subiendo chunk ${currentChunkIndex + 1} para archivo ${file.name} en carpeta ${carpeta.nameFolder}:`, err);
-                if (attempts === maxAttempts) {
-                  console.error(`Falló el chunk ${currentChunkIndex + 1} después de ${maxAttempts} intentos.`);
-                }
-              }
-            });
-          } catch (err) {
-            console.error(`Error subiendo chunk ${currentChunkIndex + 1} para archivo ${file.name} en carpeta ${carpeta.nameFolder}:`, err);
-          }
-  
-          if (!success) {
-            await this.sleep(1000); // Delay entre intentos
-          }
-        }
-  
-        if (success) {
-          await this.sleep(1000); // Delay entre chunks
-        }
-      }
-  
-      console.log(`Archivo ${file.name} cargado completamente en carpeta ${carpeta.nameFolder}.`);
-      this.guardarArchivoDB(file.name, carpeta.id, file.size);
-    }
-  
-    // Actualiza el estilo de la carpeta específica
-    const xdiv = document.getElementById('folder-' + carpeta.id) as HTMLDivElement;
-    if (xdiv) {
-      xdiv.style.transition = 'ease all 1s';
-      xdiv.style.background = 'transparent';
-      xdiv.style.borderRadius = '0px';
-    }
+
+  sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
-
-  /** 
-   async subirArchivos(carpeta: any) {
-    console.warn('init')
-    for (const file of this.archivosSeleccionados) {
-      const chunkSize = 5 * 1024 * 1024; // Tamaño del chunk: 5 MB
-      const chunks = this.splitFile(file, chunkSize);
-      const totalChunks = chunks.length;
-      
-      console.log(`Subiendo archivo: ${file.name}, Total chunks: ${totalChunks}`);
-      
-      let totalUploaded = 0;
-      for (let currentChunkIndex = 0; currentChunkIndex < totalChunks; currentChunkIndex++) {
-        const chunk = chunks[currentChunkIndex];
-        let success = false;
-        let attempts = 0;
-        const maxAttempts = 3; // Intentar un máximo de 3 veces
-        
-        while (!success && attempts < maxAttempts) {
-          attempts++;
-          try {
-            this.dash.uploadFileDriveServer(
-              chunk,
-              file.name,
-              this.arrTOKEN.iduser,
-              carpeta.id,
-              currentChunkIndex,
-              totalChunks
-            ).subscribe({
-            next: (event) => {
-              console.log('Evento recibido:', event);
-              
-              // Manejo de los diferentes tipos de eventos HTTP
-              switch (event.type) {
-                case HttpEventType.Sent:
-                  console.log(`Chunk ${currentChunkIndex + 1} enviado al servidor.`);
-                  break;
-                  
-                  case HttpEventType.UploadProgress:
-                    if (event.total) {
-                      this.chunkProgress = Math.round((100 * event.loaded) / event.total);
-                      this.labelChunkProgress = `Progreso del chunk ${currentChunkIndex + 1}: ${this.chunkProgress}%`;
-                      console.log(`Progreso del chunk ${currentChunkIndex + 1}: ${this.chunkProgress}%`);
-                    }
-                    break;
-                    
-                    case HttpEventType.Response:
-                      const responseBody = event.body as { message: string; currentChunk?: number };
-                      console.log(`Chunk ${currentChunkIndex + 1} subido exitosamente.`, responseBody);
-                      success = true;
-                      // Actualizar progreso total
-                      totalUploaded += chunk.size;
-                      this.progress = Math.round((100 * totalUploaded) / file.size);
-                      this.labelProgress = `Progreso [ ${file.name} ]: ${this.progress}%`; 
-                      console.log(`Progreso [ ${file.name} ]: ${this.progress}%`);
-                      break;
-                      
-                      default:
-                        console.warn(`Evento no manejado: ${event.type}`);
-                        break;
-                        
-                      }
-                    },
-                    error: (err) => {
-                      if (err.status === 200) {
-                        console.warn(`Chunk ${currentChunkIndex + 1} procesado correctamente pero con error de parseo.`);
-                        success = true;
-                      } else {
-                        console.error(`Error subiendo chunk ${currentChunkIndex + 1}, intento ${attempts}:`, err);
-                      if (attempts === maxAttempts) {
-                        console.error(`Chunk ${currentChunkIndex + 1} falló después de ${maxAttempts} intentos.`);
-                        return; // Salir si no se pudo completar este chunk
-                      }
-                    }
-                  },
-                  complete: () => {
-                    // Este bloque se ejecuta cuando la subida del chunk es exitosa
-                    if (success) {
-                      console.log(`Chunk ${currentChunkIndex + 1} completado`);
-                    }
-                  }
-                });
-        } catch (err: any) {
-          console.error(`Error subiendo chunk ${currentChunkIndex + 1}, intento ${attempts}:`, err);
-        }
-
-        // Delay entre intentos (1 segundos)
-        if (!success) {
-          await this.sleep(1000);
-        }
-      }
-      
-      // Delay entre chunks (1 segundos)
-      if (success) {
-        await this.sleep(1000);
-      }
-    }
-    
-    console.log(`Archivo ${file.name} cargado completamente.`);
-    this.guardarArchivoDB( file.name, carpeta.id, file.size );
-  }
-  
-  // Actualiza el estilo del elemento de la carpeta
-  const xdiv = document.getElementById('folder-' + carpeta.id) as HTMLDivElement;
-  xdiv.style.transition = 'ease all 1s';
-  xdiv.style.background = 'transparent';
-  xdiv.style.borderRadius = '0px';
-  this.archivosSeleccionados = [];
-}
-*/
-
-// Función para manejar delays
-sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 
   pesoActual: number = 0.0;
@@ -525,7 +513,7 @@ sleep(ms: number): Promise<void> {
         next: (x) => {
           Toast.fire({
             icon: "success",
-            title: "File "+nameFile+" has been added."
+            title: "File " + nameFile + " has been added."
           });
         }, error: (e) => {
           this._show_spinner = false;
@@ -538,7 +526,7 @@ sleep(ms: number): Promise<void> {
         }, complete: () => {
           this._show_spinner = false;
           this.obtenerFileSize(this.arrTOKEN.iduser);
-          this.listaCarpetas.filter( (x:any) => {
+          this.listaCarpetas.filter((x: any) => {
             if (x.id == carpetaList) {
               x.cantFile = x.cantFile + 1;
             }
@@ -582,13 +570,29 @@ sleep(ms: number): Promise<void> {
         console.warn(this.filelistEmit);
       }, error: (e) => {
         console.error(e);
-        this._folder_show = false;
+        this._show_spinner = false
       }, complete: () => {
         this._show_spinner = false
 
       }
     })
   }
+
+  onRightClick(event: MouseEvent, carpeta: any): void {
+    event.preventDefault(); // Prevenir el menú contextual predeterminado
+    this.toggleActive(carpeta); // Ejecutar toggleActive con clic derecho
+
+    // Abrir el menú manualmente
+    const matMenuTrigger = event.target as HTMLElement;
+    matMenuTrigger.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+  }
+
+  onLeftClick(event: MouseEvent): void {
+    if (event.button === 0) { // Detecta clic izquierdo (button 0)
+      event.preventDefault(); // Prevenir cualquier acción asociada al clic izquierdo
+    }
+  }
+
 
   deleteFolderEmpty(folder: any, index: number) {
 
@@ -704,6 +708,11 @@ sleep(ms: number): Promise<void> {
 
   getFolderOutput(event: any) {
     this.listaCarpetas.push(event);
+
+    this.listaCarpetas.filter((x: any) => {
+      if (x.id == event.id) x.cantFile = 0;
+    })
+
     this._folder_open = false;
   }
 

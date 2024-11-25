@@ -33,8 +33,8 @@ export class LoginService {
     this.router.navigate(['login']);
   }
 
-  registroUsuario(model: any) {
-    return this.http.post(this.env.apingRok + 'login/guardarUsuario', model);
+  registroUsuario( model: any [] ) {
+    return this.http.post( this.env.apingRok+ 'Login/CrearUsuario', model );
   }
 
   login(model: any) {
