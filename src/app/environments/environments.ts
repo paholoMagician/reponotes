@@ -15,12 +15,15 @@ export class Environments {
   constructor(private encrypt: EncryptService) { }
   
   // /** LOCAL */
-  apingRok: any = 'https://localhost:7213/api/';
-
+  // apingRok: any = 'https://localhost:7213/api/';
   /** RED */
   // apingRok: any = 'http://192.168.55.28:5028/api/';
+  
+  /** SERVER DEPLOY */
+  apingRok: any = 'https://rpsoftdev.store:448/api/';
+  
 
-  version: string = 'V.1.0.1';
+  version: string = 'V.1.0.2';
   es: number = 5;
   hash: number = 10;
   encode: number = 99;

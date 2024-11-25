@@ -4,7 +4,7 @@
     </div>
 </div>
 
-<div *ngIf="!isConnected" class="alert alert-warning d-flex justify-content-between">
+<!-- <div *ngIf="!isConnected" class="alert alert-warning d-flex justify-content-between">
     <span> No estás conectado a Internet. > Trabajar Offline </span>
     <form [formGroup]="registerFormOffLine" class="d-flex" (ngSubmit)="onSubmitOffline()">
         <div class="d-flex align-content-center">
@@ -19,49 +19,61 @@
             <mat-icon>wifi_off </mat-icon> <span> Seguir en offline </span>
         </button>
     </form>
-
-</div>
+</div> -->
 
 <div class=" backdroop">
-    <div class="login">
-        <div>
-            <!-- LOGOTIPO -->
+    <div class="login animate__animated animate__fadeIn ">
+
+        <div class="w-100 d-flex justify-content-center align-items-center"> 
+            <img src="/assets/logotipo/logotipo-rfile-3.png"
+                 width="180px"
+                 height="auto">
         </div>
         <div>
             <div class="d-flex w-100 justify-content-end">
-                <span class="fs-5" style="color: yellowgreen;">
-                    {{ title_head }} / <small> V.1.0.4 </small>
+                <span class="fs-6" style="color: rgb(255, 184, 17);">
+                    {{ title_head }}
                 </span>
             </div>
             <hr style="border: groove 1px whitesmoke;">
             <form [formGroup]="registerForm" class="mb-2" (ngSubmit)="onSubmit()">
-                <div class="mb-3" *ngIf="showSignIn">
-                    <label for="nombre" class="form-label text-secondary d-flex align-items-center">
-                        <mat-icon>person</mat-icon>Como te llamamos:
-                    </label>
+                <div class="mb-3 animate__animated animate__fadeIn" *ngIf="showSignIn">
+                    <label for="nombre" class="form-label text-warning d-flex align-items-center">
+                        <mat-icon>person</mat-icon>What should we call you?
+                    </label>                    
                     <input class="form-control form-control-sm" formControlName="nombre" nombre="nombre" type="text"
                         #nombre id="nombre">
                 </div>
                 <div class="mb-3">
-                    <label for="email" class="form-label text-secondary d-flex align-items-center">
-                        <mat-icon>mail</mat-icon>Email:
+                    <label for="email"
+                           class="form-label text-warning  d-flex align-items-center">
+                           <mat-icon>mail</mat-icon>Email:
                     </label>
-                    <input class="form-control form-control-sm" formControlName="email" nombre="email" #email
-                        type="email" id="email">
+                    <input class="form-control form-control-sm"
+                           formControlName="email"
+                           nombre="email"
+                           #email
+                           type="email"
+                           id="email">
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label text-secondary d-flex align-items-center">
-                        <mat-icon>lock</mat-icon>Contraseña:
+                    <label for="password"
+                           class="form-label text-warning d-flex align-items-center">
+                           <mat-icon>lock</mat-icon> Password:
                     </label>
                     <div class="d-flex">
-                        <input class="form-control form-control-sm" formControlName="password" nombre="password"
-                            #password [type]="pass_type" id="password">
+                        <input class="form-control form-control-sm"
+                               formControlName="password"
+                               nombre="password"
+                               #password [type]="pass_type"
+                               id="password">
                         &nbsp;
                         <button type="button"
-                            class="btn d-flex align-items-center justify-content-center btn-outline-light p-0"
-                            (click)="togglePasswordVisibility()">
-                            <mat-icon style="font-size: 10pt;">{{ showPassword ? 'visibility_off' : 'visibility'
-                                }}</mat-icon>
+                                class="btn d-flex align-items-center justify-content-center btn-outline-warning p-0"
+                                (click)="togglePasswordVisibility()">
+                                <mat-icon style="font-size: 10pt;">
+                                    {{ showPassword ? 'visibility_off' : 'visibility' }}
+                                </mat-icon>
                         </button>
                     </div>
                 </div>
@@ -72,18 +84,23 @@
         </div>
         <div class="text-light d-flex flex-column">
             <div class="mb-2 d-flex justify-content-between align-items-center boxop">
-                <small> Si ya tienes cuenta </small>
+                <small>If you already have an account</small>
                 <button class="btn btn-sm btn-outline-info" (click)="ingresarLog('log')">
-                    Ingresa aquí
+                    Login here
                 </button>
             </div>
             <div class="d-flex justify-content-between align-items-center boxop">
-                <small>Si no tienes cuenta </small>
+                <small>If you don't have an account</small>
                 <button class="btn btn-sm btn-outline-info" (click)="ingresarLog('sign')">
-                    Registrate aquí
+                    Register here
                 </button>
             </div>
+            
         </div>
     </div>
-
+    <div class="footer-login">
+        <div class="version">
+            <small> <strong> {{version}} - updated! </strong> </small>
+        </div>
+    </div>
 </div>

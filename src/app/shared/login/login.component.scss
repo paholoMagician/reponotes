@@ -1,5 +1,7 @@
 .login {
-  background: rgba(25, 32, 44, 0.1);
+  // background: rgba(25, 32, 44, 0.1);
+  background: rgb(53,47,59);
+  background: linear-gradient(177deg, rgba(53,47,59,0.7597163865546218) 0%, rgba(12,15,25,0.7429096638655462) 100%);
   /* Slightly transparent background */
   padding: 20px;
   border-radius: 10px;
@@ -32,4 +34,20 @@
   background-color: red;
   border-radius: 10px;
   
+}
+
+.footer-login {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  bottom: 5px;
+  position: absolute;
+}
+
+.version {
+  background-color: #29282892;
+  border-radius: 10px;
+  padding: 7px;
+  color: rgb(255, 200, 0);
 }

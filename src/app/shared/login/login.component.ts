@@ -9,6 +9,7 @@ import Swal from 'sweetalert2'
 import { LoginService } from './services/login.service';
 import { NetworkService } from '../network/network-service.service';
 import { EncryptService } from '../services/encrypt.service';
+import { Environments } from '../../environments/environments';
 const Toast = Swal.mixin({
   toast: true,
   position: 'top-end',
@@ -30,7 +31,7 @@ const Toast = Swal.mixin({
 
 export class LoginComponent implements OnInit {
 
-  title_head: string = 'Registro';
+  title_head: string = '';
   pass_type: string = 'password';
   isConnected: boolean = true;
   actionForm: string = 'sign';
@@ -42,6 +43,8 @@ export class LoginComponent implements OnInit {
 
   showSignIn: boolean = true;
   showLogin: boolean = false;
+
+  version: string = '';
 
   registerFormOffLine = new FormGroup({
     emailx: new FormControl('')
@@ -55,16 +58,18 @@ export class LoginComponent implements OnInit {
 
   constructor(private router: Router, private ncrypt: EncryptService,
     private logUser: LoginService, private authService: SocialAuthService,
-    private networkService: NetworkService) { }
+    private networkService: NetworkService, private env: Environments) { }
 
   ngOnInit(): void {
     this.logUser.validacion();
+    this.ingresarLog('log');
+    this.version = this.env.version;
     this.networkService.getOnlineStatus().subscribe((status: boolean) => {
       this.isConnected = status;
       // console.log('Conectado a Internet:', status);
       if (this.isConnected) this.authGoogleClient();
     });
-
+    
   }
 
   authGoogleClient() {
@@ -149,7 +154,6 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit() {
-
     switch (this.actionForm) {
       case 'sign':
         this.signIn();
@@ -158,7 +162,6 @@ export class LoginComponent implements OnInit {
         this.logIn();
         break;
     }
-
   }
 
   signInWithGoogle(): void {
@@ -167,11 +170,24 @@ export class LoginComponent implements OnInit {
 
   ingresarLog(type: any) {
     this.actionForm = type;
-    if (this.actionForm == 'sign') { this.showSignIn = true; this.text_action_button = 'Registrarse'; this.title_head = 'Registro'; }
-    else if (this.actionForm == 'offline') { this.showSignIn = true; this.text_action_button = 'Registrarse offline'; this.title_head = 'Registro OffLine'; }
-    else { this.showSignIn = false; this.text_action_button = 'Ingresar'; this.title_head = 'Ingreso a la app'; }
+    if (this.actionForm == 'sign') { 
+      this.showSignIn = true; 
+      this.text_action_button = 'Sign Up'; 
+      this.title_head = 'Sign Up'; 
+    }
+    else if (this.actionForm == 'offline') { 
+      this.showSignIn = true; 
+      this.text_action_button = 'Sign Up Offline'; 
+      this.title_head = 'Offline Registration'; 
+    }
+    else { 
+      this.showSignIn = false; 
+      this.text_action_button = 'Login'; 
+      this.title_head = 'App Login'; 
+    }
     return this.actionForm;
   }
+  
 
   logIn() {
 
@@ -182,46 +198,44 @@ export class LoginComponent implements OnInit {
     ) {
       Toast.fire({
         icon: "warning",
-        title: "Debes escribir un email!"
+        title: "You must enter an email!"
       });
     }
     else if (
-
       this.registerForm.controls['password'].value == null ||
       this.registerForm.controls['password'].value == undefined ||
-      this.registerForm.controls['password'].value == '') {
-
+      this.registerForm.controls['password'].value == ''
+    ) {
       Toast.fire({
         icon: "warning",
-        title: "Debes tener una contraseña!"
+        title: "You must have a password!"
       });
-
+  
     } else {
-
+  
       this._show_spinner = true;
-
+  
       this.modelUserGuardar = {
         email: this.registerForm.controls['email'].value,
         password: this.registerForm.controls['password'].value
       }
-
+  
       this.logUser.login(this.modelUserGuardar).subscribe({
         next: (x: any) => {
-          console.warn('TOKEN');
-          console.warn(x);
+     
           Toast.fire({
             icon: "success",
-            title: "Ingreso correcto!"
+            title: "Login successful!"
           });
-
+  
           const tokenEn: any = this.ncrypt.encryptWithAsciiSeed(x.token, 5, 10);
           sessionStorage.setItem('token', tokenEn);
-
+  
         }, error: (e) => {
           console.error(e);
           Toast.fire({
             icon: "error",
-            title: "Algo ha pasado en el servidor"
+            title: "Something happened on the server"
           });
           this._show_spinner = false;
         }, complete: () => {
@@ -229,19 +243,20 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['home']);
           this.limpiar();
         }
-      })
+      });
     }
   }
+  
 
   modelUserGuardar: any = [];
   signIn() {
-    // alert('Guardando')
+    // alert('Saving')
     if (this.registerForm.controls['nombre'].value == null ||
       this.registerForm.controls['nombre'].value == undefined ||
       this.registerForm.controls['nombre'].value == '') {
       Toast.fire({
         icon: "warning",
-        title: "Debes escribir un nombre de usuario!"
+        title: "You must enter a username!"
       });
     }
     else if (
@@ -251,16 +266,17 @@ export class LoginComponent implements OnInit {
     ) {
       Toast.fire({
         icon: "warning",
-        title: "Debes escribir un email!"
+        title: "You must enter an email!"
       });
     }
     else if (
       this.registerForm.controls['password'].value == null ||
       this.registerForm.controls['password'].value == undefined ||
-      this.registerForm.controls['password'].value == '') {
+      this.registerForm.controls['password'].value == ''
+    ) {
       Toast.fire({
         icon: "warning",
-        title: "Debes tener una contraseña!"
+        title: "You must have a password!"
       });
     } else {
       let xuser: any = this.registerForm.controls['nombre'].value;
@@ -268,10 +284,9 @@ export class LoginComponent implements OnInit {
       let xemail: any = this.registerForm.controls['email'].value;
       sessionStorage.setItem('email', xemail);
       let xpass: any = this.registerForm.controls['password'].value;
-
+  
       this._show_spinner = true;
-
-
+  
       this.modelUserGuardar = {
         nombre: xuser,
         email: xemail,
@@ -281,33 +296,32 @@ export class LoginComponent implements OnInit {
         idMembresia: 1,
         fecrea: new Date()
       }
-
+  
       this.logUser.registroUsuario(this.modelUserGuardar).subscribe({
         next: (x) => {
           Toast.fire({
             icon: "success",
-            title: "Registrado con éxito"
+            title: "Successfully registered"
           });
         }, error: (e) => {
           this._show_spinner = false;
           Toast.fire({
             icon: "error",
-            title: "Algo ha pasado con el servidor!"
+            title: "Something went wrong with the server!"
           });
           console.error(e);
         }, complete: () => {
           this.ingresarLog('log');
           setTimeout(() => {
             let x: any = sessionStorage.getItem('email');
-            console.warn(x);
+            // console.warn(x);
             this.registerForm.controls['email'].setValue(x);
           }, 1000);
           this._show_spinner = false;
           this.limpiar();
         }
-      })
+      });
     }
-
   }
 
   limpiar() {
