@@ -103,7 +103,7 @@ export class DashboardComponent implements OnInit {
     this.membresiaDescripcion = this.arrTOKEN.membresiaDescripcion;
     this.networkService.getOnlineStatus().subscribe((status: boolean) => {
       this.isConnected = status;
-      console.log('Conectado a Internet:', status);
+      // console.log('Conectado a Internet:', status);
     });
 
     // Detectar la combinación Ctrl + I
@@ -135,6 +135,8 @@ export class DashboardComponent implements OnInit {
     localStorage.setItem('dataCloseSessionEmail', this.arrTOKEN.email);
     localStorage.setItem('dataCloseSessionType', closeAutoType!.toString());
     localStorage.setItem('dataCloseSessionDate', dateNow);
+    
+    // console.warn('Redirigiendo al login')
     this.router.navigate(['/login']);
 
   }
@@ -252,8 +254,8 @@ export class DashboardComponent implements OnInit {
           )
       );
 
-      console.warn('this.archivosFiltrados')
-      console.warn(this.archivosFiltrados)
+      // console.warn('this.archivosFiltrados')
+      // console.warn(this.archivosFiltrados)
       // Añadir archivos filtrados a la cola
       this.archivosCola(this.archivosFiltrados, carpeta.nameFolder, carpeta.id);
 
@@ -278,8 +280,8 @@ export class DashboardComponent implements OnInit {
               archivoEnCola.nombre === nuevoArchivo.name && archivoEnCola.folderId === carpeta.id
           )
       );
-      console.warn('this.archivosFiltrados')
-      console.warn(this.archivosFiltrados)
+      // console.warn('this.archivosFiltrados')
+      // console.warn(this.archivosFiltrados)
       // Añadir archivos filtrados a la cola
       this.archivosCola(this.archivosFiltrados, carpeta.nameFolder, carpeta.id);
 
@@ -320,10 +322,10 @@ export class DashboardComponent implements OnInit {
     for (const [carpetaId, archivosDeCarpeta] of archivosPorCarpeta.entries()) {
       const carpetaActual: any = { id: carpetaId, nameFolder: carpeta.nameFolder }; // Ajustar para obtener el nombre de carpeta si es necesario
 
-      console.log(`Iniciando subida de archivos para carpeta: ${carpetaActual.nameFolder} (ID: ${carpetaId})`);
+      // console.log(`Iniciando subida de archivos para carpeta: ${carpetaActual.nameFolder} (ID: ${carpetaId})`);
 
       for (const file of archivosDeCarpeta) {
-        console.log(`Subiendo archivo: ${file.name} en carpeta ${carpetaActual.nameFolder}`);
+        // console.log(`Subiendo archivo: ${file.name} en carpeta ${carpetaActual.nameFolder}`);
 
         const chunkSize = 5 * 1024 * 1024; // Tamaño del chunk: 5 MB
         const chunks = this.splitFile(file, chunkSize);
@@ -362,12 +364,12 @@ export class DashboardComponent implements OnInit {
                       case HttpEventType.UploadProgress:
                         if (event.total) {
                           const chunkProgress = Math.round((100 * event.loaded) / event.total);
-                          console.log(`Progreso del chunk ${currentChunkIndex + 1}/${totalChunks} de archivo ${file.name}: ${chunkProgress}%`);
+                          // console.log(`Progreso del chunk ${currentChunkIndex + 1}/${totalChunks} de archivo ${file.name}: ${chunkProgress}%`);
                         }
                         break;
                       case HttpEventType.Response:
                         success = true;
-                        console.log(`Chunk ${currentChunkIndex + 1}/${totalChunks} de archivo ${file.name} subido exitosamente.`);
+                        // console.log(`Chunk ${currentChunkIndex + 1}/${totalChunks} de archivo ${file.name} subido exitosamente.`);
                         resolve(); // Indica que el chunk se subió exitosamente
                         break;
                       default:
@@ -398,7 +400,7 @@ export class DashboardComponent implements OnInit {
           }
         }
 
-        console.log(`Archivo ${file.name} cargado completamente en carpeta ${carpetaActual.nameFolder}.`);
+        // console.log(`Archivo ${file.name} cargado completamente en carpeta ${carpetaActual.nameFolder}.`);
         this.guardarArchivoDB(file.name, carpetaActual.id, file.size);
 
         this.archivosEnCola = this.archivosEnCola.filter(
@@ -417,7 +419,7 @@ export class DashboardComponent implements OnInit {
         xdiv.style.borderRadius = '0px';
       }
 
-      console.log(`Subida completa para carpeta: ${carpetaActual.nameFolder}`);
+      // console.log(`Subida completa para carpeta: ${carpetaActual.nameFolder}`);
 
     }
   }
@@ -465,28 +467,28 @@ export class DashboardComponent implements OnInit {
   interfazUpload(data: any) {
     this._file_upload_open = true;
     this.dataFolderSend = data;
-    console.warn(this.dataFolderSend);
+    // console.warn(this.dataFolderSend);
   }
 
   getFileUpdate(event: any) {
-    console.warn(event);
+    // console.warn(event);
   }
 
   getFileEmit(event: any) {
-    console.warn(event)
+    // console.warn(event)
     this._file_upload_open = event;
   }
 
   notasId: any;
   crearNota(folderId: number) {
-    console.log('Crear nota en la carpeta:', folderId);
+    // console.log('Crear nota en la carpeta:', folderId);
     // this.folderEmit.emit(folderId);
     this.notasId = folderId;
     this._notes_open = true;
   }
 
   eliminarCarpeta(folderId: number) {
-    console.log('Eliminar carpeta:', folderId);
+    // console.log('Eliminar carpeta:', folderId);
   }
 
 
@@ -544,7 +546,7 @@ export class DashboardComponent implements OnInit {
     this.dash.obtenerFolders(this.arrTOKEN.iduser, 'folder', 0).subscribe({
       next: (x) => {
         this.listaCarpetas = x;
-        console.table(this.listaCarpetas);
+        // console.table(this.listaCarpetas);
       },
       error: (e) => {
         console.error(e);
@@ -566,8 +568,8 @@ export class DashboardComponent implements OnInit {
     this.dash.obtenerArchivos(this.arrTOKEN.iduser, folder.id).subscribe({
       next: (x) => {
         this.filelistEmit = x;
-        console.warn('ARCHIVOS');
-        console.warn(this.filelistEmit);
+        // console.warn('ARCHIVOS');
+        // console.warn(this.filelistEmit);
       }, error: (e) => {
         console.error(e);
         this._show_spinner = false
@@ -697,7 +699,7 @@ export class DashboardComponent implements OnInit {
   handleKeyboardEvent(event: KeyboardEvent) {
     if (event.ctrlKey && event.shiftKey && event.key === 'F') {
       this.listFolderActuallyDesktop = this.listaCarpetas;
-      console.warn(this.listFolderActuallyDesktop)
+      // console.warn(this.listFolderActuallyDesktop)
       this.createFolder();
     }
   }
