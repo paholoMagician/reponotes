@@ -57,24 +57,7 @@ export class LoginComponent implements OnInit {
     private logUser: LoginService, private authService: SocialAuthService,
     private networkService: NetworkService) { }
 
-  labelTypeCloseSession: any = 'Welcome again...';
   ngOnInit(): void {
-
-    setTimeout(() => {
-
-      let x: any = localStorage.getItem( 'dataCloseSessionEmail' );
-      let y: any = localStorage.getItem( 'dataCloseSessionType' );
-      let z: any = localStorage.getItem( 'dataCloseSessionDate' );
-      
-      if ( x  != undefined || x  != null ) this.registerForm.controls['email'].setValue(x), this.ingresarLog('log');
-      if ( y  != undefined || y  != null ) {
-        if ( y ) this.labelTypeCloseSession = 'You have logged out manually \n ' + z.toString().replace('T', '  ');
-        else this.labelTypeCloseSession = 'Your session token has expired for security, please log in again. \n ' + z.toString().replace('T', '  ');
-      }
-
-    }, 1000);
-
-
     this.logUser.validacion();
     this.networkService.getOnlineStatus().subscribe((status: boolean) => {
       this.isConnected = status;
@@ -110,9 +93,6 @@ export class LoginComponent implements OnInit {
           }, complete: () => {
             this._show_spinner = false;
             this.router.navigate(['home']);
-            localStorage.removeItem( 'dataCloseSessionEmail' );
-            localStorage.removeItem( 'dataCloseSessionType' );
-            localStorage.removeItem( 'dataCloseSessionDate' );
           }
         })
       }
@@ -161,11 +141,6 @@ export class LoginComponent implements OnInit {
         });
         this.router.navigate(['home']);
       }
-
-      localStorage.removeItem( 'dataCloseSessionEmail' );
-      localStorage.removeItem( 'dataCloseSessionType' );
-      localStorage.removeItem( 'dataCloseSessionDate' );
-
     }
   }
 
@@ -251,9 +226,6 @@ export class LoginComponent implements OnInit {
           this._show_spinner = false;
         }, complete: () => {
           this._show_spinner = true;
-          localStorage.removeItem( 'dataCloseSessionEmail' );
-          localStorage.removeItem( 'dataCloseSessionType' );
-          localStorage.removeItem( 'dataCloseSessionDate' );
           this.router.navigate(['home']);
           this.limpiar();
         }
@@ -303,7 +275,11 @@ export class LoginComponent implements OnInit {
       this.modelUserGuardar = {
         nombre: xuser,
         email: xemail,
-        password: xpass
+        password: xpass,
+        estado: 1,
+        rol: 1,
+        idMembresia: 1,
+        fecrea: new Date()
       }
 
       this.logUser.registroUsuario(this.modelUserGuardar).subscribe({
@@ -320,9 +296,12 @@ export class LoginComponent implements OnInit {
           });
           console.error(e);
         }, complete: () => {
-          localStorage.removeItem( 'dataCloseSessionEmail' );
-          localStorage.removeItem( 'dataCloseSessionType' );
-          localStorage.removeItem( 'dataCloseSessionDate' );
+          this.ingresarLog('log');
+          setTimeout(() => {
+            let x: any = sessionStorage.getItem('email');
+            console.warn(x);
+            this.registerForm.controls['email'].setValue(x);
+          }, 1000);
           this._show_spinner = false;
           this.limpiar();
         }
