@@ -73,7 +73,7 @@ export class DashboardComponent implements OnInit {
   currentChunkIndex: number = 0;
 
   show_cola_archivos: boolean = false;
-  archivosEnCola: { nombre: string; size: any, folder: string, folderId: number }[] = [];
+  archivosEnCola: { nombre: string; size: any, folder: string, folderId: number, progreso: number }[] = [];
 
   cantidadArchivosPorSubir: number = 0;
   archivosParaCarpeta: any = [];
@@ -237,187 +237,6 @@ export class DashboardComponent implements OnInit {
     xdiv.style.borderRadius = '0px';
   }
 
-  //#region [ ANTIGUO CODIGO UPLODING FILES ]
-  /*
-  onFilesSelected(event: Event, carpeta: any) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.archivosParaCarpeta = Array.from(input.files); // Crear una lista específica para esta carpeta
-      this.cantidadArchivosPorSubir = this.archivosParaCarpeta.length;
-      this.archivosCola(this.archivosParaCarpeta, carpeta.nameFolder, carpeta.id);
-      this.subirArchivos();
-    }
-  }
-
-  onDrop(event: DragEvent, carpeta: any) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
-      const nuevosArchivos: File[] = Array.from(event.dataTransfer.files);
-
-      // Filtrar archivos que ya estén en `archivosSeleccionados` (evitar duplicados)
-      const archivosFiltrados = nuevosArchivos.filter(
-        nuevoArchivo =>
-          !this.archivosSeleccionados.some(
-            archivoExistente => archivoExistente.name === nuevoArchivo.name && archivoExistente.size === nuevoArchivo.size
-          )
-      );
-
-      // Añadir solo los archivos nuevos a la lista
-      this.archivosSeleccionados.push(...archivosFiltrados);
-
-      // Actualizar la cola con los archivos nuevos y su información de carpeta
-      this.archivosCola(archivosFiltrados, carpeta.nameFolder, carpeta.id);
-
-      // Iniciar el proceso de subida
-      this.subirArchivos(); // No es necesario pasar archivos ni carpeta, ya que ahora gestiona automáticamente la cola
-
-      // Actualizar la cantidad total de archivos por subir
-      this.cantidadArchivosPorSubir = this.archivosSeleccionados.length;
-
-      // Limpiar los datos del evento
-      event.dataTransfer.clearData();
-    }
-  }
-
-
-  archivosCola(file: any, carpeta: string, idFolder: number) {
-    console.table(carpeta)
-    file.forEach((x: any) => {
-      const sizeInMB = (x.size / (1024 * 1024)).toFixed(2); // Convertir tamaño a MB y redondear a 2 decimales
-      this.archivosEnCola.push({ nombre: x.name, size: `${sizeInMB} MB`, folder: carpeta, folderId: idFolder });
-    });
-  }
-
-  async subirArchivos() {
-    const carpetasProcesadas = new Set<number>(); // Seguimiento de carpetas ya procesadas
-
-    while (this.archivosEnCola.length > 0) {
-      const archivo: any = this.archivosEnCola.shift(); // Sacar el primer archivo de la cola
-      const { nombre, folderId } = archivo;
-
-      // Verificar si la carpeta ya está siendo procesada
-      if (!carpetasProcesadas.has(folderId)) {
-        carpetasProcesadas.add(folderId);
-        console.log(`Iniciando subida para la carpeta con id ${folderId}`);
-      }
-
-      await this.subirArchivo(nombre, folderId);
-    }
-
-    console.log('Todos los archivos de todas las carpetas se han subido');
-  }
-
-  // Subir archivo individual basado en su idFolder
-  private async subirArchivo(nombreArchivo: string, idFolder: any) {
-
-    console.warn(nombreArchivo)
-    console.warn(idFolder)
-    console.table(this.archivosSeleccionados)
-
-    this.archivosSeleccionados.filter((x: any) => {
-      console.warn(x)
-      console.warn(x.name)
-      console.warn(x.folderId)
-    })
-
-    const archivo = this.archivosSeleccionados.find(
-      (a: any) => a.name === nombreArchivo && a.folderId === idFolder
-    );
-
-    console.warn(archivo)
-
-    if (!archivo) {
-      console.error(`No se encontró el archivo ${nombreArchivo} en la carpeta ${idFolder}`);
-      return;
-    }
-
-    const chunkSize = 5 * 1024 * 1024; // Tamaño del chunk: 5 MB
-    const chunks = this.splitFile(archivo, chunkSize);
-    const totalChunks = chunks.length;
-
-    let totalUploaded = 0;
-
-    for (let currentChunkIndex = 0; currentChunkIndex < totalChunks; currentChunkIndex++) {
-      const chunk = chunks[currentChunkIndex];
-      let success = false;
-      let attempts = 0;
-      const maxAttempts = 3;
-
-      while (!success && attempts < maxAttempts) {
-        attempts++;
-        try {
-          console.log(`Subiendo chunk ${currentChunkIndex + 1}/${totalChunks} del archivo ${archivo.name} a la carpeta ${idFolder}`);
-          this.labelChunkProgress = `Multipart files: ${currentChunkIndex + 1}/${totalChunks}`;
-
-          await new Promise((resolve, reject) => {
-            this.dash.uploadFileDriveServer(
-              chunk,
-              archivo.name,
-              this.arrTOKEN.iduser,
-              idFolder,
-              currentChunkIndex,
-              totalChunks
-            )
-              .pipe(take(1))
-              .subscribe({
-                next: (event) => {
-                  switch (event.type) {
-                    case HttpEventType.UploadProgress:
-                      if (event.total) {
-                        const chunkProgress = Math.round((100 * event.loaded) / event.total);
-                        this.chunkProgress = chunkProgress;
-                        this.labelChunkProgress = `Progreso del chunk ${currentChunkIndex + 1}: ${chunkProgress}%`;
-                        console.log(`Progreso del chunk ${currentChunkIndex + 1}: ${chunkProgress}%`);
-                      }
-                      break;
-
-                    case HttpEventType.Response:
-                      success = true;
-                      totalUploaded += chunk.size;
-
-                      const progress = Math.round((100 * totalUploaded) / archivo.size);
-                      this.progress = progress;
-                      this.labelProgress = `Progreso [ ${archivo.name} ]: ${progress}%`;
-                      console.log(`Progreso [ ${archivo.name} ]: ${progress}%`);
-                      resolve(true);
-                      break;
-
-                    default:
-                      break;
-                  }
-                },
-                error: (err) => {
-                  console.error(`Error subiendo chunk ${currentChunkIndex + 1} del archivo ${archivo.name}:`, err);
-                  reject(err);
-                },
-              });
-          });
-        } catch (err) {
-          console.error(`Error subiendo chunk ${currentChunkIndex + 1} del archivo ${archivo.name}:`, err);
-        }
-
-        if (!success) {
-          await this.sleep(1000); // Retraso entre intentos
-        }
-      }
-    }
-
-    console.log(`Archivo ${archivo.name} cargado completamente en carpeta ${idFolder}`);
-    this.guardarArchivoDB(archivo.name, idFolder, archivo.size);
-
-    const xdiv = document.getElementById('folder-' + idFolder) as HTMLDivElement;
-    if (xdiv) {
-      xdiv.style.transition = 'ease all 1s';
-      xdiv.style.background = 'transparent';
-      xdiv.style.borderRadius = '0px';
-    }
-
-  }
-  */
-  //#endregion
-
 
   onFilesSelected(event: Event, carpeta: any) {
     const input = event.target as HTMLInputElement;
@@ -425,7 +244,7 @@ export class DashboardComponent implements OnInit {
       const nuevosArchivos: File[] = Array.from(input.files);
 
       // Filtrar archivos duplicados en `archivosEnCola`
-      const archivosFiltrados = nuevosArchivos.filter(
+      this.archivosFiltrados = nuevosArchivos.filter(
         (nuevoArchivo) =>
           !this.archivosEnCola.some(
             (archivoEnCola) =>
@@ -433,14 +252,17 @@ export class DashboardComponent implements OnInit {
           )
       );
 
+      console.warn('this.archivosFiltrados')
+      console.warn(this.archivosFiltrados)
       // Añadir archivos filtrados a la cola
-      this.archivosCola(archivosFiltrados, carpeta.nameFolder, carpeta.id);
+      this.archivosCola(this.archivosFiltrados, carpeta.nameFolder, carpeta.id);
 
       // Iniciar subida
-      this.subirArchivos(archivosFiltrados, carpeta);
+      this.subirArchivos(this.archivosFiltrados, carpeta);
     }
   }
 
+  archivosFiltrados: any = [];
   onDrop(event: DragEvent, carpeta: any) {
     event.preventDefault();
     event.stopPropagation();
@@ -449,125 +271,156 @@ export class DashboardComponent implements OnInit {
       const nuevosArchivos: File[] = Array.from(event.dataTransfer.files);
 
       // Filtrar archivos duplicados en `archivosEnCola`
-      const archivosFiltrados = nuevosArchivos.filter(
+      this.archivosFiltrados = nuevosArchivos.filter(
         (nuevoArchivo) =>
           !this.archivosEnCola.some(
             (archivoEnCola) =>
               archivoEnCola.nombre === nuevoArchivo.name && archivoEnCola.folderId === carpeta.id
           )
       );
-
-      console.table('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-      console.table(archivosFiltrados);
-      console.table('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-
+      console.warn('this.archivosFiltrados')
+      console.warn(this.archivosFiltrados)
       // Añadir archivos filtrados a la cola
-      this.archivosCola(archivosFiltrados, carpeta.nameFolder, carpeta.id);
+      this.archivosCola(this.archivosFiltrados, carpeta.nameFolder, carpeta.id);
 
       // Iniciar subida
-      this.subirArchivos(archivosFiltrados, carpeta);
+      this.subirArchivos(this.archivosFiltrados, carpeta);
     }
   }
 
   archivosCola(files: File[], carpeta: string, idFolder: number) {
     files.forEach((file: File) => {
       const sizeInMB = (file.size / (1024 * 1024)).toFixed(2); // Convertir tamaño a MB
-      this.archivosEnCola.push({ nombre: file.name, size: `${sizeInMB} MB`, folder: carpeta, folderId: idFolder });
+      this.archivosEnCola.push({
+        nombre: file.name,
+        size: `${sizeInMB} MB`,
+        folder: carpeta,
+        folderId: idFolder,
+        progreso: 0 // Inicializamos progreso en 0
+      });
     });
+    this.cantidadArchivosPorSubir = this.archivosEnCola.length;
   }
 
 
   async subirArchivos(archivos: File[], carpeta: any) {
 
+    // Agrupar archivos por carpeta.id
+    const archivosPorCarpeta = new Map<number, File[]>();
 
-    console.table('================================');
-    console.table(carpeta);
-    console.warn('Iniciando subida para carpeta:', carpeta.nameFolder);
-    console.table('================================');
-    console.warn(archivos);
-    console.table('================================');
+    archivos.forEach((file) => {
+      const carpetaId = carpeta.id;
+      if (!archivosPorCarpeta.has(carpetaId)) {
+        archivosPorCarpeta.set(carpetaId, []);
+      }
+      archivosPorCarpeta.get(carpetaId)!.push(file);
+    });
 
-    for (const file of archivos) {
-      const chunkSize = 5 * 1024 * 1024; // Tamaño del chunk: 5 MB
-      const chunks = this.splitFile(file, chunkSize);
-      this.totalChunks = chunks.length;
+    // Subir archivos carpeta por carpeta
+    for (const [carpetaId, archivosDeCarpeta] of archivosPorCarpeta.entries()) {
+      const carpetaActual: any = { id: carpetaId, nameFolder: carpeta.nameFolder }; // Ajustar para obtener el nombre de carpeta si es necesario
 
-      console.log(`Subiendo archivo: ${file.name}, Total chunks: ${this.totalChunks}, Carpeta: ${carpeta.nameFolder}`);
+      console.log(`Iniciando subida de archivos para carpeta: ${carpetaActual.nameFolder} (ID: ${carpetaId})`);
 
-      let totalUploaded = 0;
-      for (this.currentChunkIndex = 0; this.currentChunkIndex < this.totalChunks; this.currentChunkIndex++) {
-        const chunk = chunks[this.currentChunkIndex];
-        let success = false;
-        let attempts = 0;
-        const maxAttempts = 3; // Intentar un máximo de 3 veces
+      for (const file of archivosDeCarpeta) {
+        console.log(`Subiendo archivo: ${file.name} en carpeta ${carpetaActual.nameFolder}`);
 
-        while (!success && attempts < maxAttempts) {
-          attempts++;
-          try {
-            this.dash.uploadFileDriveServer(
-              chunk,
-              file.name,
-              this.arrTOKEN.iduser,
-              carpeta.id, // Asegurar que se use la carpeta correcta
-              this.currentChunkIndex,
-              this.totalChunks
-            ).subscribe({
-              next: (event) => {
-                // Manejo de los diferentes tipos de eventos HTTP
-                switch (event.type) {
-                  case HttpEventType.UploadProgress:
-                    if (event.total) {
-                      this.chunkProgress = Math.round((100 * event.loaded) / event.total);
-                      // console.log(`Progreso del chunk ${this.currentChunkIndex + 1}: ${this.chunkProgress}%`);
+        const chunkSize = 5 * 1024 * 1024; // Tamaño del chunk: 5 MB
+        const chunks = this.splitFile(file, chunkSize);
+        const totalChunks = chunks.length;
+
+        for (let currentChunkIndex = 0; currentChunkIndex < totalChunks; currentChunkIndex++) {
+          const chunk = chunks[currentChunkIndex];
+          const progresoArchivo = Math.round((100 * (currentChunkIndex + 1)) / totalChunks);
+
+          // Encuentra el archivo actual en archivosEnCola y actualiza su progreso
+          const archivoEnCola = this.archivosEnCola.find(
+            (archivo) => archivo.nombre === file.name && archivo.folderId === carpetaActual.id
+          );
+          if (archivoEnCola) {
+            archivoEnCola.progreso = progresoArchivo;
+          }
+          let success = false;
+          let attempts = 0;
+          const maxAttempts = 3; // Intentar un máximo de 3 veces
+
+          while (!success && attempts < maxAttempts) {
+            attempts++;
+            try {
+              // Subir chunk usando .subscribe()
+              await new Promise<void>((resolve, reject) => {
+                this.dash.uploadFileDriveServer(
+                  chunk,
+                  file.name,
+                  this.arrTOKEN.iduser,
+                  carpetaActual.id,
+                  currentChunkIndex,
+                  totalChunks
+                ).subscribe({
+                  next: (event) => {
+                    switch (event.type) {
+                      case HttpEventType.UploadProgress:
+                        if (event.total) {
+                          const chunkProgress = Math.round((100 * event.loaded) / event.total);
+                          console.log(`Progreso del chunk ${currentChunkIndex + 1}/${totalChunks} de archivo ${file.name}: ${chunkProgress}%`);
+                        }
+                        break;
+                      case HttpEventType.Response:
+                        success = true;
+                        console.log(`Chunk ${currentChunkIndex + 1}/${totalChunks} de archivo ${file.name} subido exitosamente.`);
+                        resolve(); // Indica que el chunk se subió exitosamente
+                        break;
+                      default:
+                        break;
                     }
-                    break;
-                  case HttpEventType.Response:
-                    success = true;
-                    totalUploaded += chunk.size;
-                    this.progress = Math.round((100 * totalUploaded) / file.size);
-                    this.labelProgress = `Progreso [ ${file.name} ]: ${this.progress}%`;
-                    this.labelChunkProgress = `Multipart files: ${this.currentChunkIndex + 1}/${this.totalChunks}`;
-                    console.log(`Progreso [ ${file.name} ]: ${this.progress}%`);
-                    break;
+                  },
+                  error: (err) => {
+                    console.error(`Error subiendo chunk ${currentChunkIndex + 1} para archivo ${file.name} en carpeta ${carpetaActual.nameFolder}:`, err);
+                    if (attempts === maxAttempts) {
+                      console.error(`Falló el chunk ${currentChunkIndex + 1} después de ${maxAttempts} intentos.`);
+                      reject(err); // Marca el chunk como fallido
+                    }
+                  },
+                });
+              });
+            } catch (err) {
+              console.error(`Error subiendo chunk ${currentChunkIndex + 1} para archivo ${file.name} en carpeta ${carpetaActual.nameFolder}:`, err);
+            }
 
-                  default:
-                    break;
-                }
-              },
-              error: (err) => {
-                console.error(`Error subiendo chunk ${this.currentChunkIndex + 1} para archivo ${file.name} en carpeta ${carpeta.nameFolder}:`, err);
-                if (attempts === maxAttempts) {
-                  console.error(`Falló el chunk ${this.currentChunkIndex + 1} después de ${maxAttempts} intentos.`);
-                }
-              }
-            });
-          } catch (err) {
-            console.error(`Error subiendo chunk ${this.currentChunkIndex + 1} para archivo ${file.name} en carpeta ${carpeta.nameFolder}:`, err);
+            if (!success) {
+              await this.sleep(1000); // Delay entre intentos
+            }
           }
 
           if (!success) {
-            await this.sleep(1000); // Delay entre intentos
+            console.error(`Fallo definitivo subiendo el archivo ${file.name} en carpeta ${carpetaActual.nameFolder}.`);
+            break; // Rompe el bucle de chunks si falla definitivamente
           }
         }
 
-        if (success) {
-          await this.sleep(1000); // Delay entre chunks
-        }
+        console.log(`Archivo ${file.name} cargado completamente en carpeta ${carpetaActual.nameFolder}.`);
+        this.guardarArchivoDB(file.name, carpetaActual.id, file.size);
+
+        this.archivosEnCola = this.archivosEnCola.filter(
+          (archivo) => archivo.nombre !== file.name || archivo.folderId !== carpetaActual.id
+        );
+
+        this.cantidadArchivosPorSubir--;
+
       }
 
-      console.log(`Archivo ${file.name} cargado completamente en carpeta ${carpeta.nameFolder}.`);
-      this.guardarArchivoDB(file.name, carpeta.id, file.size);
-    }
+      // Actualiza el estilo de la carpeta específica
+      const xdiv = document.getElementById('folder-' + carpetaId) as HTMLDivElement;
+      if (xdiv) {
+        xdiv.style.transition = 'ease all 1s';
+        xdiv.style.background = 'transparent';
+        xdiv.style.borderRadius = '0px';
+      }
 
-    // Actualiza el estilo de la carpeta específica
-    const xdiv = document.getElementById('folder-' + carpeta.id) as HTMLDivElement;
-    if (xdiv) {
-      xdiv.style.transition = 'ease all 1s';
-      xdiv.style.background = 'transparent';
-      xdiv.style.borderRadius = '0px';
+      console.log(`Subida completa para carpeta: ${carpetaActual.nameFolder}`);
+
     }
   }
-
 
 
   private splitFile(file: File, chunkSize: number): Blob[] {
@@ -855,6 +708,11 @@ export class DashboardComponent implements OnInit {
 
   getFolderOutput(event: any) {
     this.listaCarpetas.push(event);
+
+    this.listaCarpetas.filter((x: any) => {
+      if (x.id == event.id) x.cantFile = 0;
+    })
+
     this._folder_open = false;
   }
 

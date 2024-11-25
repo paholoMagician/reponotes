@@ -102,10 +102,18 @@ export class FolderOpenComponent implements OnInit, OnChanges {
 
   }
 
+  // Agrega esta función en tu archivo TypeScript 
+  truncateFileName(fileName: string, maxLength: number): string {
+    if (fileName.length <= maxLength) { return fileName; }
+    const extension = fileName.slice(fileName.lastIndexOf('.'));
+    const nameWithoutExtension = fileName.slice(0, fileName.lastIndexOf('.')); const truncatedName = nameWithoutExtension.slice(0, maxLength - extension.length - 3) + '...';
+    return truncatedName + extension;
+  }
+
   obtenerFileSize(iduser: number) {
     this.dash.obtenerPesoArchivos(iduser).subscribe({
       next: (x: any) => {
-        this.NewFileSize.emit(x.totalSize); 
+        this.NewFileSize.emit(x.totalSize);
       }
     })
   }

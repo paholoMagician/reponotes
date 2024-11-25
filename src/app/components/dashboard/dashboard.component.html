@@ -60,10 +60,10 @@
                 <mat-icon>folder_open</mat-icon>
                 <span> Abrir carpeta </span>
             </button>
-            <button mat-menu-item class="d-flex align-items-center" (click)="interfazUpload(carpeta)">
+            <!-- <button mat-menu-item class="d-flex align-items-center" (click)="interfazUpload(carpeta)">
                 <mat-icon>upload</mat-icon>
                 <span> Subir Archivo </span>
-            </button>
+            </button> -->
             <button mat-menu-item class="d-flex align-items-center" (click)="deleteFolderEmpty(carpeta, i)">
                 <mat-icon>delete</mat-icon>
                 <span> Eliminar Carpeta </span>
@@ -99,17 +99,17 @@
             &nbsp;
             <small>files uploading </small>
         </div>
-        <div class="labelProgress d-flex flex-column p-1 rounded-2 w-25" style="border: groove 2px rgb(39, 39, 93);">
+        <!-- <div class="labelProgress d-flex flex-column p-1 rounded-2 w-25" style="border: groove 2px rgb(39, 39, 93);">
             <small class="text-light">
                 {{labelProgress}} <span *ngIf="labelProgress != ''"> > </span> {{ labelChunkProgress }}
             </small>
             <mat-progress-bar class="mt-1 mb-1" mode="determinate" [value]="progress"></mat-progress-bar>
-        </div>
+        </div> -->
     </div>
 
     <!-- OTRAS APLICACIONES -->
 
-    <div class="archivos_cola" *ngIf="show_cola_archivos">
+    <!-- <div class="archivos_cola" *ngIf="show_cola_archivos">
         <small class="p-2 text-warning mb-2 d-flex align-content-center rounded-2 shadow-sm "
             style="background-color: rgba(24, 39, 93, 0.629);">
             <mat-icon>backup</mat-icon> &nbsp;
@@ -130,7 +130,31 @@
 
             </li>
         </ul>
+    </div> -->
+
+    <div class="archivos_cola animate__animated animate__fadeInBottomRight " *ngIf="archivosEnCola.length > 0">
+        <small class="p-2 text-warning mb-2 d-flex align-content-center rounded-2 shadow-sm"
+            style="background-color: rgba(24, 39, 93, 0.629);">
+            <mat-icon>backup</mat-icon> &nbsp;
+            <span>Archivos en Progreso</span>
+        </small>
+        <ul class="p-0">
+            <li *ngFor="let archivo of archivosEnCola" class="d-flex flex-column text-light p-0 m-1"
+                style="border-bottom: groove 2px rgb(40, 40, 110);">
+                <span class="d-flex align-content-center">
+                    <mat-icon>description</mat-icon> {{ archivo.nombre }}
+                </span>
+                <small class="archivo-detalle d-flex justify-content-between">
+                    <span class="text-warning d-flex align-items-center" style="font-size: 10pt;">
+                        <mat-icon>drive_folder_upload</mat-icon> {{ archivo.folder }}
+                    </span>
+                    <small class="archivo-detalle">{{ archivo.size }}</small>
+                </small>
+                <mat-progress-bar mode="determinate" [value]="archivo.progreso"></mat-progress-bar>
+            </li>
+        </ul>
     </div>
+
 
     <div *ngIf="_folder_open" class="window-function-overlay animate__animated animate__fadeIn">
         <div class="window-function" cdkDrag>

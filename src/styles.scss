@@ -277,6 +277,8 @@ input:focus {
   resize: both;
   /* Activa el redimensionamiento desde cualquier borde */
   backdrop-filter: blur(5px);
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .window-function .editor-container {
