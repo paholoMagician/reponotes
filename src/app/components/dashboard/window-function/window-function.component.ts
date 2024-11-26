@@ -29,7 +29,7 @@ export class WindowFunctionComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes) {
-      console.warn(this.folderLists)
+      // console.warn(this.folderLists)
     }
   }
 
@@ -65,7 +65,7 @@ export class WindowFunctionComponent implements OnInit, OnChanges {
     this.notesServices.saveFolder(this.modelFolder).subscribe({
       next: (x) => {
         this.res = x;
-        console.log('Carpeta guardada')
+        // console.log('Carpeta guardada')
       }, error: (e) => {
         console.error(e);
         this._show_spinner = false;

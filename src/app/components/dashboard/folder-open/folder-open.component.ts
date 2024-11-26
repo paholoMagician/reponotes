@@ -2,12 +2,15 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { DashboardService } from '../services/dashboard.service';
 import { EncryptService } from '../../../shared/services/encrypt.service';
 import Swal from 'sweetalert2'
+import { HttpHeaders } from '@angular/common/http';
 @Component({
   selector: 'app-folder-open',
   templateUrl: './folder-open.component.html',
   styleUrl: './folder-open.component.scss'
 })
 export class FolderOpenComponent implements OnInit, OnChanges {
+
+  _show_spinner: boolean = false;
 
   @Input() folderData: any;
   @Input() fileList: any;
@@ -37,24 +40,90 @@ export class FolderOpenComponent implements OnInit, OnChanges {
     }
   }
 
+  // downLoadFileServer(fileDB: any) {
+
+  //   this._show_spinner = true;
+
+  //   this.dash.downloadFileServer(this.arrTOKEN.iduser, this.folderData.id, fileDB.nameFile).subscribe({
+  //     next: (blob) => {
+  //       const url = window.URL.createObjectURL(blob);
+  //       const a = document.createElement('a');
+  //       a.href = url;
+  //       a.download = fileDB.nameFile;
+  //       a.click();
+  //       window.URL.revokeObjectURL(url);
+  //       console.log('Archivo descargado');
+  //       this._show_spinner = false;
+  //     },
+  //     error: (e) => {
+  //       this._show_spinner = false;
+  //       console.error('Error en la descarga del archivo:', e);
+  //     }
+  //   });
+  // }
+
   downLoadFileServer(fileDB: any) {
+    this._show_spinner = true;
 
-    this.dash.downloadFileServer(this.arrTOKEN.iduser, this.folderData.id, fileDB.nameFile).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileDB.nameFile;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        console.log('Archivo descargado');
-      },
-      error: (e) => {
-        console.error('Error en la descarga del archivo:', e);
-      }
-    });
-  }
+    // Inicializar propiedades
+    fileDB.isDownloading = fileDB.isDownloading ?? true;
+    fileDB.downloadProgress = fileDB.downloadProgress ?? 0;
 
+    const totalSize = fileDB.size * 1024 * 1024 * 1024; // Convertir tamaño a bytes
+    const chunkSize = 1024 * 1024; // Tamaño del chunk: 1 MB
+    let downloadedSize = 0;
+    const chunks: BlobPart[] = [];
+    const maxRetries = 3;
+
+    const downloadChunk = (start: number, retries = 0) => {
+        if (start >= totalSize) {
+            console.error("Rango de descarga fuera de los límites del archivo.");
+            return;
+        }
+
+        const end = Math.min(start + chunkSize - 1, totalSize - 1);
+        const headers = new HttpHeaders({ 'Range': `bytes=${start}-${end}` });
+
+        this.dash.downloadFileServer(this.arrTOKEN.iduser, this.folderData.id, fileDB.nameFile, headers)
+            .subscribe({
+                next: (data: Blob) => {
+                    chunks.push(data);
+                    downloadedSize += data.size;
+                    fileDB.downloadProgress = (downloadedSize / totalSize) * 100;
+
+                    if (downloadedSize < totalSize) {
+                        downloadChunk(start + chunkSize);
+                    } else {
+                        const blob = new Blob(chunks, { type: data.type });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = fileDB.nameFile;
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        fileDB.isDownloading = false;
+                        this._show_spinner = false;
+                        console.log('Archivo descargado');
+                    }
+                },
+                error: (err) => {
+                    if (retries < maxRetries) {
+                        console.warn(`Error en el rango ${start}-${end}, reintentando... (${retries + 1}/${maxRetries})`);
+                        downloadChunk(start, retries + 1);
+                    } else {
+                        fileDB.isDownloading = false;
+                        this._show_spinner = false;
+                        console.error('Error en la descarga del archivo:', err);
+                    }
+                }
+            });
+    };
+
+    downloadChunk(0);
+}
+
+
+  
   deleteFile(file: any, index: number) {
     Swal.fire({
       title: "Are you sure?",

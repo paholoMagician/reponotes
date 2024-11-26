@@ -280,7 +280,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   //   this.modelPushFolders.filter((f: any) => {
   //     this.notesServices.guardarTipoLista(f).subscribe({
   //       next: (x) => {
-  //         console.warn(x);
+  //         // console.warn(x);
   //         this.modelServerSetFolder.push(x);
   //       }, error: (e) => {
   //         console.error(e);
@@ -306,7 +306,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   //     this._show_spinner = true;
   //     this.notesServices.guardarLista(n).subscribe({
   //       next: (x) => {
-  //         console.warn('Nota guardada: ' + n)
+  //         // console.warn('Nota guardada: ' + n)
   //         this._show_spinner = false;
   //       }, error: (e) => {
   //         console.error(e);
@@ -354,7 +354,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   //     mergeMap(folder => 
   //       this.notesServices.guardarTipoLista(folder).pipe(
   //         tap((response) => {
-  //           console.warn('Carpeta guardada:', response);
+  //           // console.warn('Carpeta guardada:', response);
   //           this.modelServerSetFolder.push(response);
   //         }),
   //         catchError(error => {
@@ -388,7 +388,7 @@ export class InputPromptComponent implements OnInit, OnChanges {
   //     mergeMap((note:any) =>
   //       this.notesServices.guardarLista(note).pipe(
   //         tap(() => {
-  //           console.warn('Nota guardada:', note);
+  //           // console.warn('Nota guardada:', note);
   //         }),
   //         catchError(error => {
   //           console.error('Error al guardar nota:', error);

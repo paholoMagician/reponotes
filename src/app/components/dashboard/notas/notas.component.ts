@@ -45,7 +45,7 @@ export class NotasComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes) {
       if (this.folderId != null && this.folderId !== undefined) {
-        // console.warn(this.folderId)
+        // // console.warn(this.folderId)
         this.idFolder = this.folderId
       }
     }

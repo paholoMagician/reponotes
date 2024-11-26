@@ -7,6 +7,26 @@
     box-shadow: 5px 5px 10px rgba($color: #000000, $alpha: 0.3);
 }
 
+#minidthfile {
+    display: none;
+}
+
+@media screen and ( max-width: 900px ) {
+    #btns_file {
+        display: flex;
+        flex-direction: column !important;
+    }
+    
+    #minidthfile {
+        display: inherit;
+    }
+
+    #maxwidthfile {
+        display: none;
+    }
+}
+
+
 .iconbtn {
     cursor: pointer;
     transition: ease all 1s;
