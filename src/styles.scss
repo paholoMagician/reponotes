@@ -368,11 +368,12 @@ input:focus::placeholder {
 .btn-header {
   width: 40px;
   height: 40px;
-  border: groove 1px rgba(34, 130, 209, 0.804);
+  margin: 3px;
+  border: groove 1px rgb(40, 43, 46);
   justify-content: center;
   align-items: center;
   border-radius: 5px;
-  color: rgb(231, 244, 245);
+  color: rgb(224, 198, 5);
   background-color: #0000001e;
   padding: 7px;
   transition: ease all 0.5s;
@@ -404,25 +405,25 @@ input:focus::placeholder {
 }
 
 .footer {
-  background-color: #22337e;
+  background-color: #252422;
   position: fixed;
   bottom: 2px;
   width: 100%;
   padding: 10px;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
-  border: groove 2px rgb(35, 46, 94);
+  border: groove 2px rgb(62, 66, 82);
   left: 0;
   z-index: 10;
 }
 
 .header {
-  background-color: #22337e;
+  background-color: #35373f;
   position: relative;
   width: 100%;
   padding: 10px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  border: groove 2px rgb(35, 46, 94);
+  border: groove 2px rgb(94, 98, 110);
   left: 0;
 }

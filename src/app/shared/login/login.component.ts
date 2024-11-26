@@ -22,7 +22,6 @@ const Toast = Swal.mixin({
   }
 })
 
-
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -45,6 +44,7 @@ export class LoginComponent implements OnInit {
   showLogin: boolean = false;
 
   version: string = '';
+  date_update_version: string = '';
 
   registerFormOffLine = new FormGroup({
     emailx: new FormControl('')
@@ -64,6 +64,7 @@ export class LoginComponent implements OnInit {
     this.logUser.validacion();
     this.ingresarLog('log');
     this.version = this.env.version;
+    this.date_update_version = this.env.date_update_version;
     this.networkService.getOnlineStatus().subscribe((status: boolean) => {
       this.isConnected = status;
       // console.log('Conectado a Internet:', status);
@@ -75,78 +76,29 @@ export class LoginComponent implements OnInit {
   authGoogleClient() {
     this.authService.authState.subscribe((user) => {
       if (user) {
-        // console.log('Usuario ha iniciado sesión:', user);
+        console.log('Usuario ha iniciado sesión: ', user);
         // Maneja el éxito del inicio de sesión, quizás redirigir a otra página
         this._show_spinner = true;
         this.logUser.logingoogle(user.email).subscribe({
           next: (x: any) => {
-            sessionStorage.setItem('id', x.id);
-            sessionStorage.setItem('usuario', x.nombre);
-            sessionStorage.setItem('email', user.email);
+            this.registerForm.controls['email'].setValue(x.email);
+            this.registerForm.controls['password'].setValue(x.password);
             sessionStorage.setItem('usuarioImg', user.photoUrl);
-            Toast.fire({
-              icon: "success",
-              title: "Haz ingresado correctamente."
-            });
+            this.logIn();
           }, error: (e) => {
             this._show_spinner = false;
             console.error(e);
             Toast.fire({
               icon: "error",
-              title: "Algo ha pasado en nuestro servidor."
+              title: "Something happened on the server"
             });
           }, complete: () => {
-            this._show_spinner = false;
+            this._show_spinner = false;     
             this.router.navigate(['home']);
           }
         })
       }
     });
-  }
-
-  onSubmitOffline() {
-    if (this.registerFormOffLine.controls['emailx'].value == undefined || this.registerFormOffLine.controls['emailx'].value == null) {
-      Toast.fire({
-        icon: "warning",
-        title: "Debes escribir un email, para poder validarlo!"
-      });
-    } else {
-      let xdata: any = localStorage.getItem('data_tipo_lista');
-      let email: any = this.registerFormOffLine.controls['emailx'].value;
-      if (xdata != undefined || xdata != null) {
-        let data: any = xdata ? JSON.parse(xdata) : [];
-
-        if (data[0].email == email) {
-          sessionStorage.setItem('email', email);
-          sessionStorage.setItem('id', data[0].iduser);
-          sessionStorage.setItem('usuario', email.toString().slice(0, 6));
-          Toast.fire({
-            icon: "success",
-            title: "Ya tienes datos asociados a este correo.\n Ingreso correcto."
-          });
-          this.router.navigate(['home']);
-        }
-        else {
-          sessionStorage.setItem('email', email);
-          sessionStorage.setItem('usuario', email.toString().slice(0, 6));
-          sessionStorage.setItem('id', (0).toString());
-          Toast.fire({
-            icon: "success",
-            title: "Haz ingresado en modo offline."
-          });
-          this.router.navigate(['home']);
-        }
-      } else {
-        sessionStorage.setItem('email', email);
-        sessionStorage.setItem('id', (0).toString());
-        sessionStorage.setItem('usuario', email.toString().slice(0, 6));
-        Toast.fire({
-          icon: "success",
-          title: "Haz ingresado en modo offline."
-        });
-        this.router.navigate(['home']);
-      }
-    }
   }
 
   validateActionForm(action: string) {
@@ -314,7 +266,7 @@ export class LoginComponent implements OnInit {
           this.ingresarLog('log');
           setTimeout(() => {
             let x: any = sessionStorage.getItem('email');
-            // console.warn(x);
+            // // console.warn(x);
             this.registerForm.controls['email'].setValue(x);
           }, 1000);
           this._show_spinner = false;

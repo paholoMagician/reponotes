@@ -42,7 +42,7 @@ export class LoginService {
   }
 
   logingoogle(email: string) {
-    return this.http.get(this.env.apingRok + 'Usuario/obtenerUsuarioEmail/' + email);
+    return this.http.get(this.env.apingRok + 'Login/GetUser/' + email);
   }
 
 }

@@ -8,6 +8,7 @@ import Swal from 'sweetalert2'
 import { FormControl, FormGroup } from '@angular/forms';
 import { HttpEventType } from '@angular/common/http';
 import { take } from 'rxjs';
+import { Environments } from '../../environments/environments';
 
 const Toast = Swal.mixin({
   toast: true,
@@ -65,6 +66,8 @@ export class DashboardComponent implements OnInit {
   isExpired: boolean = false; // Indica si el token ha expirado
   activityTimeout: any; // Controla la inactividad del usuario
 
+  version: string = '';
+
   chunkProgress: number = 0;
   labelChunkProgress: string = '';
   labelProgress: string = '';
@@ -90,11 +93,13 @@ export class DashboardComponent implements OnInit {
     private log: LoginService,
     private cdr: ChangeDetectorRef,
     private networkService: NetworkService,
+    private env: Environments,
     private dash: DashboardService, private ncrypt: EncryptService) { }
 
   ngOnInit(): void {
     this.arrTOKEN = this.ncrypt.decodeJwtToken();
     this.log.validacion();
+    this.version = this.env.version;
     this.obtenerFileSize(this.arrTOKEN.iduser);
     const expirationTime = new Date(this.arrTOKEN.tiempoExp); // Fecha de expiración
     this.startTokenExpirationCheck(expirationTime);
@@ -136,7 +141,7 @@ export class DashboardComponent implements OnInit {
     localStorage.setItem('dataCloseSessionType', closeAutoType!.toString());
     localStorage.setItem('dataCloseSessionDate', dateNow);
     
-    // console.warn('Redirigiendo al login')
+    // // console.warn('Redirigiendo al login')
     this.router.navigate(['/login']);
 
   }
@@ -193,6 +198,8 @@ export class DashboardComponent implements OnInit {
       clearTimeout(this.activityTimeout); // Limpiar el timeout existente
     }
   }
+
+  
 
   formatTimeDifference(timeDifference: number): string {
     const totalSeconds = Math.floor(timeDifference / 1000);
@@ -254,8 +261,8 @@ export class DashboardComponent implements OnInit {
           )
       );
 
-      // console.warn('this.archivosFiltrados')
-      // console.warn(this.archivosFiltrados)
+      // // console.warn('this.archivosFiltrados')
+      // // console.warn(this.archivosFiltrados)
       // Añadir archivos filtrados a la cola
       this.archivosCola(this.archivosFiltrados, carpeta.nameFolder, carpeta.id);
 
@@ -280,8 +287,8 @@ export class DashboardComponent implements OnInit {
               archivoEnCola.nombre === nuevoArchivo.name && archivoEnCola.folderId === carpeta.id
           )
       );
-      // console.warn('this.archivosFiltrados')
-      // console.warn(this.archivosFiltrados)
+      // // console.warn('this.archivosFiltrados')
+      // // console.warn(this.archivosFiltrados)
       // Añadir archivos filtrados a la cola
       this.archivosCola(this.archivosFiltrados, carpeta.nameFolder, carpeta.id);
 
@@ -447,11 +454,13 @@ export class DashboardComponent implements OnInit {
 
   pesoActual: number = 0.0;
   obtenerFileSize(iduser: number) {
-    this.dash.obtenerPesoArchivos(iduser).subscribe({
-      next: (x: any) => {
-        this.pesoActual = x.totalSize;
-      }
-    })
+    if ( iduser !== null ) {
+      this.dash.obtenerPesoArchivos(iduser).subscribe({
+        next: (x: any) => {
+          this.pesoActual = x.totalSize;
+        }
+      })
+    }    
   }
 
   limpiar() {
@@ -467,15 +476,15 @@ export class DashboardComponent implements OnInit {
   interfazUpload(data: any) {
     this._file_upload_open = true;
     this.dataFolderSend = data;
-    // console.warn(this.dataFolderSend);
+    // // console.warn(this.dataFolderSend);
   }
 
   getFileUpdate(event: any) {
-    // console.warn(event);
+    // // console.warn(event);
   }
 
   getFileEmit(event: any) {
-    // console.warn(event)
+    // // console.warn(event)
     this._file_upload_open = event;
   }
 
@@ -568,8 +577,8 @@ export class DashboardComponent implements OnInit {
     this.dash.obtenerArchivos(this.arrTOKEN.iduser, folder.id).subscribe({
       next: (x) => {
         this.filelistEmit = x;
-        // console.warn('ARCHIVOS');
-        // console.warn(this.filelistEmit);
+        // // console.warn('ARCHIVOS');
+        // // console.warn(this.filelistEmit);
       }, error: (e) => {
         console.error(e);
         this._show_spinner = false
@@ -699,7 +708,7 @@ export class DashboardComponent implements OnInit {
   handleKeyboardEvent(event: KeyboardEvent) {
     if (event.ctrlKey && event.shiftKey && event.key === 'F') {
       this.listFolderActuallyDesktop = this.listaCarpetas;
-      // console.warn(this.listFolderActuallyDesktop)
+      // // console.warn(this.listFolderActuallyDesktop)
       this.createFolder();
     }
   }

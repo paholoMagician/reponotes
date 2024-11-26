@@ -4,23 +4,6 @@
     </div>
 </div>
 
-<!-- <div *ngIf="!isConnected" class="alert alert-warning d-flex justify-content-between">
-    <span> No estás conectado a Internet. > Trabajar Offline </span>
-    <form [formGroup]="registerFormOffLine" class="d-flex" (ngSubmit)="onSubmitOffline()">
-        <div class="d-flex align-content-center">
-            <label for="emailx" class="form-label text-secondary d-flex align-items-center">
-                <mat-icon>mail</mat-icon>Email:
-            </label>
-            <input class="form-control form-control-sm" formControlName="emailx" nombre="emailx" #emailx type="email"
-                id="emailx">
-        </div>
-        &nbsp;
-        <button type="submit" class="btn btn-outline-secondary btn-sm d-flex align-content-center shaddow-sm">
-            <mat-icon>wifi_off </mat-icon> <span> Seguir en offline </span>
-        </button>
-    </form>
-</div> -->
-
 <div class=" backdroop">
     <div class="login animate__animated animate__fadeIn ">
 
@@ -100,7 +83,7 @@
     </div>
     <div class="footer-login">
         <div class="version">
-            <small> <strong> {{version}} - updated! </strong> </small>
+            <small> <strong> {{version}} {{ date_update_version }} - updated! </strong> </small>
         </div>
     </div>
 </div>

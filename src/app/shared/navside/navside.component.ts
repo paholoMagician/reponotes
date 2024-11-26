@@ -22,7 +22,7 @@ export class NavsideComponent implements OnInit, OnChanges {
   listHistoryPrompts: any = []
   ngOnChanges(changes: SimpleChanges): void {
     if (changes) {
-      //console.warn('@Input(): ' + this.dataShowPrompt)
+      //// console.warn('@Input(): ' + this.dataShowPrompt)
       this.listHistoryPrompts.unshift(this.dataShowPrompt);
     }
   }
@@ -30,7 +30,7 @@ export class NavsideComponent implements OnInit, OnChanges {
   onSubmit() { }
 
   emitDataHistoryPrompt(data: any) {
-    //console.warn(data)
+    //// console.warn(data)
     this.dataHistoryToPromptRPN.emit(data)
   }
 
