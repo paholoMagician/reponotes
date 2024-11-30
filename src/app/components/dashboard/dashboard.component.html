@@ -4,224 +4,230 @@
     </div>
 </div>
 <div class="dashContains">
-<div class="header d-flex align-items-center justify-content-between">
-    <div class="d-flex align-items-center">
-        <!-- <div class="icon_button" >
+    <div class="header d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <!-- <div class="icon_button" >
             <mat-icon>
                 power_settings_new
             </mat-icon>
         </div> -->
-        &nbsp;
-        <div>
-            <img src="/assets/logotipo/logotipo-rfile-3.png"
-            width="70px"
-            height="auto">
-        </div>
-        &nbsp;
-        <div class="text-light" style="font-size: 9pt;">
-            <strong> {{version}} </strong>
-        </div>
-        <!-- <div style="font-size: 9pt;" class="text-light animate__animated animate__fadeIn">
+            &nbsp;
+            <div>
+                <img src="/assets/logotipo/logotipo-rfile-3.png" width="70px" height="auto">
+            </div>
+            &nbsp;
+            <div class="text-light" style="font-size: 9pt;">
+                <strong> {{version}} </strong>
+            </div>
+            <!-- <div style="font-size: 9pt;" class="text-light animate__animated animate__fadeIn">
             <label for="countdown">Token session expire in </label>
             &nbsp;
             <span id="countdown" style="color: yellowgreen;" class="animate__animated animate__fadeIn">
                 {{ countdown }}
             </span>
         </div> -->
+        </div>
+
+        <div class="btn-settings d-flex">
+            <div class="btn-header d-flex align-items-center justify-content-between" style="width: 170px !important;"
+                title="Create new folder ( CTRL+SHIFT+F )" (click)="createFolder()">
+                <mat-icon> create_new_folder </mat-icon> <span><strong> New Folder </strong></span>
+            </div>
+            <div class="btn-header" title="Force close session" (click)="closeSession(1)">
+                <mat-icon> power_settings_new </mat-icon>
+            </div>
+        </div>
+
     </div>
 
-    <div class="btn-settings d-flex">
-        <div class="btn-header d-flex align-items-center justify-content-between" style="width: 150px !important;" title="Create new folder ( CTRL+SHIFT+F )" (click)="createFolder()">
-              <mat-icon> create_new_folder </mat-icon> <span><strong> New Folder </strong></span>
-        </div>
-        <div class="btn-header" title="Force close session" (click)="closeSession(1)">
-            <mat-icon> power_settings_new </mat-icon>
-        </div>
-    </div>
-
-</div>
-
-<div class="label-help animate__animated animate__fadeIn" *ngIf="listaCarpetas.length == 0" > 
-    <div>
-        <strong> First steps. </strong>
-    </div>
-    <hr>
-    <div class="steps">
-        <div class="d-flex flex-column align-items-start mt-1 " >
-            <span style="text-align: left; font-size: 10pt;">
-                1. We like the organization, first create a folder with the CTRL+SHIFT+F key command <br> or simply 
-                click on the top right button 
-            </span>
-            <mat-icon style="color: rgb(35, 35, 35);" >create_new_folder</mat-icon>
-        </div>
-        <hr>
-        <div class="d-flex flex-column align-items-start mb-2" >
-            <span style="text-align: justify; font-size: 10pt;">
-                2.- Drag files towards that folder, or give click on the button with the folder name to upload files to the folder 
-            </span>
-            <mat-icon style="color: rgb(43, 43, 43);" >upload</mat-icon>
-        </div>
-        <hr>
-        <div class="d-flex flex-column align-items-start mb-2" >
-            <span style="text-align: justify; font-size: 10pt;">
-                3.- Give a click on the folder of your choice, and a menu will open with options depending on the membership acquired.
-            </span>
-        </div>
-    </div>
-</div>
-
-<div class="container-fluid p-2 d-flex flex-wrap " *ngIf="_show_app_online">
-    <div class="containerFolderDocs d-flex flex-column align-items-center animate__animated animate__bounceIn"
-        *ngFor="let carpeta of listaCarpetas; let i = index" [id]="'folder-'+carpeta.id"
-        (dblclick)="obtenerArchivosServerDB(carpeta)" (dragleave)="onDragLeave($event, carpeta)"
-        (dragenter)="onDragEnter($event)" (dragover)="onDragOver($event, carpeta)" (drop)="onDrop($event, carpeta)">
-        <div class="folder d-flex justify-content-center align-items-center" [ngClass]="{'active': carpeta.active}"
-            (contextmenu)="onRightClick($event, carpeta)" [matMenuTriggerFor]="menu" (click)="$event.preventDefault()">
-            <!-- Prevenir que el clic izquierdo abra el menú -->
-            <span class="badge badge-pill text-black badge-danger">{{carpeta.cantFile}}</span>
-        </div>
+    <div class="label-help animate__animated animate__fadeIn" *ngIf="listaCarpetas.length == 0">
         <div>
-            <!-- Input para seleccionar múltiples archivos -->
-            <input type="file" multiple (change)="onFilesSelected($event, carpeta)" style="display: none;" #fileInput />
-            <!-- Botón para abrir el selector de archivos -->
-            <button (click)="fileInput.click()" class="w-100 btn btn-sm btn-outline-warning d-flex align-items-center">
-                <mat-icon>upload</mat-icon>
-                <span> {{ carpeta.nameFolder }}</span>
-            </button>
+            <strong> <span>Hello! </span> > First steps. </strong>
         </div>
-        <!-- Menú contextual -->
-        <mat-menu #menu="matMenu">
-            <button mat-menu-item class="d-flex align-items-center" (click)="obtenerArchivosServerDB(carpeta)">
-                <mat-icon>folder_open</mat-icon>
-                <span> Abrir carpeta </span>
-            </button>
-            <button mat-menu-item class="d-flex align-items-center" (click)="deleteFolderEmpty(carpeta, i)">
-                <mat-icon>delete</mat-icon>
-                <span> Eliminar Carpeta </span>
-            </button>
-        </mat-menu>
-
-    </div>
-
-    <div
-        class="footer d-flex justify-content-between align-content-center flex-wrap p-2 mt-2 animate__animated animate__fadeIn">
-        <div class="connect text-warning d-flex align-content-center" *ngIf="!isConnected" style="font-size: 9pt;">
-            <mat-icon style="font-size: 15pt;">wifi_off</mat-icon>
-            &nbsp;
-            <span>No estás conectado a Internet.</span>
-        </div>
-        <div class="capacidad d-flex align-items-center">
-            <div class="capacidad-actual">Plan: {{ membresiaNombrePaquete }}</div>
-            &nbsp;|&nbsp;
-            <div class="capacidad-membresia" style="cursor: pointer;"
-                title="{{ (pesoActual / 1024) | number:'1.0-2' }} MB">
-                {{ (pesoActual) | number:'1.0-7' }} GB
-            </div>
-            &nbsp;de&nbsp;
-            <div class="capacidad-membresia" style="cursor: pointer;" [title]="membresiaDescripcion">
-                {{ capacidadGB }} GB
-            </div>
-        </div>
-        <div class="count_files p-1 rounded-2 d-flex justify-content-center align-items-center text-light"
-            style="border: groove 2px rgb(39, 39, 93);" (click)="show_cola_archivos = !show_cola_archivos">
-            <span class="d-flex align-items-center">
-                <mat-icon>inventory_2</mat-icon> &nbsp; {{ cantidadArchivosPorSubir }}
-            </span>
-            &nbsp;
-            <small>files uploading </small>
-        </div>
-    </div>
-
-    <!-- OTRAS APLICACIONES -->
-    <div class="archivos_cola animate__animated animate__fadeInBottomRight " *ngIf="archivosEnCola.length > 0">
-        <small class="p-2 text-warning mb-2 d-flex align-content-center rounded-2 shadow-sm"
-            >
-            <mat-icon>backup</mat-icon> &nbsp;
-            <span>Files in Progress</span>
-        </small>
-        <ul class="p-0">
-            <li *ngFor="let archivo of archivosEnCola" class="d-flex flex-column text-light p-0 m-1"
-                style="border-bottom: groove 2px rgb(40, 40, 110);">
-                <span class="d-flex align-content-center">
-                    <mat-icon>description</mat-icon> {{ archivo.nombre }}
+        <hr>
+        <div class="steps">
+            <div class="d-flex flex-column align-items-start mt-1 ">
+                <span style="text-align: left; font-size: 10pt;">
+                    1. We like the organization, first create a folder with the CTRL+SHIFT+F key command <br> or simply
+                    click on the top right button
                 </span>
-                <small class="archivo-detalle d-flex justify-content-between">
-                    <span class="text-warning d-flex align-items-center" style="font-size: 10pt;">
-                        <mat-icon>drive_folder_upload</mat-icon> {{ archivo.folder }}
-                    </span>
-                    <small class="archivo-detalle">{{ archivo.size }} - {{ archivo.progreso }} % </small>
-                </small>
-                <mat-progress-bar mode="determinate" [value]="archivo.progreso"></mat-progress-bar>
-            </li>
-        </ul>
-    </div>
-
-
-    <div *ngIf="_folder_open" class="window-function-overlay animate__animated animate__fadeIn">
-        <div class="window-function" cdkDrag>
-            <div class="title" cdkDragHandle>
-                <h6> Create Folder</h6>
-                <button type="button" (click)="_folder_open = false">
-                    <mat-icon>cancel</mat-icon>
-                </button>
+                <mat-icon style="color: rgb(35, 35, 35);">create_new_folder</mat-icon>
             </div>
-            <app-window-function [folderLists]="listFolderActuallyDesktop" (folerEmit)="getFolderOutput($event)">
-            </app-window-function>
+            <hr>
+            <div class="d-flex flex-column align-items-start mb-2">
+                <span style="text-align: justify; font-size: 10pt;">
+                    2.- Drag files towards that folder, or give click on the button with the folder name to upload files
+                    to the folder
+                </span>
+                <mat-icon style="color: rgb(43, 43, 43);">upload</mat-icon>
+            </div>
+            <hr>
+            <div class="d-flex flex-column align-items-start mb-2">
+                <span style="text-align: justify; font-size: 10pt;">
+                    3.- Give a click on the folder of your choice, and a menu will open with options depending on the
+                    membership acquired.
+                </span>
+            </div>
         </div>
     </div>
 
-    <div *ngIf="_folder_show" class="window-function-overlay animate__animated animate__fadeIn">
-        <div class="window-function" cdkDrag>
-            <div class="title" cdkDragHandle>
-                <div class="d-flex">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <mat-icon>perm_media</mat-icon>&nbsp;<span>../{{ folder_choice }}</span>
-                    </div>
-                    &nbsp;
-                    &nbsp;
-                    <div>
-                        <form [formGroup]="folderForm" class="mb-2">
-                            <div class="form-group mb-2 d-flex">
-                                <input type="text" id="searchItem" placeholder="Search items"
-                                    formControlName="searchItem" (keyup)="sendFilter()"
-                                    class="form-control rounded-pill">
-                            </div>
-                        </form>
-                    </div>
+    <div class="container-fluid p-2 d-flex flex-wrap " style="margin-bottom: 150px; height: 80vh; overflow-y: auto;"
+        *ngIf="_show_app_online">
+        <div class="containerFolderDocs d-flex flex-column align-items-center animate__animated animate__bounceIn"
+            *ngFor="let carpeta of listaCarpetas; let i = index" [id]="'folder-'+carpeta.id"
+            (dblclick)="obtenerArchivosServerDB(carpeta)" (dragleave)="onDragLeave($event, carpeta)"
+            (dragenter)="onDragEnter($event)" (dragover)="onDragOver($event, carpeta)" (drop)="onDrop($event, carpeta)"
+            style="height: 150px;">
+            <div class="folder d-flex justify-content-center align-items-center" [ngClass]="{'active': carpeta.active}"
+                (contextmenu)="onRightClick($event, carpeta)" [matMenuTriggerFor]="menu"
+                (click)="$event.preventDefault()">
+                <!-- Prevenir que el clic izquierdo abra el menú -->
+                <span class="badge badge-pill text-black badge-danger">{{carpeta.cantFile}}</span>
+            </div>
+            <div>
+                <!-- Input para seleccionar múltiples archivos -->
+                <input type="file" multiple (change)="onFilesSelected($event, carpeta)" style="display: none;"
+                    #fileInput />
+                <!-- Botón para abrir el selector de archivos -->
+                <button (click)="fileInput.click()"
+                    class="w-100 btn btn-sm btn-outline-warning d-flex align-items-center">
+                    <mat-icon>upload</mat-icon>
+                    <span> {{ carpeta.nameFolder }}</span>
+                </button>
+            </div>
+
+            <!-- Menú contextual -->
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item class="d-flex align-items-center" (click)="obtenerArchivosServerDB(carpeta)">
+                    <mat-icon>folder_open</mat-icon>
+                    <span> Abrir carpeta </span>
+                </button>
+                <button mat-menu-item class="d-flex align-items-center" (click)="deleteFolderEmpty(carpeta, i)">
+                    <mat-icon>delete</mat-icon>
+                    <span> Eliminar Carpeta </span>
+                </button>
+            </mat-menu>
+
+        </div>
+
+        <div
+            class="footer d-flex justify-content-between align-content-center flex-wrap p-2 mt-2 animate__animated animate__fadeIn">
+            <div class="connect text-warning d-flex align-content-center" *ngIf="!isConnected" style="font-size: 9pt;">
+                <mat-icon style="font-size: 15pt;">wifi_off</mat-icon>
+                &nbsp;
+                <span>No estás conectado a Internet.</span>
+            </div>
+            <div class="capacidad d-flex align-items-center">
+                <div class="capacidad-actual">Plan: {{ membresiaNombrePaquete }}</div>
+                &nbsp;|&nbsp;
+                <div class="capacidad-membresia" style="cursor: pointer;"
+                    title="{{ (pesoActual / 1024) | number:'1.0-2' }} MB">
+                    {{ (pesoActual) | number:'1.0-7' }} GB
                 </div>
-                <button type="button" (click)="_folder_show = false">
-                    <mat-icon>cancel</mat-icon>
-                </button>
+                &nbsp;de&nbsp;
+                <div class="capacidad-membresia" style="cursor: pointer;" [title]="membresiaDescripcion">
+                    {{ capacidadGB }} GB
+                </div>
             </div>
-            <app-folder-open [folderData]="dataEmitFolder" [fileFilter]="xfilter" [fileList]="filelistEmit">
-            </app-folder-open>
+            <div class="count_files p-1 rounded-2 d-flex justify-content-center align-items-center text-light"
+                style="border: groove 2px rgb(39, 39, 93);" (click)="show_cola_archivos = !show_cola_archivos">
+                <span class="d-flex align-items-center">
+                    <mat-icon>inventory_2</mat-icon> &nbsp; {{ cantidadArchivosPorSubir }}
+                </span>
+                &nbsp;
+                <small>files uploading </small>
+            </div>
         </div>
-    </div>
 
-    <div *ngIf="_file_upload_open" class="window-function-overlay animate__animated animate__fadeIn">
-        <div class="window-function" cdkDrag>
-            <div class="title" cdkDragHandle>
-                <h6>Upload files</h6>
-                <button type="button" (click)="_file_upload_open = false">
-                    <mat-icon>cancel</mat-icon>
-                </button>
-            </div>
-            <app-upload-file [carpetaList]="dataFolderSend" (folderEmit)="getFileUpdate($event)"
-                (fileEmit)="getFileEmit($event)">
-            </app-upload-file>
+        <!-- OTRAS APLICACIONES -->
+        <div class="archivos_cola animate__animated animate__fadeInBottomRight " *ngIf="archivosEnCola.length > 0">
+            <small class="p-2 text-warning mb-2 d-flex align-content-center rounded-2 shadow-sm">
+                <mat-icon>backup</mat-icon> &nbsp;
+                <span>Files in Progress</span>
+            </small>
+            <ul class="p-0">
+                <li *ngFor="let archivo of archivosEnCola" class="d-flex flex-column text-light p-0 m-1"
+                    style="border-bottom: groove 2px rgb(40, 40, 110);">
+                    <span class="d-flex align-content-center">
+                        <mat-icon>description</mat-icon> {{ archivo.nombre }}
+                    </span>
+                    <small class="archivo-detalle d-flex justify-content-between">
+                        <span class="text-warning d-flex align-items-center" style="font-size: 10pt;">
+                            <mat-icon>drive_folder_upload</mat-icon> {{ archivo.folder }}
+                        </span>
+                        <small class="archivo-detalle">{{ archivo.size }} - {{ archivo.progreso }} % </small>
+                    </small>
+                    <mat-progress-bar mode="determinate" [value]="archivo.progreso"></mat-progress-bar>
+                </li>
+            </ul>
         </div>
-    </div>
 
-    <div *ngIf="_notes_open" class="window-function-overlay animate__animated animate__fadeIn">
-        <div class="window-function" cdkDrag>
-            <div class="title" cdkDragHandle>
-                <h6>Notes editor</h6>
-                <button type="button" (click)="_notes_open = false">
-                    <mat-icon>cancel</mat-icon>
-                </button>
+
+        <div *ngIf="_folder_open" class="window-function-overlay animate__animated animate__fadeIn">
+            <div class="window-function" cdkDrag>
+                <div class="title" cdkDragHandle>
+                    <h6> Create Folder</h6>
+                    <button type="button" (click)="_folder_open = false">
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                </div>
+                <app-window-function [folderLists]="listFolderActuallyDesktop" (folerEmit)="getFolderOutput($event)">
+                </app-window-function>
             </div>
-            <app-notas style="overflow-y: auto;" [folderId]="notasId"></app-notas>
+        </div>
+
+        <div *ngIf="_folder_show" class="window-function-overlay animate__animated animate__fadeIn">
+            <div class="window-function" cdkDrag>
+                <div class="title" cdkDragHandle>
+                    <div class="d-flex">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <mat-icon>perm_media</mat-icon>&nbsp;<span>../{{ folder_choice }}</span>
+                        </div>
+                        &nbsp;
+                        &nbsp;
+                        <div>
+                            <form [formGroup]="folderForm" class="mb-2">
+                                <div class="form-group mb-2 d-flex">
+                                    <input type="text" id="searchItem" placeholder="Search items"
+                                        formControlName="searchItem" (keyup)="sendFilter()"
+                                        class="form-control rounded-pill">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <button type="button" (click)="_folder_show = false">
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                </div>
+                <app-folder-open [folderData]="dataEmitFolder" [fileFilter]="xfilter" [fileList]="filelistEmit">
+                </app-folder-open>
+            </div>
+        </div>
+
+        <div *ngIf="_file_upload_open" class="window-function-overlay animate__animated animate__fadeIn">
+            <div class="window-function" cdkDrag>
+                <div class="title" cdkDragHandle>
+                    <h6>Upload files</h6>
+                    <button type="button" (click)="_file_upload_open = false">
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                </div>
+                <app-upload-file [carpetaList]="dataFolderSend" (folderEmit)="getFileUpdate($event)"
+                    (fileEmit)="getFileEmit($event)">
+                </app-upload-file>
+            </div>
+        </div>
+
+        <div *ngIf="_notes_open" class="window-function-overlay animate__animated animate__fadeIn">
+            <div class="window-function" cdkDrag>
+                <div class="title" cdkDragHandle>
+                    <h6>Notes editor</h6>
+                    <button type="button" (click)="_notes_open = false">
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                </div>
+                <app-notas style="overflow-y: auto;" [folderId]="notasId"></app-notas>
+            </div>
         </div>
     </div>
-</div>
 </div>

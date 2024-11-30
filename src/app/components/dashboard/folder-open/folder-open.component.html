@@ -4,73 +4,64 @@
     </div>
 </div>
 
-
 <div class="p-2" id="maxwidthfile">
-    <div class="mb-2" *ngFor="let files of file; let i = index">
+    <div class="mb-2" *ngFor="let file of file; let i = index">
         <div class="d-flex justify-content-between align-items-center">
             <div class="fileDb col-6 d-flex align-items-center">
-                {{ i + 1 }} &nbsp;
-                <!-- <mat-icon>view_in_ar</mat-icon> -->
-                &nbsp;
-                <span class="file-name">{{ truncateFileName(files.nameFile, 25) }}</span>
-                <mat-progress-bar *ngIf="files.isDownloading" [value]="files.downloadProgress" mode="determinate"></mat-progress-bar>
+                {{ i + 1 }} &nbsp; &nbsp;
+                <span class="file-name">{{ truncateFileName(file.nameFile, 25) }}</span>
             </div>
-            <!-- title="{{ (files.size * 1024) | number:'1.0-7' }} MB" -->
+            <mat-progress-bar *ngIf="file.isDownloading" [value]="file.downloadProgress"
+                mode="determinate"></mat-progress-bar>
             <div class="fileDb col-2 d-flex align-items-center">
-                <span class="w-100" style="cursor: pointer; text-align: right;">{{ files.size }} GB</span>
+                <span class="w-100" style="cursor: pointer; text-align: right;">{{ file.size }} GB</span>
             </div>
-            <!-- <div class="fileDb col-1 d-flex justify-content-center align-items-center flex wrap" id="btns_file">
-                <div class="iconbtn d-flex align-content-center" (click)="downLoadFileServer(files)"
-                    title="Download file from server">
-                    <mat-icon>download</mat-icon>
-                </div>
-                &nbsp;
-                <div class="iconbtn d-flex align-content-center" (click)="deleteFile(files, i)"
-                    title="Delete file from server">
-                    <mat-icon>delete</mat-icon>
-                </div>
-            </div> -->
             <div class="fileDb d-flex justify-content-center align-items-center flex-wrap" id="btns_file">
                 <mat-menu #appMenu="matMenu">
-                    <button mat-menu-item (click)="downLoadFileServer(files)" title="Download file from server">
+                    <button mat-menu-item (click)="downloadFile(file)" [disabled]="file.isDownloading"
+                        title="Download file from server">
                         <mat-icon>download</mat-icon> Descargar
                     </button>
-                    <button mat-menu-item (click)="deleteFile(files, i)" title="Delete file from server">
+                    <button mat-menu-item (click)="deleteFile(file, i)" [disabled]="file.isDownloading"
+                        title="Delete file from server">
                         <mat-icon>delete</mat-icon> Eliminar
                     </button>
                 </mat-menu>
-                <button mat-icon-button [matMenuTriggerFor]="appMenu" >
-                    <mat-icon style="color: white;" >more_vert</mat-icon>
+                <button mat-icon-button [matMenuTriggerFor]="appMenu">
+                    <mat-icon style="color: white;">more_vert</mat-icon>
                 </button>
             </div>
         </div>
     </div>
 </div>
 
+
 <div class="p-2" id="minidthfile">
     <ul class="mb-2 p-0 text-light" *ngFor="let files of file; let i = index">
-        <li class="d-flex p-2 justify-content-between align-items-center" style="border-bottom: groove 2px rgb(40, 61, 86);">
+        <li class="d-flex p-2 justify-content-between align-items-center"
+            style="border-bottom: groove 2px rgb(40, 61, 86);">
             <div class="d-flex flex-column justify-content-center align-items-start">
                 <div>
                     {{ i + 1 }}.
                     <span class="file-name">{{ truncateFileName(files.nameFile, 25) }}</span>
                 </div>
                 <div class="d-flex align-items-center ">
-                    &nbsp;&nbsp;&nbsp; <small class="w-100 text-warning" style="cursor: pointer; text-align: right;">{{ files.size }} GB</small>
+                    &nbsp;&nbsp;&nbsp; <small class="w-100 text-warning" style="cursor: pointer; text-align: right;">{{
+                        files.size }} GB</small>
                 </div>
             </div>
             <!-- title="{{ (files.size * 1024) | number:'1.0-7' }} MB" -->
             <div class="d-flex justify-content-center align-items-center flex-wrap" id="btns_file">
                 <mat-menu #appMenu="matMenu">
-                    <button mat-menu-item (click)="downLoadFileServer(files)" title="Download file from server">
+                    <button mat-menu-item (click)="downloadFile(files)" title="Download file from server">
                         <mat-icon>download</mat-icon> Descargar
                     </button>
                     <button mat-menu-item (click)="deleteFile(files, i)" title="Delete file from server">
                         <mat-icon>delete</mat-icon> Eliminar
                     </button>
                 </mat-menu>
-                <button mat-icon-button [matMenuTriggerFor]="appMenu" >
-                    <mat-icon style="color: white;" >more_vert</mat-icon>
+                <button mat-icon-button [matMenuTriggerFor]="appMenu">
+                    <mat-icon style="color: white;">more_vert</mat-icon>
                 </button>
             </div>
         </li>
