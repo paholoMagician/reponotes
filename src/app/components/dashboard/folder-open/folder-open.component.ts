@@ -3,6 +3,7 @@ import { DashboardService } from '../services/dashboard.service';
 import { EncryptService } from '../../../shared/services/encrypt.service';
 import Swal from 'sweetalert2'
 import { HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 @Component({
   selector: 'app-folder-open',
   templateUrl: './folder-open.component.html',
@@ -62,68 +63,134 @@ export class FolderOpenComponent implements OnInit, OnChanges {
   //   });
   // }
 
-  downLoadFileServer(fileDB: any) {
-    this._show_spinner = true;
+  // private getFileMetadata(
+  //   email: string,
+  //   folderName: string,
+  //   fileName: any
+  // ): Observable<number> {
+  //   // Implementar una solicitud para obtener el tamaño del archivo, o ajustar tu API para devolverlo
+  //   // Por ejemplo:
+  //   // return this.fileService.getFileSize(email, folderName, fileName);
+  //   // Aquí retornamos un observable con un valor ficticio
+  //   return new Observable((observer) => {
+  //     observer.next(5000000000); // Reemplaza con el tamaño real del archivo
+  //     observer.complete();
+  //   });
+  // }
 
-    // Inicializar propiedades
-    fileDB.isDownloading = fileDB.isDownloading ?? true;
-    fileDB.downloadProgress = fileDB.downloadProgress ?? 0;
+  // downloadFile(file: any) {
+  //   const chunkSize = 1048576; // 1 MB en bytes
+  //   let start = 0;
 
-    const totalSize = fileDB.size * 1024 * 1024 * 1024; // Convertir tamaño a bytes
-    const chunkSize = 1024 * 1024; // Tamaño del chunk: 1 MB
-    let downloadedSize = 0;
-    const chunks: BlobPart[] = [];
-    const maxRetries = 3;
+  //   // Convierte el tamaño del archivo a bytes
+  //   const totalSize = file.size * 1024 ** 3;
 
-    const downloadChunk = (start: number, retries = 0) => {
-        if (start >= totalSize) {
-            console.error("Rango de descarga fuera de los límites del archivo.");
-            return;
-        }
+  //   // Indicador de descarga
+  //   file.isDownloading = true;
+  //   file.downloadProgress = 0;
 
-        const end = Math.min(start + chunkSize - 1, totalSize - 1);
-        const headers = new HttpHeaders({ 'Range': `bytes=${start}-${end}` });
+  //   const chunks: Blob[] = [];
 
-        this.dash.downloadFileServer(this.arrTOKEN.iduser, this.folderData.id, fileDB.nameFile, headers)
-            .subscribe({
-                next: (data: Blob) => {
-                    chunks.push(data);
-                    downloadedSize += data.size;
-                    fileDB.downloadProgress = (downloadedSize / totalSize) * 100;
+  //   const downloadChunk = () => {
+  //     const end = Math.min(start + chunkSize - 1, totalSize - 1);
+  //     const rangeHeader = `bytes=${start}-${end}`;
 
-                    if (downloadedSize < totalSize) {
-                        downloadChunk(start + chunkSize);
-                    } else {
-                        const blob = new Blob(chunks, { type: data.type });
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = fileDB.nameFile;
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                        fileDB.isDownloading = false;
-                        this._show_spinner = false;
-                        console.log('Archivo descargado');
-                    }
-                },
-                error: (err) => {
-                    if (retries < maxRetries) {
-                        console.warn(`Error en el rango ${start}-${end}, reintentando... (${retries + 1}/${maxRetries})`);
-                        downloadChunk(start, retries + 1);
-                    } else {
-                        fileDB.isDownloading = false;
-                        this._show_spinner = false;
-                        console.error('Error en la descarga del archivo:', err);
-                    }
-                }
-            });
+  //     this.dash
+  //       .getFileChunk(this.arrTOKEN.iduser, this.folderData.id, file.nameFile, rangeHeader)
+  //       .subscribe({
+  //         next: (chunk) => {
+  //           chunks.push(chunk);
+  //           start += chunkSize;
+
+  //           // Actualizar progreso
+  //           file.downloadProgress = Math.min((start / totalSize) * 100, 100);
+
+  //           console.log('Downloading file:', file.nameFile);
+  //           console.log('Folder ID:', file.idFolder);
+  //           console.log('File size (in bytes):', totalSize);
+  //           console.log('Range header:', rangeHeader);
+
+  //           if (start < totalSize) {
+  //             downloadChunk(); // Descarga el siguiente fragmento
+  //           } else {
+  //             // Combinar todos los fragmentos en un solo archivo
+  //             const fileBlob = new Blob(chunks);
+  //             const url = window.URL.createObjectURL(fileBlob);
+  //             const a = document.createElement('a');
+  //             a.href = url;
+  //             a.download = file.nameFile;
+  //             a.click();
+  //             window.URL.revokeObjectURL(url);
+
+  //             file.isDownloading = false; // Finaliza la descarga
+  //           }
+  //         },
+  //         error: (err) => {
+  //           console.error('Error descargando el fragmento:', err);
+  //           file.isDownloading = false;
+  //           file.downloadProgress = 0;
+  //         },
+  //       });
+  //   };
+
+  //   downloadChunk();
+  // }
+
+  downloadFile(file: any) {
+
+    console.log('Tamanio en GB: ' + file.size);
+
+    const chunkSize = 1048576; // Tamaño de cada fragmento (1 MB)
+    const totalSize = file.size * 1024 ** 3; // Verificar si file.size está en GB o bytes
+    let start = 0; // Inicio del rango
+    const chunks: Blob[] = []; // Para almacenar los fragmentos descargados
+
+    console.log('Tamanio en BYTES: ' + totalSize);
+
+
+    const downloadChunk = () => {
+      const end = Math.min(start + chunkSize - 1, totalSize - 1); // Ajuste para evitar exceder totalSize
+      const rangeHeader = `bytes=${start}-${end}`;
+
+      // Solicitar el fragmento
+      this.dash
+        .getFileChunk(this.arrTOKEN.iduser, file.idFolder, file.nameFile, rangeHeader)
+        .subscribe({
+          next: (chunk) => {
+            chunks.push(chunk);
+            start += chunkSize; // Avanza al siguiente rango
+            console.log(start);
+            // Actualizar progreso
+            file.downloadProgress = Math.min((start / totalSize) * 100, 100);
+            if (start < totalSize) {
+              downloadChunk(); // Continuar descargando
+            } else {
+              // Combinar los fragmentos descargados
+              const fileBlob = new Blob(chunks);
+              const url = window.URL.createObjectURL(fileBlob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = file.nameFile;
+              a.click();
+              window.URL.revokeObjectURL(url);
+
+              file.isDownloading = false; // Finaliza la descarga
+            }
+          },
+          error: (err) => {
+            console.error('Error descargando el fragmento:', err);
+            file.isDownloading = false;
+            file.downloadProgress = 0; // Reinicia progreso en caso de error
+          },
+        });
     };
 
-    downloadChunk(0);
-}
+    downloadChunk(); // Inicia la descarga del primer fragmento
+  }
 
 
-  
+
+
   deleteFile(file: any, index: number) {
     Swal.fire({
       title: "Are you sure?",

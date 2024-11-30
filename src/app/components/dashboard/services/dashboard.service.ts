@@ -17,6 +17,21 @@ export class DashboardService {
 
   constructor(private http: HttpClient, private env: Environments) { }
 
+  getFileChunk(
+    email: string,
+    folderName: string,
+    fileName: string,
+    rangeHeader: string
+  ): Observable<Blob> {
+    const url = `${this.env.apingRok}storage/getFileChunk/${email}/${folderName}/${fileName}`;
+    const headers = this.headers.set('Range', rangeHeader);
+
+    return this.http.get(url, {
+      headers,
+      responseType: 'blob', // Manejo de binarios
+    });
+  }
+
 
   obtenerFolders(idUser: number, tipoFolder: string, idFolder: number) {
     return this.http.get(this.env.apingRok + 'Folder/getFolder/' + idUser + '/' + tipoFolder + '/' + idFolder, { headers: this.headers });
@@ -61,16 +76,6 @@ export class DashboardService {
   //     responseType: 'blob'  // Especifica que el tipo de respuesta es un Blob (archivo binario)
   //   });
   // }
-
-
-  downloadFileServer(idUser: string, idFolder: string, fileName: string, headers: HttpHeaders): Observable<Blob> {
-    const url = `${this.env.apingRok}storage/getFile/${idUser}/${idFolder}/${fileName}`;
-    return this.http.get(url, {
-        headers: headers,
-        responseType: 'blob' as 'json'
-    }).pipe(map((response: any) => response));
-  }
-
 
   guardarArchivos(model: any[]) {
     return this.http.post(this.env.apingRok + 'filesDB/FileCreate', model, { headers: this.headers });

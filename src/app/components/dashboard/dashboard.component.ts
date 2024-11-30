@@ -140,7 +140,7 @@ export class DashboardComponent implements OnInit {
     localStorage.setItem('dataCloseSessionEmail', this.arrTOKEN.email);
     localStorage.setItem('dataCloseSessionType', closeAutoType!.toString());
     localStorage.setItem('dataCloseSessionDate', dateNow);
-    
+
     // // console.warn('Redirigiendo al login')
     this.router.navigate(['/login']);
 
@@ -199,7 +199,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  
+
 
   formatTimeDifference(timeDifference: number): string {
     const totalSeconds = Math.floor(timeDifference / 1000);
@@ -299,7 +299,8 @@ export class DashboardComponent implements OnInit {
 
   archivosCola(files: File[], carpeta: string, idFolder: number) {
     files.forEach((file: File) => {
-      const sizeInMB = (file.size / (1024 * 1024)).toFixed(2); // Convertir tamaño a MB
+      const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+      // Convertir tamaño a MB
       this.archivosEnCola.push({
         nombre: file.name,
         size: `${sizeInMB} MB`,
@@ -312,6 +313,7 @@ export class DashboardComponent implements OnInit {
   }
 
 
+  /** Funcion para subir archivos por medio de CHUNK MULTIPART */
   async subirArchivos(archivos: File[], carpeta: any) {
 
     // Agrupar archivos por carpeta.id
@@ -454,13 +456,13 @@ export class DashboardComponent implements OnInit {
 
   pesoActual: number = 0.0;
   obtenerFileSize(iduser: number) {
-    if ( iduser !== null ) {
+    if (iduser !== null) {
       this.dash.obtenerPesoArchivos(iduser).subscribe({
         next: (x: any) => {
           this.pesoActual = x.totalSize;
         }
       })
-    }    
+    }
   }
 
   limpiar() {
