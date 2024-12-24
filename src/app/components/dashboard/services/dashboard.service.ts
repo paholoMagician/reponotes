@@ -28,8 +28,9 @@ export class DashboardService {
 
     return this.http.get(url, {
       headers,
-      responseType: 'blob', // Manejo de binarios
+      responseType: 'blob',
     });
+
   }
 
 

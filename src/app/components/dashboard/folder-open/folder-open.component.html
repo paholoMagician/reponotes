@@ -8,11 +8,21 @@
     <div class="mb-2" *ngFor="let file of file; let i = index">
         <div class="d-flex justify-content-between align-items-center">
             <div class="fileDb col-6 d-flex align-items-center">
-                {{ i + 1 }} &nbsp; &nbsp;
-                <span class="file-name">{{ truncateFileName(file.nameFile, 25) }}</span>
+                <div> {{ i + 1 }} </div>
+                &nbsp;
+                <div class="d-flex flex-column w-100">
+                    <span class="file-name w-100">{{ truncateFileName(file.nameFile, 25) }}</span>
+                    <div class="d-flex w-100 align-items-center mt-2 animate__animated animate__fadeIn"
+                        *ngIf="file.isDownloading">
+                        <!-- *ngIf="file.isDownloading" -->
+                        <mat-progress-bar class="w-75" [value]="file.downloadProgress"
+                            mode="determinate"></mat-progress-bar>
+                        &nbsp;
+                        <span>{{file.downloadProgress | number: '1.2-2'}} %</span>
+                    </div>
+                </div>
             </div>
-            <mat-progress-bar *ngIf="file.isDownloading" [value]="file.downloadProgress"
-                mode="determinate"></mat-progress-bar>
+
             <div class="fileDb col-2 d-flex align-items-center">
                 <span class="w-100" style="cursor: pointer; text-align: right;">{{ file.size }} GB</span>
             </div>
@@ -36,14 +46,26 @@
 </div>
 
 
+
 <div class="p-2" id="minidthfile">
     <ul class="mb-2 p-0 text-light" *ngFor="let files of file; let i = index">
         <li class="d-flex p-2 justify-content-between align-items-center"
             style="border-bottom: groove 2px rgb(40, 61, 86);">
             <div class="d-flex flex-column justify-content-center align-items-start">
-                <div>
-                    {{ i + 1 }}.
-                    <span class="file-name">{{ truncateFileName(files.nameFile, 25) }}</span>
+                <div class="d-flex align-items-start">
+                    <div> {{ i + 1 }}. </div>
+                    <div class="d-flex flex-column w-100">
+                        <span class="file-name w-100">{{ truncateFileName(files.nameFile, 25) }}</span>
+                        <div class="d-flex w-100 align-items-center mt-2 animate__animated animate__fadeIn"
+                            *ngIf="files.isDownloading">
+                            <!-- *ngIf="file.isDownloading" -->
+                            <mat-progress-bar class="w-75" [value]="files.downloadProgress"
+                                mode="determinate"></mat-progress-bar>
+                            &nbsp;
+                            <span style="font-size: 9pt; width: 120px;">{{files.downloadProgress | number: '1.2-2'}}
+                                %</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="d-flex align-items-center ">
                     &nbsp;&nbsp;&nbsp; <small class="w-100 text-warning" style="cursor: pointer; text-align: right;">{{
