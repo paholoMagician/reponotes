@@ -320,6 +320,14 @@ export class DashboardComponent implements OnInit {
     const archivosPorCarpeta = new Map<number, File[]>();
 
     archivos.forEach((file) => {
+
+      console.warn('------------------------------------');
+      console.warn('------------------------------------');
+      console.warn('TAMANIO DEL ARTCHIVO');
+      console.warn(file.size);
+      console.warn('------------------------------------');
+      console.warn('------------------------------------');
+
       const carpetaId = carpeta.id;
       if (!archivosPorCarpeta.has(carpetaId)) {
         archivosPorCarpeta.set(carpetaId, []);
@@ -509,6 +517,12 @@ export class DashboardComponent implements OnInit {
     this._show_spinner = true;
 
     if (nameFile != undefined || nameFile != null) {
+      // Convertir tamaño de KB a bytes y redondear el valor
+      const sizeInBytes = Math.round(size * 1024);
+
+      // Imprimir tamaños para debug
+      console.log("Tamaño original (KB):", size);
+      console.log("Tamaño convertido y redondeado (Bytes):", sizeInBytes);
 
       this.modelFileServerDb = {
         "position": 1,
@@ -519,7 +533,7 @@ export class DashboardComponent implements OnInit {
         "password": "",
         "type": "",
         "idFolder": carpetaList,
-        "size": size
+        "size": sizeInBytes
       }
 
       this.dash.guardarArchivos(this.modelFileServerDb).subscribe({
@@ -550,6 +564,8 @@ export class DashboardComponent implements OnInit {
     }
 
   }
+
+
 
 
   obtenerCarpetas() {
